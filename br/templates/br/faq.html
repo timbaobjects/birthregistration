@@ -1,0 +1,207 @@
+{% extends "br/base.html" %}
+{% block title %}FAQ{% endblock %}
+{% block stylesheets %}
+<style type="text/css">
+	footer{margin-top: 13.5em;}
+	.panel-default>.panel-heading{color: #333; background-color: #f5f5f5; border-color: #ddd;}
+	.panel-default{border:1px solid #f5f5f5; margin-bottom: 8px;}
+	.panel-title > a:hover,.panel-title > a:focus{text-decoration: none;}
+	.panel-title i{color: #198FA0;}
+	h4.panel-title{font-size: 13.5px; text-align: left; color:#198FA0;}
+	.panel-body{color: #333;}
+</style>
+{% endblock %}
+{% block content %}
+<div class ="container">
+	<div class="row filter">
+		<div class="col-md-12">
+			<p class="lead">Frequently Asked Questions</p>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-md-12">
+			<div class="panel-group" id="accordion">
+			<div class="panel panel-default">
+		        <div class="panel-heading">
+		          <h4 class="panel-title">
+		            <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" class="">
+		              1. How do I register
+		              <i class="indicator glyphicon glyphicon-plus pull-right"></i>
+		            </a>
+		          </h4>
+		        </div>
+		        <div id="collapseOne" class="panel-collapse collapse">
+		          <div class="panel-body">
+		            With a working phone and SIM card registered on the MTN or Airtel networks, simply send BR REGISTER [9-DIGIT CENTER CODE] BR [NAME] to 24453. Example “Br register 300015001 br Usman Uche” The system then sends you a reply acknowledging your registration.
+		          </div>
+		        </div>
+		      </div>
+		      <div class="panel panel-default">
+		        <div class="panel-heading">
+		          <h4 class="panel-title">
+		            <a data-toggle="collapse" data-parent="#accordion" href="#collapseTwo" class="collapsed">
+		              2. How do I get or know my Center Code?
+		              <i class="indicator glyphicon glyphicon-plus  pull-right"></i>
+		            </a>
+		          </h4>
+		        </div>
+		        <div id="collapseTwo" class="panel-collapse collapse" style="height: 0px;">
+		          <div class="panel-body">
+		            Centre Codes are issued by the System administrator and are given out to H.O.Ds. Your H.O.D. or Comptroller will show you your 9 digit centre code.
+		          </div>
+		        </div>
+		      </div>
+		      <div class="panel panel-default">
+		        <div class="panel-heading">
+		          <h4 class="panel-title">
+		            <a data-toggle="collapse" data-parent="#accordion" href="#collapseThree" class="collapsed">
+		              3. How do I send my Birth Registration Reports?
+		              <i class="indicator glyphicon glyphicon-plus  pull-right"></i>
+		            </a>
+		          </h4>
+		        </div>
+		        <div id="collapseThree" class="panel-collapse collapse" style="height: 0px;">
+		          <div class="panel-body">
+		            Twice a month, on the 15th and last day of each month (28th, 29th, 30th or 31st, depending on the length of the month) you are expected to send in your reports to the dashboard in the following format: <br><br>
+            		BR REPORT M [NUMBER OF BOYS UNDER 1] [NUMBER OF BOYS 1-4 ] [NUMBER OF BOYS 5-9] [NUMBER OF BOYS 10 AND ABOVE] F [NUMBER OF GIRLS UNDER 1] [NUMBER OF GIRLS 1-4 ] [NUMBER OF GIRLS 5-9] [NUMBER OF GIRLS 10 AND ABOVE] to 24453. <br><br>
+            		Example “Br report M 2 3 4 5 F 6 8 2 9”.
+            		The system then sends you a reply which is a replica of your report. Please go through it to ensure it is exactly what you intended to send. If the response from the system is different what you intended to send, please see Question 5 below.
+		          </div>
+		        </div>
+		      </div>
+		      <div class="panel panel-default">
+		        <div class="panel-heading">
+		          <h4 class="panel-title">
+		            <a data-toggle="collapse" data-parent="#accordion" href="#collapseFour" class="">
+		              4. How do I send in a late report?
+		              <i class="indicator glyphicon glyphicon-plus  pull-right"></i>
+		            </a>
+		          </h4>
+		        </div>
+		        <div id="collapseFour" class="panel-collapse collapse">
+		          <div class="panel-body">
+		            In the event you were unable to send in a report when it was due (15th or last day of the month), simply compose your report as usual and add the date the report is for. That is after typing out the report, add the date it belongs to at the end of the report then send to 24453. The date has to be in the format DD/MM/YYYY. <br><br>		            
+					Example “Br report M 2 3 4 5 F 6 8 2 9 15/08/2014”.
+					This automatically sends the report to the date you specified in the SMS.<br><br>
+					<strong>NOTE: You can not send in a report that is later than 90 days.</strong>
+		          </div>
+		        </div>
+		      </div>
+		      <div class="panel panel-default">
+		        <div class="panel-heading">
+		          <h4 class="panel-title">
+		            <a data-toggle="collapse" data-parent="#accordion" href="#collapseFive" class="">
+		              5. There is an error in my report, what do I do? (Overwrite Function)
+		              <i class="indicator glyphicon glyphicon-plus  pull-right"></i>
+		            </a>
+		          </h4>
+		        </div>
+		        <div id="collapseFive" class="panel-collapse collapse">
+		          <div class="panel-body">
+		            In the event you realise what you sent in is not what you intended to. Or what is reflected on the dashboard is not what you should have sent, please use the Overwrite Function.
+		            All you need do is send in the correct version of the report with the same date as the error report to 24453. <br><br>
+		            Example Usman sent in “Br report M 12 9 5 1 F 14 15 8 4” for mid-August.
+		            However, the number of Under-1 boys is 21 and not 12. All he has to do is replace the error report by sending the correct one “Br report M 21 9 5 1 F 14 15 8 4 15/08/2014” 
+		            The new (correct) report automatically replaces the old (error) report. <br><br>
+					<strong>NOTE: The Overwrite Function does not work on reports older than 90 days.</strong>
+		          </div>
+		        </div>
+		      </div>
+		      <div class="panel panel-default">
+		        <div class="panel-heading">
+		          <h4 class="panel-title">
+		            <a data-toggle="collapse" data-parent="#accordion" href="#collapseSix" class="">
+		              6. I have been transfered to a new Registration Center. What do I do?
+		              <i class="indicator glyphicon glyphicon-plus  pull-right"></i>
+		            </a>
+		          </h4>
+		        </div>
+		        <div id="collapseSix" class="panel-collapse collapse">
+		          <div class="panel-body">
+		            Simply obtain the 9-Digit Centre Code for the new Registration Centre (from the Comptroller or H.O.D.) and register as in Question 1 above.
+		          </div>
+		        </div>
+		      </div>
+		      <div class="panel panel-default">
+		        <div class="panel-heading">
+		          <h4 class="panel-title">
+		            <a data-toggle="collapse" data-parent="#accordion" href="#collapseSeven" class="">
+		              7. I lost my Phone/SIM card OR my SIM card is damaged OR I got a new line.
+		              <i class="indicator glyphicon glyphicon-plus  pull-right"></i>
+		            </a>
+		          </h4>
+		        </div>
+		        <div id="collapseSeven" class="panel-collapse collapse">
+		          <div class="panel-body">
+		            If you lose your phone/SIM card, kindly purchase another SIM card and do any of the following:<br><br>
+            		(a) If you retrieve your old line and therefore retain the same phone number, you can simply continue sending in your report as usual.<br>
+            		(b) If you are unable to retrieve the old line and can’t retain the same phone number, simply register your new number with the network, then register again with your 9-Digit Centre Code with RapidSMS by texting your registration SMS to 24453 as in Question 1 above. <br><br>
+           			If your SIM card is damaged, kindly follow steps (a) and (b) above.
+            		If you get a new line, it has to be one of the RapidSMS enabled network (MTN and Airtel) then you follow step (b) above.
+		          </div>
+		        </div>
+		      </div>
+		      <div class="panel panel-default">
+		        <div class="panel-heading">
+		          <h4 class="panel-title">
+		            <a data-toggle="collapse" data-parent="#accordion" href="#collapseEight" class="">
+		              8. We need our new Registration Centre(s) on the dashboard, we need the 9-digit Centre Code(s) and we want to start sending in reports from them.
+		              <i class="indicator glyphicon glyphicon-plus  pull-right"></i>
+		            </a>
+		          </h4>
+		        </div>
+		        <div id="collapseEight" class="panel-collapse collapse">
+		          <div class="panel-body">
+		            Whenever a new Centre is opened and manned by a Registrar, a requests should be forwarded for the inclusion of the centre on the RapidSMS Dashboard. The H.O.D. should compile all new centre requests in an excel sheet using the following format:<br><br>
+
+		            <table class="table table-bordered table-condensed table-striped">
+		            	<tr>
+		            		<td width="350">State</td>
+		            		<td width="350">LGA</td>
+		            		<td>Center Name</td>
+		            	</tr>
+		            	<tr>
+		            		<td>&nbsp;</td>
+		            		<td>&nbsp;</td>
+		            		<td>&nbsp;</td>
+		            	</tr>
+		            </table>
+
+            		After filling the excel sheet out with all the New Centre requests, it should be attached in a mail and sent to the officer in charge at NPopC HQ for authorisation.
+		          </div>
+		        </div>
+		      </div>
+		      <div class="panel panel-default">
+		        <div class="panel-heading">
+		          <h4 class="panel-title">
+		            <a data-toggle="collapse" data-parent="#accordion" href="#collapseNine" class="">
+		              9. I didn't get a response SMS from rapidSMS.
+		              <i class="indicator glyphicon glyphicon-plus  pull-right"></i>
+		            </a>
+		          </h4>
+		        </div>
+		        <div id="collapseNine" class="panel-collapse collapse">
+		          <div class="panel-body">
+		            In the event you sent in a registration request or a Birth Registration report and you do not get a response SMS, follow the below steps.<br><br>
+            		(a) If there is no response to a registration SMS, this may be a network issue. Do not resend your message. Simply try sending a Birth Registration report, when due, to confirm your registration.<br>
+            		(b) If there is no response to a Birth Registration SMS, this may be a network issue. Do not resend your message. After 15 minutes of sending the report, please check (or have your monitor check) the dashboard to ascertain if the report reached the dashboard or not. If the report has not shown up on the dashboard after this time (15 minutes), you may send the report again.
+		          </div>
+		        </div>
+		      </div>
+		    </div>
+		</div>
+	</div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script type="text/javascript">
+function toggleChevron(e) {
+    $(e.target)
+        .prev('.panel-heading')
+        .find('i.indicator')
+        .toggleClass('glyphicon-plus glyphicon-minus');
+}
+$('#accordion').on('hidden.bs.collapse', toggleChevron);
+$('#accordion').on('shown.bs.collapse', toggleChevron);
+</script>
+{% endblock %}

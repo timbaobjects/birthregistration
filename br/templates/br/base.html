@@ -1,0 +1,53 @@
+{% load compressed staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>{% block title %}{% endblock %}</title>
+	{% compressed_css 'dashboard' %}
+	{% compressed_js 'dashboard' %}
+	{% block stylesheets %}{% endblock %}
+  </head>
+  <body class="with-3d-shadow">
+	<div id="wrap">
+	  <div class="navbar navbar-default navbar-fixed-top">
+		<div class="container">
+		  <div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+			  <span class="icon-bar"></span>
+			  <span class="icon-bar"></span>
+			  <span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" href="{% url 'dashboard' %}"><img src="{% static "img/rapidsms-dashboard.png" %}"></a>
+		  </div>
+		  <div class="collapse navbar-collapse">
+			<ul class="nav navbar-nav pull-right">
+			  <li><a href="{% url 'reports_list' %}"><i class="glyphicon glyphicon-list"></i> Reports</a></li>
+			  <li><a href="{% url 'faq' %}"><i class="glyphicon glyphicon-question-sign"></i> FAQ</a></li>
+			  {% if user.is_authenticated %}
+			  <li><a href="{% url 'center_list' %}"><i class="glyphicon glyphicon-map-marker"></i> Centers</a></li>
+			  <li><a href="{% url 'rapidsms-logout' %}"><i class="glyphicon glyphicon-log-out"></i> Logout {{ user.username }}</a></li>
+			  {% endif %}
+			</ul>
+		  </div>
+		</div>
+	  </div>
+	{% block content %}{% endblock %}
+</div>
+	<footer>
+	      <div class="container">
+	        <div class="row">
+	          <div class="col-md-8">
+	            <p></p>
+	            <p>Copyright &copy; 2013 &middot; <a href="http://www.qtsnigeria.com/">National Population Commission</a> | <a href="http://www.unicef.org/nigeria/">UNICEF Nigeria </a></p>
+	          </div>
+	          <div class="col-md-4">
+	            <p class="pull-right"><a href="http://www.qtsnigeria.com/"><img src="{% static "img/NPC-logo.png" %}"></a> &nbsp;<a href="http://www.unicef.org/nigeria/"><img src="{% static "img/unicef-logo.gif" %}"></a> &nbsp;<a href="http://www.nigeria.gov.ng/index.php"><img src="{% static "img/frn-logo.png" %}"></a></p>
+	          </div>
+	        </div>
+	      </div>
+		</footer>
+	{% block scripts %} {% endblock %}
+</body>
+</html>

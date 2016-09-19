@@ -1,0 +1,48 @@
+{% extends "br/base.html" %}
+{% load bootstrap3 location_tags %}
+{% load compressed staticfiles %}
+{% block stylesheets %}
+{% compressed_css 'centers' %}
+{% endblock %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block content %}
+<div class="container">
+	<div class="row filter">
+		<div class="col-md-12">
+			<table class="table table-striped table-bordered">
+				<caption>Results</caption>
+				<thead>
+					<tr>
+						<th>State</th>
+						<th>LGA</th>
+						<th>Name</th>
+						<th>Code</th>
+						<th>Message</th>
+					</tr>
+				</thead>
+				<tbody>
+				{% if creation_log %}
+				{% for log in creation_log %}
+				<tr class="{% if log.success %}success{% else %}danger{% endif %}">
+					
+					<td>{{ log.state|default_if_none:'N/A' }}</td>
+					<td>{{ log.lga|default_if_none:'N/A' }}</td>
+					<td>{{ log.name|default_if_none:'N/A' }}</td>
+					<td>{{ log.code|default_if_none:'N/A' }}</td>
+					<td>{{ log.message }}</td>
+				</tr>
+				{% endfor %}
+				{% else %}
+				<tr class="warning">
+					<td colspan="5">No centers created</td>
+				</tr>
+				{% endif %}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</div>
+{% endblock %}
+{% block scripts %}
+{% compressed_js 'centers' %}
+{% endblock %}

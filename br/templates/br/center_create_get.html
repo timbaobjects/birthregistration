@@ -1,0 +1,93 @@
+{% extends "br/base.html" %}
+{% load bootstrap3 location_tags %}
+{% load compressed staticfiles %}
+{% block stylesheets %}
+{% compressed_css 'centers' %}
+{% endblock %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block content %}
+<div class="container">
+	<div class="row filter">
+	</div>
+	<div class="row">
+		<div class="col-md-12" id="grid"></div>
+	</div>
+	<div class="row">
+		<form method="POST">
+			<div class="col-md-12">
+				{% csrf_token %}
+				{{ group_form }}
+				<p>&nbsp;</p>
+			</div>
+			<div class="col-md-12">
+				<button id="post_location_data" type="button" class="btn btn-primary">Save</button>
+				<p id="locations" data-locations="{{ location_data }}">&nbsp;</p>
+			</div>
+		</form>
+	</div>
+</div>
+{% endblock %}
+{% block scripts %}
+{% compressed_js 'centers' %}
+<script>
+	var container = document.getElementById('grid');
+	var location_data = JSON.parse(document.getElementById('locations').dataset.locations);
+	var states = [];
+	for (var prop in location_data)
+		if (location_data.hasOwnProperty(prop))
+			states.push(prop);
+
+	function onChange(changes, source) {
+		if (!changes)
+			return;
+
+		var instance = this;
+		changes.forEach(function(change) {
+			var row = change[0];
+			var col = change[1];
+			var newValue = change[3];
+			var cellProperties, options;
+
+			if (col == 'state') {
+				cellProperties = instance.getCellMeta(row, 1);
+				setDropdownSource.call(instance, row, newValue);
+				instance.render();
+			}
+		});
+	}
+
+	function setDropdownSource (row, value) {
+		var instance = this;
+		var options = location_data[value];
+		var cellProperties = instance.getCellMeta(row, 1);
+		cellProperties.source = options;
+	}
+
+	var handsOnTable = new Handsontable(container, {
+		data: [],
+		dataSchema: {state: null, lga: null, name: null, code: null},
+		startRows: 10,
+		startCols: 4,
+		colHeaders: ['State', 'LGA', 'Name', 'Code'],
+		columns: [
+			{data: 'state', type: 'dropdown', source: states},
+			{data: 'lga', type: 'dropdown'},
+			{data: 'name'},
+			{data: 'code'}
+		],
+		minSpareRows: 1,
+		stretchH: 'all',
+		afterChange: onChange
+	});
+
+	function onSubmit () {
+		var form = this.form;
+		var center_data = handsOnTable.getData().slice(0, -1);  // remove extra empty row
+		form.elements['center_data'].value = JSON.stringify(center_data);
+		form.submit();
+	}
+
+	var submitBtn = document.getElementById('post_location_data');
+	submitBtn.onclick = onSubmit;
+</script>
+{% endblock %}

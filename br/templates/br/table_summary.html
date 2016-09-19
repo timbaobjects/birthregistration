@@ -1,0 +1,72 @@
+{% load br_analysis_tags %}
+<table class="table-responsive">
+<table class="table data-table table-condensed">
+<thead>
+<tr>
+<th>Location</th>
+<th><i class="glyphicon glyphicon-question-sign"></i></th>
+<th colspan="4">Under 1</th>
+<th colspan="4">1 to 4</th>
+<th colspan="4">Above 5</th>
+<th>Total</th>
+<th></th>
+<th colspan="2">Performance</th>
+</tr>
+<tr>
+<th colspan="2"></th>
+<th>Boys</th>
+<th>Girls</th>
+<th>Total</th>
+<th></th>
+<th>Boys</th>
+<th>Girls</th>
+<th>Total</th>
+<th></th>
+<th>Boys</th>
+<th>Girls</th>
+<th>Total</th>
+<th></th>
+<th></th>
+<th></th>
+<th>Under 1</th>
+<th>1 to 4</th> 
+</tr>
+</thead>
+<tbody>
+{% for row in summary %}
+<tr>
+<td>{{ row.name }} &middot; <span class="muted"><em>{{ row.type }}</em></span></td>
+<td>
+{% if row.missing %}
+<img src="red_dot.png">
+{% endif %}
+</td>
+<td>{{ row.boys_below1 }}</td>
+<td>{{ row.girls_below1 }}</td>
+<td>{{ row.subtotal_below_1 }}</td>
+<td class="table-pie"><svg class="table-chart"></svg></td>
+<td>{{ row.boys_1to4 }}</td>
+<td>{{ row.girls_1to4 }}</td>
+<td>{{ row.subtotal_1to4 }}</td>
+<td class="table-pie"><svg class="table-chart"></svg></td>
+<td>{{ row.boys_5andup }}</td>
+<td>{{ row.girls_5andup }}</td>
+<td>{{ row.subtotal_5andup }}</td>
+<td class="table-pie"><svg class="table-chart"></svg></td>
+<td>{{ row.total }}</td>
+<td class="table-bar"><svg class="table-chart"></svg></td>
+{% if row.performance_under_1 %}
+<td><span class="{{ row.performance_under_1|performance_class }}">{{ row.performance_under_1|floatformat:"-2" }}%</span></td>
+{% else %}
+<td></td>
+{% endif %}
+{% if row.performance_under_5 %}
+<td><span class="{{ row.performance_under_5|performance_class }}">{{ row.performance_under_5|floatformat:"-2" }}%</span></td>
+{% else %}
+<td></td>
+{% endif %}
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</table>

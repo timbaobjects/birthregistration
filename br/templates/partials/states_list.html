@@ -1,0 +1,13 @@
+<script language="javascript">
+$(document).ready(function () {
+  var baseurl = "{{ baseurl }}";
+  $("#states").change(function () { location.href=baseurl + this.value; });
+});
+</script>
+<strong>Choose State:</strong>
+<select name="states" id="states">
+<option value=""> - select state - </option>
+{% for state in states %}
+<option value="{{ state.code }}"{% if state.selected %} selected="selected"{% endif %}>{{ state.name }}</option>
+{% endfor %}
+</select>

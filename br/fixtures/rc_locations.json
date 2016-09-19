@@ -1,0 +1,247 @@
+[
+  {
+    "pk": 8, 
+    "model": "locations.locationtype", 
+    "fields": {
+      "name": "Registration Center"
+    }
+  }, 
+  {
+    "pk": 74199, 
+    "model": "locations.location", 
+    "fields": {
+      "code": "110025003", 
+      "rgt": 53278, 
+      "name": "Major Ibrahim Hospital, Sabon Gari", 
+      "parent": 42294, 
+      "level": 4, 
+      "longitude": null, 
+      "lft": 53277, 
+      "tree_id": 38, 
+      "latitude": null, 
+      "type": 8, 
+      "population": 0
+    }
+  }, 
+  {
+    "pk": 74188, 
+    "model": "locations.location", 
+    "fields": {
+      "code": "110205002", 
+      "rgt": 51384, 
+      "name": "Fadan Kagoma PHC", 
+      "parent": 41358, 
+      "level": 4, 
+      "longitude": null, 
+      "lft": 51383, 
+      "tree_id": 38, 
+      "latitude": null, 
+      "type": 8, 
+      "population": 0
+    }
+  }, 
+  {
+    "pk": 74198, 
+    "model": "locations.location", 
+    "fields": {
+      "code": "110025002", 
+      "rgt": 53276, 
+      "name": "Family Health Clinic, Samaru", 
+      "parent": 42294, 
+      "level": 4, 
+      "longitude": null, 
+      "lft": 53275, 
+      "tree_id": 38, 
+      "latitude": null, 
+      "type": 8, 
+      "population": 0
+    }
+  }, 
+  {
+    "pk": 74190, 
+    "model": "locations.location", 
+    "fields": {
+      "code": "110205004", 
+      "rgt": 51388, 
+      "name": "General Hospital Kafanchan", 
+      "parent": 41358, 
+      "level": 4, 
+      "longitude": null, 
+      "lft": 51387, 
+      "tree_id": 38, 
+      "latitude": null, 
+      "type": 8, 
+      "population": 0
+    }
+  }, 
+  {
+    "pk": 74196, 
+    "model": "locations.location", 
+    "fields": {
+      "code": "110105006", 
+      "rgt": 51740, 
+      "name": "General Hospital Kawo", 
+      "parent": 41528, 
+      "level": 4, 
+      "longitude": null, 
+      "lft": 51739, 
+      "tree_id": 38, 
+      "latitude": null, 
+      "type": 8, 
+      "population": 0
+    }
+  }, 
+  {
+    "pk": 74189, 
+    "model": "locations.location", 
+    "fields": {
+      "code": "110205003", 
+      "rgt": 51386, 
+      "name": "Godogodo PHC", 
+      "parent": 41358, 
+      "level": 4, 
+      "longitude": null, 
+      "lft": 51385, 
+      "tree_id": 38, 
+      "latitude": null, 
+      "type": 8, 
+      "population": 0
+    }
+  }, 
+  {
+    "pk": 74192, 
+    "model": "locations.location", 
+    "fields": {
+      "code": "110105002", 
+      "rgt": 51732, 
+      "name": "Kaduna State Office (Annex) Kaduna", 
+      "parent": 41528, 
+      "level": 4, 
+      "longitude": null, 
+      "lft": 51731, 
+      "tree_id": 38, 
+      "latitude": null, 
+      "type": 8, 
+      "population": 0
+    }
+  }, 
+  {
+    "pk": 74194, 
+    "model": "locations.location", 
+    "fields": {
+      "code": "110105004", 
+      "rgt": 51736, 
+      "name": "LGA Secretariat, Magajin Gari-Doka", 
+      "parent": 41528, 
+      "level": 4, 
+      "longitude": null, 
+      "lft": 51735, 
+      "tree_id": 38, 
+      "latitude": null, 
+      "type": 8, 
+      "population": 0
+    }
+  }, 
+  {
+    "pk": 74187, 
+    "model": "locations.location", 
+    "fields": {
+      "code": "110205001", 
+      "rgt": 51382, 
+      "name": "NPC Office, Jema'a", 
+      "parent": 41358, 
+      "level": 4, 
+      "longitude": null, 
+      "lft": 51381, 
+      "tree_id": 38, 
+      "latitude": null, 
+      "type": 8, 
+      "population": 0
+    }
+  }, 
+  {
+    "pk": 74193, 
+    "model": "locations.location", 
+    "fields": {
+      "code": "110105003", 
+      "rgt": 51734, 
+      "name": "NPC Office, Kaduna North", 
+      "parent": 41528, 
+      "level": 4, 
+      "longitude": null, 
+      "lft": 51733, 
+      "tree_id": 38, 
+      "latitude": null, 
+      "type": 8, 
+      "population": 0
+    }
+  }, 
+  {
+    "pk": 74197, 
+    "model": "locations.location", 
+    "fields": {
+      "code": "110025001", 
+      "rgt": 53274, 
+      "name": "NPC Office, Opp. NIPOST, PZ, Zaria", 
+      "parent": 42294, 
+      "level": 4, 
+      "longitude": null, 
+      "lft": 53273, 
+      "tree_id": 38, 
+      "latitude": null, 
+      "type": 8, 
+      "population": 0
+    }
+  }, 
+  {
+    "pk": 74200, 
+    "model": "locations.location", 
+    "fields": {
+      "code": "110025004", 
+      "rgt": 53280, 
+      "name": "PHC, Beside NITEL, Hanwa GRA, S/Gari", 
+      "parent": 42294, 
+      "level": 4, 
+      "longitude": null, 
+      "lft": 53279, 
+      "tree_id": 38, 
+      "latitude": null, 
+      "type": 8, 
+      "population": 0
+    }
+  }, 
+  {
+    "pk": 74195, 
+    "model": "locations.location", 
+    "fields": {
+      "code": "110105005", 
+      "rgt": 51738, 
+      "name": "PHC, Ungwan Rimi", 
+      "parent": 41528, 
+      "level": 4, 
+      "longitude": null, 
+      "lft": 51737, 
+      "tree_id": 38, 
+      "latitude": null, 
+      "type": 8, 
+      "population": 0
+    }
+  }, 
+  {
+    "pk": 74191, 
+    "model": "locations.location", 
+    "fields": {
+      "code": "110105001", 
+      "rgt": 51730, 
+      "name": "State Office, Badarawa", 
+      "parent": 41528, 
+      "level": 4, 
+      "longitude": null, 
+      "lft": 51729, 
+      "tree_id": 38, 
+      "latitude": null, 
+      "type": 8, 
+      "population": 0
+    }
+  }
+]

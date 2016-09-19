@@ -1,0 +1,65 @@
+{% load compressed %}<html>
+<head>
+	<title>{{ page_title }}</title>
+	{% compressed_css 'rapidsms' %}
+</head>
+<style type="text/css">
+.table th{background: #eee;}
+.table th.center, .table td.center {
+    text-align: center;
+     .nav .dropdown-toggle .caret{border-top-color:#ffffff;}
+     .nav .dropdown-toggle .caret:hover{border-top-color:#ffffff;}
+}
+body,html{
+ height:100%;
+}
+.container{
+ min-height:100%;
+}
+.footer{
+ height:40px;
+ margin-top:40px;
+}
+</style>
+<body>
+	<div class="container-fluid">
+		<div class="span10 offset1">
+			<div class="navbar navbar-static-top nav_pad">
+			  <div class="navbar-inner nav_pad">
+			    <a class="brand" href="#"><img src="{{ STATIC_URL }}img/rapidsms.png"></a>
+			    <a class="pull-right" href="#"><img class="brand" src="{{ STATIC_URL }}img/npopc.png" style="padding-top:.8em;"></a>
+			    <a class="pull-right" href="#"><img class="brand" src="{{ STATIC_URL }}img/frn.png" style="padding-top:.9em;"></a>
+			  </div>
+			</div>
+			<!-- navigation: start -->
+			<div class="navbar navbar-static-top">
+				<div class="navbar-inner1">
+					<ul class="nav">
+					  <li class=""><a href="{% url 'reports_list' %}"><i class="icon-list"></i> Reports</a></li>
+					</ul>
+					<ul class="nav pull-right">
+						<div class="btn-group">
+							<a class="btn btn-info dropdown-toggle" data-toggle="dropdown" href="#"><i class="icon-user icon-white"></i> {{ request.user.username }} <span class="caret"></span></a>
+							<ul class="dropdown-menu pull-right">
+							<li><a href="{% url 'user-logout' %}">Logout</a></li>
+							</ul>
+						</div>
+					</ul>
+				</div>
+			</div>
+			<!-- navigation: end -->
+			<h3 class="h_style">{{ page_title }}</h3>
+		</div>
+	</div>
+	{% block content %}
+	{% endblock %}
+	<div class="container-fluid">
+		<div class="footer">
+			<div class="span10 offset1">
+				<p style="font-size:12;">Copyright &copy; 2013 &middot; National Population Commission</p>
+			</div>
+		</div>
+	</div>
+	{% compressed_js 'rapidsms' %}
+</body>
+</html>

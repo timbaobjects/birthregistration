@@ -1,0 +1,77 @@
+{% extends "br/base.html" %}
+{% load bootstrap3 location_tags %}
+{% load compressed staticfiles %}
+{% block stylesheets %}
+{% compressed_css 'centers' %}
+{% endblock %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block content %}
+<div class="container">
+	<div class="row filter">
+		<div class="col-md-12">
+			<h3>{{ page_title }}</h3>
+			<div class="well">
+				<form class="form-inline">
+					<div class="form-group">
+						<div class="input-group">
+							<label class="sr-only" for="lga">LGA</label>
+							{{ filter_form.lga }}
+						</div>
+					</div>
+					<button type="submit" class="btn btn-warning">Filter</button>
+					<button id="reset-btn" class="btn btn-default">Reset</button>
+				</form>
+			</div>
+			<table class="table table-bordered table-striped table-hover">
+				<thead>
+					<tr>
+						<th>State</th>
+						<th>LGA</th>
+						<th>Name</th>
+						<th>Active</th>
+						<th>Edit</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for center in centers %}
+					{% with ancestors=center.get_ancestors %}
+					<tr>
+						<td>{{ ancestors|extract_ancestor_name:'State' }}</td>
+						<td>{{ ancestors|extract_ancestor_name:'LGA' }}</td>
+						<td>{{ center.name }}</td>
+						{% if center.active %}
+						<td class="success"><i class="glyphicon glyphicon-ok"></i></td>
+						{% else %}
+						<td class="danger"><i class="glyphicon glyphicon-remove"></i></td>
+						{% endif %}
+						<td><a href="{% url 'center_edit' center.pk %}">Edit</a></td>
+					</tr>
+					{% endwith %}
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+		<div class="col-md-12 text-center">
+			{% bootstrap_pagination page_obj %}
+		</div>
+	</div>
+</div>
+{% endblock %}
+{% block scripts %}
+{% compressed_js 'centers' %}
+<script type="text/javascript">
+$(document).ready(function () {
+	$('#id_lga').select2({
+		placeholder: 'LGA',
+		width: 'resolve'
+	});
+
+	$('#reset-btn').click(function (){
+	    form = $(this).parents('form');
+	    $('input[name!="csrfmiddlewaretoken"]', form).each(function (id, el) { $(el).val(""); });
+	    $('select', form).each(function (id, el) { $(el).val(""); });
+	    $(form).submit();
+	});
+});
+</script>
+{% endblock %}

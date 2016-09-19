@@ -1,0 +1,13 @@
+<script language="javascript">
+$(document).ready(function () {
+  var statesurl = "{{ month_baseurl }}{{ month_state_id }}/";
+  $("#month_selector").change(function () { location.href=statesurl + this.value; });
+});
+</script>
+<strong>Choose Month:</strong>
+<select name="month_selector" id="month_selector">
+<option value=""> - select month - </option>
+{% for month in months %}
+<option value="{{ month.year }}/{{ month.month }}"{% if month.selected %} selected="selected"{% endif %}>{{ month.name }}</option>
+{% endfor %}
+</select>

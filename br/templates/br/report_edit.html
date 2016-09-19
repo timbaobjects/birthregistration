@@ -1,0 +1,76 @@
+{% extends "br/layout.html" %}
+{% block content %}
+	<div class="container-fluid">
+		<form method="POST" action="">
+		{% csrf_token %}
+		<div class="span10 offset1">
+			<table class="table table-bordered" style="font-size:14px;">
+				<tr>
+					<th width="20%">State</th>
+					<td>{{ report.location.parent.parent.name }}</td>
+				</tr>
+				<tr>
+					<th>LGA</th>
+					<td>{{ report.location.parent.name }}</td>
+				</tr>
+				<tr>
+					<th>Facility</th>
+					<td>{{ report.location.name }}</td>
+				</tr>
+				<tr>
+					<th>Reporter</th>
+					<td>{{ report.reporter.full_name }}</td>
+				</tr>
+				<tr>
+					<th>Phone</th>
+					<td>{{ report.connection.identity }}</td>
+				</tr>
+			</table>
+			<table class="table table-bordered table-striped" style="font-size:14px;">
+				<tr>
+					<th colspan="2">Reported Data</th>
+				</tr>
+				<tr>
+					<th width="20%">Boys &lt; 1</th>
+					<td><input class="span2" name="{{ report_form.boys_below1.name }}" value="{{ report_form.boys_below1.value }}" type="text" style="height:30;"></td>
+				</tr>
+				<tr>
+					<th>Boys 1 - 4</th>
+					<td><input class="span2" name="{{ report_form.boys_1to4.name }}" value="{{ report_form.boys_1to4.value }}" type="text" style="height:30;"></td>
+				</tr>
+				<tr>
+					<th>Boys 5 - 9</th>
+					<td><input class="span2" name="{{ report_form.boys_5to9.name }}" value="{{ report_form.boys_5to9.value }}" type="text" style="height:30;"></td>
+				</tr>
+				<tr>
+					<th>Boys 10 - 17</th>
+					<td><input class="span2" name="{{ report_form.boys_10to18.name }}" value="{{ report_form.boys_10to18.value }}" type="text" style="height:30;"></td>
+				</tr>
+				<tr>
+					<th width="20%">Girls &lt; 1</th>
+					<td><input class="span2" name="{{ report_form.girls_below1.name }}" value="{{ report_form.girls_below1.value }}" type="text" style="height:30;"></td>
+				</tr>
+				<tr>
+					<th>Girls 1 - 4</th>
+					<td><input class="span2" name="{{ report_form.girls_1to4.name }}" value="{{ report_form.girls_1to4.value }}" type="text" style="height:30;"></td>
+				</tr>
+				<tr>
+					<th>Girls 5 - 9</th>
+					<td><input class="span2" name="{{ report_form.girls_5to9.name }}" value="{{ report_form.girls_5to9.value }}" type="text" style="height:30;"></td>
+				</tr>
+				<tr>
+					<th>Girls 10 - 17</th>
+					<td><input class="span2" name="{{ report_form.girls_10to18.name }}" value="{{ report_form.girls_10to18.value }}" type="text" style="height:30;"></td>
+				</tr>
+				<tr>
+					<th>&nbsp;</th>
+					<th>
+						<button class="btn btn-style btn-large btn-info" type="submit" style="font-weight:normal;">Save</button>
+						<a class="btn btn-style btn-large btn-default" style="font-weight:normal" href="{% url 'reports_list' %}">Cancel</a>
+					</th>
+				</tr>
+			</table>
+		</div>
+		</form>
+	</div>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% load compressed staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Page Not Found</title>
+    {% compressed_css 'dashboard' %}
+    {% compressed_js 'dashboard' %}
+  </head>
+
+  <body class="with-3d-shadow">
+    <div class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#"><img src="{% static "img/rapidsms-dashboard.png" %}"></a>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6 col-md-offset-3" style="text-align:center; margin-top:14em;">
+        <legend style="border-bottom:0px; margin-bottom:0px;">Oh No! Looks like you're lost!</legend>
+        <p>Don't freak out, maybe you entered the wrong address or clicked a bad link! Who knows, this could even be a fluke! :) I recommend you either verify the address or click the back arrow (&larr;) at the top left corner of the page, and cross-check the action you were trying to perform!</p>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,545 @@
+{% extends "br/base.html" %}
+{% load br_analysis_tags humanize %}
+{% block title %}Birth Registration Statistics · {{ location.name|lower|title }}{% endblock %}
+{% block content %}
+	  <!-- Begin page content -->
+	<div class="container">
+	  <div class="row filter">
+			<div class="col-md-3">
+				<p class="lead">Birth Registration Statistics</p>
+			</div>
+			<div class="col-md-9">
+				<form action="" method="GET" id="export"><input type="hidden" name="export" value="✓" />
+			  <ul class="nav nav-pills pull-right">
+			  {% for yr in year_range %}
+			  {% if location.type.name == "Country" %}
+					<li{% if yr == year %} class="active"{% endif %}><a href="{% url 'dashboard_with_year' yr %}">{{ yr }}</a></li>
+				{% else %}{% with location.name|lower|slugify as state %}
+					<li{% if yr == year %} class="active"{% endif %}><a href="{% url 'dashboard_with_state_and_year' state yr %}">{{ yr }}</a></li>{% endwith %}
+				{% endif %}
+				{% endfor %}
+				{% if month %}
+					<li class="dropdown active"><a class="dropdown-toggle" data-toggle="dropdown" href="javascript:;">{% month_name month %} <span class="caret"></span></a>
+				{% else %}
+					<li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="javascript:;">Month <span class="caret"></span></a>
+				{% endif %}
+				  	<ul class="dropdown-menu pull-right">
+				  	{% for mth in month_range %}
+				  		{% if location.type.name == 'Country' %}
+				  		<li{% if mth == month %} class="active"{% endif %}><a href="{% url 'dashboard_with_year_and_month' year mth %}">{% month_name mth %}</a></li>
+				  		{% else %}{% with location.name|lower|slugify as state %}
+				  		<li{% if mth == month %} class="active"{% endif %}><a href="{% url 'dashboard_with_state_year_and_month' state year mth %}">{% month_name mth %}</a></li>{% endwith %}
+				  		{% endif %}
+				  	{% endfor %}
+				  	</ul>
+					</li>
+ 					<li><a href="javascript:;" id="export_button">Export</a></li>
+			  </ul>
+			  <ul class="nav nav-pills pull-right" style="margin-right:3em">
+					<li {% if location.type.name == "Country" %}class="active"{% endif %}><a href="{% url 'dashboard' %}">Nigeria</a></li>
+				{% if location.type.name == "Country" %}
+					<li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="javascript:;">State <span class="caret"></span></a>
+				{% else %}
+					<li class="dropdown active"><a class="dropdown-toggle" data-toggle="dropdown" href="#">{{ location.name|lower|title }} <span class="caret"></span></a>
+				{% endif %}
+				  	<ul class="dropdown-menu">
+					{% for state in states %}{% with state|lower|slugify as state_slug %}
+						{% if state == location.name %}
+							<li class="active"><a href="{% url 'dashboard_with_state' state_slug %}">{{ state|lower|title }}</a></li>
+						{% else %}
+							<li><a href="{% url 'dashboard_with_state' state_slug %}">{{ state|lower|title }}</a></li>
+						{% endif %}{% endwith %}
+					{% endfor %}
+				  	</ul>
+					</li>
+			  </ul>
+			  <ul class="nav nav-pills pull-right" style="margin-right:3em;">
+			  	{% if cumulative %}
+				  <li class="active"><a id="cumulative" href="#">Cumulative</a></li>
+				  <li><a id="monthly" href="#">Monthly</a></li>
+				{% else %}
+				  <li><a id="cumulative" href="#">Cumulative</a></li>
+				  <li class="active"><a id="monthly" href="#">Monthly</a></li>
+				{% endif %}
+			  </ul>
+			  </form>
+			</div>
+		</div>
+      <div class="row grand-summary">
+        <div class="col-md-4">
+          <div class="panel pan panel-default" style="padding-bottom:4px;">
+            <div class="panel-body">
+              <h5>Centers</h5>
+              <h4>{{ location.center_count }}</h4>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="panel pan panel-default">
+            <div class="panel-body">
+              <h5>Under 1 Performance</h5>
+              <h4><span class="{% location_performance_class location dataframe_summary year month 'below1' %}">{% location_performance_pct location dataframe_summary year month 'below1' %}%</span></h4>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="panel pan panel-default">
+            <div class="panel-body">
+              <h5>Under 5 Performance</h5>
+              <h4><span class="{% location_performance_class location dataframe_summary year month '1to4' %}">{% location_performance_pct location dataframe_summary year month '1to4' %}%</span></h4>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+	  <div class="row">
+		<div class="col-md-6">
+		  <div class="row grand-summary">
+			<div class="col-md-4">
+			  <h4 class="text-muted">Under 1</h4>
+			  <h1>{{ dataframe_summary.below1.sum|intcomma }}</h1>
+			  <div id="chart"><svg></svg></div>
+			</div>
+			<div class="col-md-4">
+			  <h4 class="text-muted">Under 5</h4>
+			  <h1>{{ dataframe_summary.below1.sum|add:dataframe_summary.1to4.sum|intcomma }}</h1>
+			  <div id="chart1"><svg></svg></div>
+				
+			</div>
+			<div class="col-md-4">
+			  <h4 class="text-muted">Above 5</h4>
+			  <h1>{{ dataframe_summary.above5.sum|intcomma }}</h1>
+			  <div id="chart2"><svg></svg></div>
+			</div>
+		  </div>
+		</div>
+		<div class="col-md-6">
+		  <div id="chart3"><svg></svg></div>
+		</div>
+	  </div>
+	  <div class="row">
+			<div class="col-md-12">
+				<div class="table-responsive">
+					<table class="table data-table table-condensed table-hover">
+						<thead>
+							<tr>
+								<th rowspan="">{% if location.type.name == 'Country' %}States{% else %}LGAs{% endif %}</th>
+								<th rowspan=""></th>
+								<th colspan="3" style="text-align:center">Under 1</th>
+								<th>&nbsp;</th>
+								<th>&nbsp;</th>
+								<th colspan="3" style="text-align:center">1 to 4</th>
+								<th>&nbsp;</th>
+								<th>&nbsp;</th>
+								<th colspan="3" style="text-align:center">Above 5</th>
+								<th>&nbsp;</th>
+								<th>&nbsp;</th>
+								<th style="text-align:right">Total</th>
+								<th>&nbsp;</th>
+								<th>&nbsp;</th>
+								{% if not cumulative %}
+								<th colspan="2">Performance</th>
+								{% endif %}
+							</tr>
+							<tr>
+								<th colspan="2"></th>
+								<th style="text-align:right">Boys</th>
+								<th style="text-align:right">Girls</th>
+								<th style="text-align:right">Total</th>
+								<th>&nbsp;</th>
+								<th></th>
+								<th style="text-align:right">Boys</th>
+								<th style="text-align:right">Girls</th>
+								<th style="text-align:right">Total</th>
+								<th>&nbsp;</th>
+								<th></th>
+								<th style="text-align:right">Boys</th>
+								<th style="text-align:right">Girls</th>
+								<th style="text-align:right">Total</th>
+								<th></th>
+								<th></th>
+								<th>&nbsp;</th>
+								<th></th>
+								<th></th>
+								{% if not cumulative %}
+								<th>Under 1</th>
+								<th>Under 5</th>
+								{% endif %}
+							</tr>
+						</thead>
+						<tbody>
+							{% with location.node as parent_node %}
+							{% if parent_node.type == 'Country' %}
+							{% for state_node in parent_node|subnodes:'State'|dictsort:'name' %}
+							<tr>
+								<th>{{ state_node.name|lower|title }}</th>
+								<td></td>
+								<td style="text-align:right">{{ dataframe_summary|ix:state_node.name|ix:"boys_below1"|br_default|intcomma }}</td>
+								<td style="text-align:right">{{ dataframe_summary|ix:state_node.name|ix:"girls_below1"|br_default|intcomma }}</td>
+								<td style="text-align:right">{{ dataframe_summary|ix:state_node.name|ix:"below1"|br_default|intcomma }}</td>
+								<td class="table-pie"><svg class="table-chart"></svg></td>
+								<td></td>
+								<td style="text-align:right">{{ dataframe_summary|ix:state_node.name|ix:"boys_1to4"|br_default|intcomma }}</td>
+								<td style="text-align:right">{{ dataframe_summary|ix:state_node.name|ix:"girls_1to4"|br_default|intcomma }}</td>
+								<td style="text-align:right">{{ dataframe_summary|ix:state_node.name|ix:"1to4"|br_default|intcomma }}</td>
+								<td class="table-pie"><svg class="table-chart"></svg></td>
+								<td></td>
+								<td style="text-align:right">{{ dataframe_summary|ix:state_node.name|ix:"boys_above5"|br_default|intcomma }}</td>
+								<td style="text-align:right">{{ dataframe_summary|ix:state_node.name|ix:"girls_above5"|br_default|intcomma }}</td>
+								<td style="text-align:right">{{ dataframe_summary|ix:state_node.name|ix:"above5"|br_default|intcomma }}</td>
+								<td class="table-pie"><svg class="table-chart"></svg></td>
+								<td></td>
+								<td style="text-align:right">{{ dataframe_summary|ix:state_node.name|ix:"total"|br_default|intcomma }}</td>
+								<td class="table-bar"><svg class="table-chart"></svg></td>
+								<td></td>
+								{% if not cumulative %}
+								<td><span class="{% performance_class dataframe_summary state_node.name location state_node.id year month 'below1' %}">{% performance_pct dataframe_summary state_node.name location state_node.id year month "below1" %}%</span></td>
+								<td><span class="{% performance_class dataframe_summary state_node.name location state_node.id year month '1to4' %}">{% performance_pct dataframe_summary state_node.name location state_node.id year month '1to4' %}%</span></td>
+								{% endif %}
+							</tr>
+							{% endfor %}
+							{% else %}
+							{% for lga_node in parent_node|subnodes:'LGA'|dictsort:'name' %}
+							{% with lga_data=dataframe_summary|ix:lga_node.name %}
+							<tr class="active">
+								<th>{{ lga_node.name|title }}</th>
+								<td></td>
+								<td style="text-align:right">{{ lga_data.boys_below1.sum|br_default|intcomma }}</td>
+								<td style="text-align:right">{{ lga_data.girls_below1.sum|br_default|intcomma }}</td>
+								<td style="text-align:right">{{ lga_data.below1.sum|br_default|intcomma }}</td>
+								<td class="table-pie"><svg class="table-chart"></svg></td>
+								<td></td>
+								<td style="text-align:right">{{ lga_data.boys_1to4.sum|br_default|intcomma }}</td>
+								<td style="text-align:right">{{ lga_data.girls_1to4.sum|br_default|intcomma }}</td>
+								<td style="text-align:right">{{ lga_data.1to4.sum|br_default|intcomma }}</td>
+								<td class="table-pie"><svg class="table-chart"></svg></td>
+								<td></td>
+								<td style="text-align:right">{{ lga_data.boys_above5.sum|br_default|intcomma }}</td>
+								<td style="text-align:right">{{ lga_data.girls_above5.sum|br_default|intcomma }}</td>
+								<td style="text-align:right">{{ lga_data.above5.sum|br_default|intcomma }}</td>
+								<td class="table-pie"><svg class="table-chart"></svg></td>
+								<td></td>
+								<td style="text-align:right">{{ lga_data.total.sum|br_default|intcomma }}</td>
+								<td class="table-bar"><svg class="table-chart"></svg></td>
+								<td></td>
+								{% if not cumulative %}
+								<td><span class="{% performance_class dataframe_summary lga_node.name location lga_node.id year month 'below1' %}">{% performance_pct dataframe_summary lga_node.name location lga_node.id year month "below1" %}%</span></td>
+								<td><span class="{% performance_class dataframe_summary lga_node.name location lga_node.id year month '1to4' %}">{% performance_pct dataframe_summary lga_node.name location lga_node.id year month '1to4' %}%</span></td>
+								{% endif %}
+							</tr>
+							{% for center_node in lga_node|subnodes:'RC'|dictsort:'name' %}
+							<tr>
+								<th>{{ center_node.name | title }}</th>
+								<td></td>
+								{% with center_data=lga_data|ix:center_node.name %}
+								<td style="text-align:right">{{ center_data.boys_below1|br_default|intcomma }}</td>
+								<td style="text-align:right">{{ center_data.girls_below1|br_default|intcomma }}</td>
+								<td style="text-align:right">{{ center_data.below1|br_default|intcomma }}</td>
+								<td class="table-pie"><svg class="table-chart"></svg></td>
+								<td></td>
+								<td style="text-align:right">{{ center_data.boys_1to4|br_default|intcomma }}</td>
+								<td style="text-align:right">{{ center_data.girls_1to4|br_default|intcomma }}</td>
+								<td style="text-align:right">{{ center_data.1to4|br_default|intcomma }}</td>
+								<td class="table-pie"><svg class="table-chart"></svg></td>
+								<td></td>
+								<td style="text-align:right">{{ center_data.boys_above5|br_default|intcomma }}</td>
+								<td style="text-align:right">{{ center_data.girls_above5|br_default|intcomma }}</td>
+								<td style="text-align:right">{{ center_data.above5|br_default|intcomma }}</td>
+								<td class="table-pie"><svg class="table-chart"></svg></td>
+								<td></td>
+								<td style="text-align:right">{{ center_data.total|br_default|intcomma }}</td>
+								<td class="table-bar"><svg class="table-chart"></svg></td>
+								<td></td>
+								{% if not cumulative %}
+								<td></td>
+								<td></td>
+								{% endif %}
+								{% endwith %}
+							</tr>
+							{% endfor %}
+							{% endwith %}
+							{% endfor %}
+							{% endif %}
+							{% endwith %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+	  </div>
+
+	  <div class="row">
+			<div class="col-md-12">
+			  <div class="panel panel-default">
+					<div class="panel-heading">
+					  <h3 class="panel-title">Coverage</h3>
+					</div>
+					<div class="panel-body">
+					  <div id ="chart4"><svg></svg></div>
+					</div>
+			  </div>
+			</div>
+	  </div>
+	</div>
+{% endblock %}
+{% block scripts %}
+	<script type="text/javascript">
+		$('#export_button').click(function () {
+			$('#export').submit();
+		});
+
+		$('#cumulative').click(function() {
+			var uri = new Uri(window.location.href);
+			if (!(uri.getQueryParamValue('cumulative')))
+				uri.addQueryParam('cumulative', '1');
+
+			window.location.href = uri.toString();
+		});
+
+		$('#monthly').click(function() {
+			var uri = new Uri(window.location.href);
+			if ((uri.getQueryParamValue('cumulative')))
+				uri.deleteQueryParam('cumulative');
+
+			window.location.href = uri.toString();
+		});
+
+		nv.dev = false;
+
+		var pieColors = ["#3AC9DD","#96E3ED"];
+		
+		d3.scale.pieColors = function () {
+			return d3.scale.ordinal().range(pieColors);
+		};
+
+		nv.addGraph(function() {
+			var chart = nv.models.pieChart()
+				.x(function(d) { return d.label })
+				.y(function(d) { return d.value })
+				.valueFormat(d3.format(','))
+				.margin({top: 40, bottom: 40, left: 15, right: 15})
+				.color(d3.scale.pieColors().range())
+				.showLabels(false);
+
+			d3.select("#chart svg")
+				.datum(getSlices()[0].values)
+				.transition().duration(1200)
+				.call(chart);
+			return chart;
+			});
+
+		nv.addGraph(function() {
+			var chart = nv.models.pieChart()
+				.x(function(d) { return d.label })
+				.y(function(d) { return d.value })
+				.valueFormat(d3.format(','))
+				.margin({top: 40, bottom: 40, left: 15, right: 15})
+				.color(d3.scale.pieColors().range())
+				.showLabels(false);
+
+			d3.select("#chart1 svg")
+				.datum(getSlices()[1].values)
+				.transition().duration(1200)
+				.call(chart);
+
+			return chart;
+			});
+
+		nv.addGraph(function() {
+			var chart = nv.models.pieChart()
+				.x(function(d) { return d.label })
+				.y(function(d) { return d.value })
+				.color(d3.scale.pieColors().range())
+				.valueFormat(d3.format(','))
+				.margin({top: 40, bottom: 40, left: 15, right: 15})
+				.showLabels(false)
+
+			d3.select("#chart2 svg")
+				.datum(getSlices()[2].values)
+				.transition().duration(1200)
+				.call(chart);
+			
+			return chart;
+			});
+
+		var data = [
+			{
+				key: "Under 1", 
+				values: {% age_distribution_values dataframe_distribution "below1" %}
+			},
+			{
+				key: "1 to 4",
+				values: {% age_distribution_values dataframe_distribution "1to4" %}
+			},
+			{
+				key: "Above 5",
+				values: {% age_distribution_values dataframe_distribution "above5" %}
+			}
+		];
+
+		var stackedAreaColors = ["#1C9CAE","#30C8DE","#C2EFF5"];
+
+		d3.scale.stackedAreaColors = function() {
+			return d3.scale.ordinal().range(stackedAreaColors);
+		};
+
+		nv.addGraph(function() {
+			var chart = nv.models.stackedAreaChart()
+				.x(function(d) { return d[0] })
+				.y(function(d) { return d[1] })
+				.showControls(false)
+				.style('expand')
+				.color(d3.scale.stackedAreaColors().range())
+				.clipEdge(true);
+
+			chart.xAxis
+				.tickFormat(function(d) { return d3.time.format("%b '%y")(new Date(d)) });
+
+			chart.yAxis
+				.tickFormat(d3.format(',.0f'));
+
+			d3.select('#chart3 svg')
+				.datum(data)
+				.transition().duration(500).call(chart);
+
+			d3.select('#chart3 svg')
+				.append("text")
+				.attr("x", 130)             
+				.attr("y", 19)
+				.attr("text-anchor", "middle")  
+				.text("Age Group Distribution").attr('style', 'font-family:"Helvetica Neue", Helvetica, Arial, sans-serif;font-weight:200;letter-spacing:0.05em');
+
+			nv.utils.windowResize(chart.update);
+
+			return chart;
+		});
+
+		$('.table-pie svg').each(function (idx, el) {
+			var cellIndex = el.parentElement.cellIndex;
+			var row = el.parentElement.parentElement;
+
+			var datum = [{label: "Boys", value: parseInt(row.cells[cellIndex - 3].textContent.replace(',', '').replace('-', '0'))},
+				{label: "Girls", value: parseInt(row.cells[cellIndex - 2].textContent.replace(',', '').replace('-', '0'))}];
+
+			nv.addGraph(function() {
+				var chart = nv.models.pieChart()
+					.x(function(d) { return d.label })
+					.y(function(d) { return d.value })
+					.valueFormat(d3.format(','))
+					.color(d3.scale.pieColors().range())
+					.tooltips(true)
+					.margin({top: 0, bottom: 0, left: 0, right: 0})
+					.showLabels(false)
+					.showLegend(false);
+
+				d3.select(el)
+					.datum(datum)
+					.transition().duration(1200)
+					.call(chart);
+
+				return chart;
+				});
+		});
+
+		function getSlices() {
+			var slices = [
+				{values: [
+					{ label: "Boys", value: {{ dataframe_summary.boys_below1.sum }} },
+					{ label: "Girls", value: {{ dataframe_summary.girls_below1.sum }} }
+				]},
+				{values: [
+					{ label: "Boys", value: {{ dataframe_summary.boys_below1.sum|add:dataframe_summary.boys_1to4.sum }} },
+					{ label: "Girls", value: {{ dataframe_summary.girls_below1.sum|add:dataframe_summary.girls_1to4.sum }} }
+				]},
+				{values: [
+					{ label: "Boys", value: {{ dataframe_summary.boys_above5.sum }} },
+					{ label: "Girls", value: {{ dataframe_summary.girls_above5.sum }} }
+				]}
+			];
+
+			return slices;
+		}
+
+	  var bar_color = ["#88C0CB"];
+	  
+		d3.scale.bar_color = function() {
+			return (bar_color);
+		};
+		$('.table-bar svg').each(function (idx, el) {
+			var cellIndex = el.parentElement.cellIndex;
+			var row = el.parentElement.parentElement;
+
+			var data = [{
+				values: [
+					{label: "Under 1", value: parseInt(row.cells[4].textContent.replace(',', '').replace('-', '0'))},
+					{label: "Under 5", value: parseInt(row.cells[9].textContent.replace(',', '').replace('-', '0'))},
+					{label: "5 and above", value: parseInt(row.cells[14].textContent.replace(',', '').replace('-', '0'))},
+				]}];
+
+			nv.addGraph(function() {
+				var chart = nv.models.discreteBarChart()
+					.x(function(d) { return d.label })
+					.y(function(d) { return d.value })
+					.margin({top: 0, right: 0, bottom: 0, left: 0})
+					.staggerLabels(false)
+					.tooltips(true)
+					.showValues(false)
+					.showYAxis(false)
+					.showXAxis(false)
+					.color(bar_color);
+
+				chart.yAxis
+					.tickFormat(d3.format(',.0f'));
+
+				d3.select(el)
+					.datum(data)
+					.transition().duration(500)
+					.call(chart);
+
+				nv.utils.windowResize(chart.update);
+				
+				return chart;
+			});
+		});
+
+		nv.addGraph(function() {  
+			var chart = nv.models.lineChart()
+				.margin({top: 30, right: 40, bottom: 50, left: 60});
+
+			chart.lines
+				.interpolate('monotone');
+
+			chart.xAxis
+				.tickFormat(function(d) { return d3.time.format("%b '%y")(new Date(d)) });
+		   
+			chart.yAxis
+				.tickFormat(d3.format('%'));
+		   
+			d3.select('#chart4 svg')
+				.datum(coverageData())
+				.transition().duration(500)
+				.call(chart);
+
+			nv.utils.windowResize(function() { d3.select('#chart4 svg').call(chart) });
+		   
+			return chart;
+		});
+
+		function coverageData() {
+			return [{% for dataframe_location in dataframe_coverage|dataframe_coverage_locations %}
+				{
+					key: "{{ dataframe_location|lower|title }}",
+					values: [{% for period in dataframe_coverage|dataframe_coverage_period:dataframe_location %}{x: {{ period|period_in_ms }}, y: {% coverage_performance dataframe_coverage dataframe_location period 'below1' location period.year period.month %}},{% endfor %}]
+				},{% endfor %}
+			]
+		}
+	</script>
+	<script>
+		(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+		(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+		m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+		})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+		ga('create', 'UA-126343-21', 'br.rapidsmsnigeria.org', {'siteSpeedSampleRate': 100});
+		ga('send', 'pageview');
+	</script>
+{% endblock %}

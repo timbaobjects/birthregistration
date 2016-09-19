@@ -1,0 +1,43 @@
+.navbar-nav > li > a{
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.25);
+}
+.table {font-size: 12px;}
+.breadcrumb > li {color:#777;}
+.filter { padding: 50px 0px 0px; vertical-align: middle;}
+div.grand-summary h3, h1, h4, h5 {text-align: center;}
+div.grand-summary h4 {font-weight: 200}
+div.pan {border: none; background-color: #f7f7f7;}
+#chart svg, #chart1 svg, #chart2 svg{
+  height: 200px;
+}
+#chart3 svg {
+  height: 300px;
+}
+#chart4 svg {
+  height: 500px;
+}
+.table-chart {
+  width: 30px;
+  height: 30px;
+}
+.data-table tbody > tr > td, .data-table tbody > tr > th {
+  vertical-align: middle;
+}
+
+/** Footer styles **/
+footer {
+  vertical-align: middle;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.25);
+  color:#fff;
+  background: #198FA0;
+  padding: 15px 0 8px;
+}
+footer p{vertical-align: middle;}
+footer a {
+  color: #fff;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.25);
+}
+footer a:hover{
+  color: #EEFBFC;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.25);
+}

@@ -1,0 +1,78 @@
+{% extends "br/layout.html" %}{% load bootstrap_pagination %}
+{% block content %}
+	<div class="container-fluid">
+		<div class="span10 offset1">
+			<form class="form-inline well" method="POST" action="{% url 'reports_list' %}">
+				{% csrf_token %}
+				<div class="input-append span2">
+					<input class="span2 date_sel" data-date-format="mm/dd/yyyy" size="16" id="start_time" name="start_time" type="text" value="{{ filter_form.start_time.value|default:"" }}" style="height:30px;" placeholder="From Date" readonly="readonly">
+					<span class="add-on"><i class="icon-calendar"></i></span>
+				</div>
+				<div class="input-append span2">
+					<input class="span2 date_sel" data-date-format="mm/dd/yyyy" size="16" id="end_time" name="end_time" type="text" value="{{ filter_form.end_time.value|default:"" }}" style="height:30px;" placeholder="To Date" readonly="readonly">
+					<span class="add-on"><i class="icon-calendar"></i></span>
+				</div>
+				{{ filter_form.location }}
+				<button class="btn btn-warning" style="margin-left:10px"><i class="icon-white icon-search"></i> Filter</button>
+				<button class="btn form-reset" style="margin-left:5px">Clear</button>
+			</form>
+		</div>
+	</div>
+	<div class="container-fluid">
+		<div class="span10 offset1">
+			<table class="table table-bordered table-striped table-hover" style="font-size:13px;">
+				<tr>
+					<th>Date</th>
+					<th>State</th>
+					<th>LGA</th>
+					<th>Facility</th>
+					<th>Phone</th>
+					<th class="center">Boys<br />&lt; 1</th>
+					<th class="center">Boys<br />1 - 4</th>
+					<th class="center">Boys<br />5 - 9</th>
+					<th class="center">Boys<br />10 - 17</th>
+					<th class="center">Girls<br />&lt; 1</th>
+					<th class="center">Girls<br />1 - 4</th>
+					<th class="center">Girls<br />5 - 9</th>
+					<th class="center">Girls<br />10 - 17</th>
+					<th class="center">Edit</th>
+					<th class="center">Delete</th>
+				</tr>
+				{% for report in reports %}
+				<tr>
+					<td>{{ report.time|date:"d/m/Y" }}</td>
+					<td>{{ report.location.parent.parent.name }}</td>
+					<td>{{ report.location.parent.name }}</td>
+					<td>{{ report.location.name }}</td>
+					<td>{{ report.connection.identity }}</td>
+					<td>{{ report.boys_below1 }}</td>
+					<td>{{ report.boys_1to4 }}</td>
+					<td>{{ report.boys_5to9 }}</td>
+					<td>{{ report.boys_10to18 }}</td>
+					<td>{{ report.girls_below1 }}</td>
+					<td>{{ report.girls_1to4 }}</td>
+					<td>{{ report.girls_5to9 }}</td>
+					<td>{{ report.girls_10to18 }}</td>
+					<td class="center"><a href="{% url 'report_edit' report.pk %}">Edit</a></td>
+					<form action="{% url 'report_delete' report.pk %}" method="POST" class="delete_report">{% csrf_token %}
+					<td class="center">
+						<button class="btn btn-small btn-danger" type="submit"><i class="icon-remove icon-white"></i></button>
+					</td>
+					</form>
+				</tr>
+				{% empty %}
+				<tr>
+					<td colspan="15" class="center"><em>No Data Available</em></td>
+				</tr>
+				{% endfor %}
+			</table>
+		</div>
+	</div>
+{% if is_paginated %}
+<div class="row">
+  <div class="span12">
+  {% bootstrap_paginate page_obj range=10 show_first_last="true" %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}
