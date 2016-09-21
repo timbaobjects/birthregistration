@@ -184,6 +184,7 @@ INSTALLED_APPS = (
     # External apps
     "django_tables2",
     "selectable",
+    "patterns",
     "locations",
     # RapidSMS
     "rapidsms",
