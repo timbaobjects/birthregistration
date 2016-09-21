@@ -184,6 +184,7 @@ INSTALLED_APPS = (
     # External apps
     "django_tables2",
     "selectable",
+    "locations",
     # RapidSMS
     "rapidsms",
     "rapidsms.backends.database",
@@ -208,3 +209,5 @@ RAPIDSMS_HANDLERS = (
     'rapidsms.contrib.echo.handlers.echo.EchoHandler',
     'rapidsms.contrib.echo.handlers.ping.PingHandler',
 )
+
+LOCATIONS_GRAPH_MAXAGE = 3600  # number of seconds cache the locations graph
