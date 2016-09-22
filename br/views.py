@@ -22,10 +22,8 @@ from django.shortcuts import get_object_or_404, render
 from django.utils.decorators import method_decorator
 from django.utils.timezone import now
 from django.views.generic import ListView, UpdateView, DeleteView, TemplateView
-from jimmypage.cache import cache_page
 
 
-@cache_page
 def dashboardview(request, state=None, year=now().year, month=None):
     # set cumulative to True to retrieve records from UNIX timestamp 0 to date
     cumulative = 'cumulative' in request.GET

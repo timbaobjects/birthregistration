@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4
-from django.conf.urls.defaults import *
+from django.conf.urls import url
 from django.http import HttpResponseRedirect
-from unicefng.br.views import *
-from unicefng.locations.api import LocationItemView, TypedLocationListView
+from br.views import *
+from locations.api import LocationItemView, TypedLocationListView
 
-urlpatterns = patterns('',
+urlpatterns = [
     #url(r'^br/?(?P<prefix>(monthly)?)/?(?P<state>\d*)/?(?P<year>\d*)/?(?P<month>\d*)/?$', 'unicefng.br.views.dashboard'),
     #url(r'^br/data/?(?P<prefix>(monthly)?)/?(?P<state>\d*)/?(?P<year>\d*)/?(?P<month>\d*)/?$', 'unicefng.br.views.csv_download'),
     url(r'^br/api/locations', TypedLocationListView.as_view(), name='api_location_list'),
@@ -29,10 +29,10 @@ urlpatterns = patterns('',
     url(r'^br/center/new/?$', CenterCreationView.as_view(), name='center_add'),
     url(r'^br/centers/?$', CenterListView.as_view(), name='center_list'),
     url(r'^br/center/(?P<pk>\d+)/?$', CenterUpdateView.as_view(), name='center_edit'),
-)
+]
 
 # authentication urls
-urlpatterns += patterns('',
+urlpatterns += [
     url(r'^accounts/login/$', 'django.contrib.auth.views.login', {'template_name': 'br/login.html'}, name="user-login"),
     url(r'^accounts/logout/$', 'django.contrib.auth.views.logout_then_login', name="user-logout")
-)
+]

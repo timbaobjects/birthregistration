@@ -76,6 +76,7 @@ STATICFILES_DIRS = (
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'pipeline.finders.PipelineFinder',
 )
 
 # Make this unique, and don't share it with anybody.
@@ -188,6 +189,8 @@ INSTALLED_APPS = (
     "locations",
     "reporters",
     "br",
+    "rest_framework",
+    "pipeline",
     # RapidSMS
     "rapidsms",
     "rapidsms.backends.database",
@@ -214,3 +217,81 @@ RAPIDSMS_HANDLERS = (
 )
 
 LOCATIONS_GRAPH_MAXAGE = 3600  # number of seconds cache the locations graph
+PAGE_SIZE = 30  # Number of submissions viewable per page
+STATICFILES_STORAGE = 'pipeline.storage.PipelineCachedStorage'
+
+# django-pipeline settings
+PIPELINE = {
+    'STYLESHEETS': {
+        'rapidsms': {
+            'source_filenames': (
+                'css/bootstrap.css',
+                'css/bootstrap-responsive.css',
+                'css/custom.css',
+                'css/style.css',
+                'css/datepicker.css',
+                'css/select2.css',
+            ),
+            'output_filename': 'css/rapidsms.css',
+            'extra_context': {
+                'media': 'screen,projection',
+            },
+        },
+        'dashboard': {
+            'source_filenames': (
+                'css/bootstrap3.css',
+                'css/nv.d3.css',
+                'css/custom-dashboard.css',
+            ),
+            'output_filename': 'css/dashboard.css',
+            'extra_context': {
+                'media': 'screen,projection',
+            },
+        },
+        'centers': {
+            'source_filenames': (
+                'css/select2.css',
+                'css/handsontable.full.css'
+            ),
+            'output_filename': 'css/centers.css',
+            'extra_context': {
+                'media': 'screen,projection'
+            }
+        }
+    },
+    'JAVASCRIPT': {
+        'rapidsms': {
+            'source_filenames': (
+                'js/jquery-1.8.1.js',
+                'js/bootstrap.js',
+                'js/bootstrap-datepicker.js',
+                'js/select2.js',
+                'js/custom.js',
+            ),
+            'output_filename': 'js/rapidsms.js',
+        },
+        'dashboard': {
+            'source_filenames': (
+                'js/jquery-1.10.2.js',
+                'js/bootstrap3.js',
+                'js/d3.v3.js',
+                'js/nv.d3.js',
+                'js/Uri.js',
+            ),
+            'output_filename': 'js/dashboard.js',
+        },
+        'centers': {
+            'source_filenames': (
+                'js/handsontable.full.js',
+                'js/select2.js'
+            ),
+            'output_filename': 'js/centers.js',
+        }
+    }
+}
+# Population
+POPULATION_RATIOS = {
+    'below1': 0.0364,
+    '1to4': 0.2,
+    'above5': .45,
+}

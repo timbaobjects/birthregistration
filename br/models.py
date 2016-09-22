@@ -49,7 +49,7 @@ class CensusResult(models.Model):
             app_cache = cache
 
         dataframe = app_cache.get('population_estimates')
-        if not dataframe:
+        if (type(dataframe) is not pd.DataFrame) or dataframe.empty:
             dataframe = generate_population_dataframe()
             app_cache.set('population_estimates', dataframe)
 

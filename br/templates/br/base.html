@@ -1,12 +1,12 @@
-{% load compressed staticfiles %}
+{% load pipeline staticfiles %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>{% block title %}{% endblock %}</title>
-	{% compressed_css 'dashboard' %}
-	{% compressed_js 'dashboard' %}
+	{% stylesheet 'dashboard' %}
+	{% javascript 'dashboard' %}
 	{% block stylesheets %}{% endblock %}
   </head>
   <body class="with-3d-shadow">
