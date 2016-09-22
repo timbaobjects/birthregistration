@@ -1,5 +1,5 @@
 from django import forms
-from unicefng.br.models import BirthRegistration
+from br.models import BirthRegistration
 
 
 class BirthRegistrationModelForm(forms.ModelForm):

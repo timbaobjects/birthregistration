@@ -1,5 +1,5 @@
 from django.db import models
-from unicefng.br.querysets import SearchableLocationQuerySet
+from br.querysets import SearchableLocationQuerySet
 
 
 class BirthRegistrationManager(models.Manager):

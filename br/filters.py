@@ -1,7 +1,7 @@
 import django_filters
 from django import forms
-from unicefng.br.models import BirthRegistration
-from unicefng.locations.models import LocationType, Location
+from br.models import BirthRegistration
+from locations.models import LocationType, Location
 
 class LocationFilter(django_filters.ChoiceFilter):
     ''' LocationFilter enables filtering of submissions

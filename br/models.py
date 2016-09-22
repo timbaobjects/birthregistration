@@ -1,9 +1,9 @@
 from django.core.cache import cache, get_cache, InvalidCacheBackendError
 from django.db import models
 import pandas as pd
-from unicefng.locations.models import Location
-from unicefng.reporters.models import Reporter, PersistantConnection
-from unicefng.br.managers import BirthRegistrationManager
+from locations.models import Location
+from reporters.models import Reporter, PersistantConnection
+from br.managers import BirthRegistrationManager
 
 
 class BirthRegistration(models.Model):
