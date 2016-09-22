@@ -186,6 +186,8 @@ INSTALLED_APPS = (
     "selectable",
     "patterns",
     "locations",
+    "reporters",
+    "br",
     # RapidSMS
     "rapidsms",
     "rapidsms.backends.database",
