@@ -20,7 +20,7 @@ class Role(models.Model):
     name = models.CharField(max_length=160)
     code = models.CharField(max_length=20, blank=True, null=True,\
         help_text="Abbreviation")
-    patterns = models.ManyToManyField(Pattern, null=True, blank=True)
+    patterns = models.ManyToManyField(Pattern, blank=True)
 
     def match(self, token):
         return self.regex and re.match(self.regex, token, re.IGNORECASE)
