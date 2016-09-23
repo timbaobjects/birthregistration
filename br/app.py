@@ -3,6 +3,7 @@
 
 import calendar
 from datetime import datetime, date
+import logging
 import re
 # requires python-dateutil to work
 try:
@@ -16,9 +17,8 @@ from reporters.models import PersistantConnection, Reporter, Role
 from locations.models import Location
 from .grammars import parse_date, parse_report
 
-from johnny.cache import enable
-
 MAX_REPORT_WINDOW = 90 * 3600 * 24  # reports older than 90 days from the day of submission will be rejected
+logger = logging.getLogger(__name__)
 
 
 class BirthRegistrationApp(AppBase):
@@ -61,9 +61,9 @@ class BirthRegistrationApp(AppBase):
 
         # log, whether we know who the sender is or not
         if msg.reporter:
-            self.info("Identified: %s as %r" % (conn, msg.reporter))
+            logger.info("Identified: %s as %r" % (conn, msg.reporter))
         else:
-            self.info("Unidentified: %s" % (conn))
+            logger.info("Unidentified: %s" % (conn))
 
         # update last_seen, which automatically
         # populates the same property
@@ -97,22 +97,21 @@ class BirthRegistrationApp(AppBase):
                 message.respond(self.error_msgs['invalid_date'].format(message.text))
                 return False
 
-            self.info("setting message date to %s" % msg_date)
+            logger.info("setting message date to %s" % msg_date)
             message.datetime = self._classify_date(msg_date)
 
             # Remove date from message
             if ('-' in message.text) or ('/' in message.text) or ('\\' in message.text):
-                self.info("previous message: %s" % message.text.strip())
+                logger.info("previous message: %s" % message.text.strip())
                 msgtxt = " ".join(re.split("\s+", message.text.strip())[0:-1])
                 message.text = msgtxt
-                self.info("new message: %s" % message.text)
+                logger.info("new message: %s" % message.text)
             return True
         else:
             message.respond(self.error_msgs['invalid_date'].format(message.text))
             return False
 
     def handle(self, message):
-        enable()
         try:
             match = self.prefix.match(message.text)
             if match:
@@ -134,7 +133,7 @@ class BirthRegistrationApp(AppBase):
                 self.help(message)
                 return True
         except Exception, e:
-            self.error(e)
+            logger.error(e)
 
     def help(self, message):
         message.respond(self.response_msgs['help'])
@@ -227,7 +226,7 @@ class BirthRegistrationApp(AppBase):
                 b9=br.boys_5to9,
                 b18=br.boys_10to18))
         except Exception, e:
-            self.debug(e)
+            logger.debug(e)
 
         return True
 

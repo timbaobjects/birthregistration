@@ -29,7 +29,7 @@ def parse_report(text):
     try:
         male_portion = male_grammar.parseString(text)
 
-        skip, code, values = male_portion[0]
+        skip, code, values = male_portion
 
         report_data[code] = dict(zip(range(1, 5), zero_pad(values[:4], 4)))
     except pp.ParseException:
@@ -38,7 +38,7 @@ def parse_report(text):
     try:
         female_portion = female_grammar.parseString(text)
 
-        skip, code, values = female_portion[0]
+        skip, code, values = female_portion
 
         report_data[code] = dict(zip(range(1, 5), zero_pad(values[:4], 4)))
     except pp.ParseException:
