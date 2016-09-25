@@ -86,16 +86,10 @@ class Location(models.Model):
            optionally including itself in the output. This is
            very inefficient, so consider caching the output.
 
-           Tim: This has been better implemented using the Django MPTT
-           library."""
-        locs = [self] if include_self else []
-        # loc = self
+           This is currently used as a convenience method as recent
+           versions of django-mptt handle this adequately."""
 
-        locs = self.get_ancestors()
-        if include_self:
-            locs.append(self)
-
-        return locs
+        return self.get_ancestors(include_self=include_self)
 
     def descendants(self, include_self=False):
         """Returns all of the locations which are descended from this location,
@@ -103,11 +97,8 @@ class Location(models.Model):
            (it recurses once for EACH), so consider caching the output.
 
            New improvements, please see doc for ancestors method."""
-        locs = [self] if include_self else []
 
-        locs.extend(self.get_descendants())
-
-        return locs
+        return self.get_descendants(include_self=include_self)
 
     @property
     def node(self):
