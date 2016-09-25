@@ -183,6 +183,7 @@ INSTALLED_APPS = (
     'django.contrib.humanize',
     'django.contrib.sitemaps',
     # External apps
+    "django_mysql",
     "django_tables2",
     "selectable",
     "patterns",

@@ -1,9 +1,18 @@
 from django.core.cache import cache, get_cache, InvalidCacheBackendError
 from django.db import models
+from django_mysql.models import QuerySetMixin
 import pandas as pd
 from locations.models import Location
 from reporters.models import Reporter, PersistantConnection
-from br.managers import BirthRegistrationManager
+from br.querysets import SearchableLocationQuerySet
+
+
+class BirthRegistrationQuerySet(QuerySetMixin, SearchableLocationQuerySet):
+    pass
+
+
+class BirthRegistrationManager(models.Manager.from_queryset(BirthRegistrationQuerySet)):
+    use_in_migrations = True
 
 
 class BirthRegistration(models.Model):
@@ -66,3 +75,4 @@ def generate_population_dataframe():
     return dataframe.rename(columns={
         'location__pk': 'loc_id',
     })
+
