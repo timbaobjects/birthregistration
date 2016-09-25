@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # vim: ai ts=4 sts=4 et sw=4
 import networkx as nx
-import mptt
 from django.conf import settings
 from django.core.cache import cache, get_cache, InvalidCacheBackendError
 from django.db import models
+from mptt.models import MPTTModel, TreeForeignKey
 
 
 class LocationType(models.Model):
@@ -17,7 +17,7 @@ class LocationType(models.Model):
         return self.name
 
 
-class Location(models.Model):
+class Location(MPTTModel):
     """A Location is technically a geopgraphical point (lat+long), but is often
        used to represent a large area such as a city or state. It is recursive
        via the _parent_ field, which can be used to create a hierachy (Country
@@ -28,7 +28,7 @@ class Location(models.Model):
     code = models.CharField(max_length=30, unique=True)
     population = models.PositiveIntegerField(default=0, null=False, blank=False)
 
-    parent = models.ForeignKey("Location", related_name="children", null=True, blank=True,
+    parent = TreeForeignKey("Location", related_name="children", null=True, blank=True,
         help_text="The parent of this Location. Although it is not enforced, it" +\
                   "is expected that the parent will be of a different LocationType")
 
@@ -49,6 +49,13 @@ class Location(models.Model):
 
     class Meta:
         ordering = ['name']
+
+    class MPTTMeta:
+        left_attr = 'lft'
+        right_attr = 'rgt'
+        tree_id_attr = 'tree_id'
+        level_attr = 'level'
+        order_insertion_by = ['code']
 
     # TODO: how can we port the Location.contacts and Location.one_contact
     #       methods, now that the locations app has been split from reporters?
@@ -224,4 +231,3 @@ class Facility(models.Model):
     def __unicode__(self):
         return self.name
 
-mptt.register(Location, left_attr='lft', right_attr='rgt', tree_id_attr='tree_id', level_attr='level', order_insertion_by=['code'])
