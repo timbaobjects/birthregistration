@@ -302,4 +302,4 @@ POPULATION_RATIOS = {
     'above5': .45,
 }
 
-ALLOWED_HOSTS = config(u'ALLOWED_HOSTS', cast=config.tuple, default=(,))
+ALLOWED_HOSTS = config(u'ALLOWED_HOSTS', cast=config.tuple, default=tuple())
