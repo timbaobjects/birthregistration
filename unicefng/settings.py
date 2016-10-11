@@ -1,7 +1,8 @@
 # Django settings for unicefng project.
-import ast
 import dj_database_url
 import os
+
+from prettyconf import config
 
 # The top directory for this project. Contains requirements/, manage.py,
 # and README.rst, a unicefng directory with settings etc (see
@@ -9,11 +10,13 @@ import os
 # project.
 PROJECT_ROOT = os.path.dirname(os.path.dirname(__file__))
 
+config.starting_path = PROJECT_ROOT
+
 # The directory with this project's templates, settings, urls, static dir,
 # wsgi.py, fixtures, etc.
 PROJECT_PATH = os.path.join(PROJECT_ROOT, 'unicefng')
 
-DEBUG = ast.literal_eval(os.environ.get('DEBUG', 'True'))
+DEBUG = config(u'DEBUG', cast=config.boolean, default=True)
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -23,14 +26,15 @@ ADMINS = (
 MANAGERS = ADMINS
 
 DATABASES = {
-    'default': dj_database_url.config(default='sqlite://unicefng.db'),
+    'default': dj_database_url.parse(config(u'DATABASE_URL',
+                                            default=u'sqlite://unicefng.db')),
 }
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
 # In a Windows environment this must be set to your system time zone.
-TIME_ZONE = os.environ.get('TIME_ZONE', 'Africa/Lagos')
+TIME_ZONE = config(u'TIME_ZONE', default=u'Africa/Lagos')
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -80,7 +84,7 @@ STATICFILES_FINDERS = (
 )
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = os.environ.get('SECRET_KEY', '+*x2)pdq%r9rcz*=eb216t0o1+vw5#vx&(8ss$k6mbko!p!+p1')
+SECRET_KEY = config(u'SECRET_KEY', default=u'+*x2)pdq%r9rcz*=eb216t0o1+vw5#vx&(8ss$k6mbko!p!+p1')
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -190,6 +194,7 @@ INSTALLED_APPS = (
     "locations",
     "reporters",
     "br",
+    u'campaigns',
     "rest_framework",
     "pipeline",
     # RapidSMS
