@@ -195,6 +195,7 @@ INSTALLED_APPS = (
     "reporters",
     "br",
     u'campaigns',
+    u'mnchw',
     "rest_framework",
     "pipeline",
     # RapidSMS
