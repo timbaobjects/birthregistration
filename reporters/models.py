@@ -33,6 +33,13 @@ class Role(models.Model):
     def __unicode__(self):
         return self.name
 
+    @classmethod
+    def get_by_code(cls, code):
+        try:
+            return cls.objects.get(code__iexact=code)
+        except cls.DoesNotExist:
+            return None
+
 
 class ReporterGroup(models.Model):
     title = models.CharField(max_length=30, unique=True)

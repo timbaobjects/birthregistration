@@ -65,6 +65,13 @@ class Location(MPTTModel):
         return ""
 
     @classmethod
+    def get_by_code(cls, code):
+        try:
+            return cls.objects.get(code=code)
+        except cls.DoesNotExist:
+            return None
+
+    @classmethod
     def _get_locations_graph(cls, reverse=False):
         if reverse:
             if not hasattr(cls, '_reversed_locations_graph'):
