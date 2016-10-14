@@ -21,16 +21,14 @@ shortage_list = shortage_list_item+
 report_list = report_list_item+
 noncompliance = <digit+>:location_code ws <digit>:reason_code ws <digit+>:cases -> (location_code, reason_code, int(cases))
 register = <digit+>:location_code ws <letterOrDigit+>:role_code ws <anything*>:full_name -> (location_code, role_code, full_name)
-report = <digit+>:location_code ws <report_list>:pairs -> (location_code, pairs)
-shortage = <digit+>:location_code ws <shortage_list>:items -> (location_code, items)
 ''', {})
 
 ERROR_MESSAGES = {
     u'not_registered': _(u'Please register your number with RapidSMS before sending this report'),
-    u'invalid_location': _(u''),
-    u'invalid_role': _(u''),
-    u'invalid_reason': _(u''),
-    u'unknown_commodities': _(u''),
+    u'invalid_location': _(u'You sent an incorrect location code: %(location_code)s. You sent: %(text)s'),
+    u'invalid_role': _(u'You sent an incorrect role code: %(role_code)s. You sent: %(text)s'),
+    u'invalid_reason': _(u'You sent an incorrect reason: %(reason_code)s. You sent: %(text)s'),
+    u'invalid_message': _(u'Your message is incorrect. Please send MNCHW HELP for help. You sent: %(text)s'),
 }
 
 HELP_MESSAGES = {
@@ -42,11 +40,11 @@ HELP_MESSAGES = {
 }
 
 RESPONSE_MESSAGES = {
-    u'nc': _(u''),
-    u'register': _(u''),
-    u'already_registered': _(u''),
-    u'report': _(u''),
-    u'shortage': _(u''),
+    u'nc': _(u'Thank you for your MNCHW non-compliance report. Reason=%(reason)s, Cases=%(cases)d, Location=%(location)s %(location_type)s'),
+    u'register': _(u'Hello %(name)s! You are now registered as %(role)s at %(location)s %(location_type)s'),
+    u'already_registered': _(u'Hello %(name)s! You are already registered as a %(role)s at %(location)s %(location_type)s'),
+    u'report': _(u'Thank you %(name)s. Received MNCHW report for %(location)s %(location_type)s: %(pairs)s'),
+    u'shortage': _(u'Thank you for your MNCHW shortage report. Location=%(location)s %(location_type)s, commodity=%(commodity)s'),
 }
 
 
@@ -77,19 +75,178 @@ class MNCHWHandler(FuzzySubKeywordHandler):
             self.respond(HELP_MESSAGES[None])
             return
 
-        self.respond(HELP_MESSAGES[key])
+        self.respond(HELP_MESSAGES[key[0]])
 
     def handle_nc(self, text):
-        pass
+        text = text.strip()
+
+        if text == u'':
+            self.respond(HELP_MESSAGES[u'nc'])
+            return
+
+        if self.persistent_connection.reporter is None:
+            self.respond(ERROR_MESSAGES[u'not_registered'])
+            return
+
+        try:
+            location_code, reason_code, cases = grammar(text).noncompliance()
+        except parsley.ParseError:
+            self.respond(ERROR_MESSAGES[u'invalid_message'] % {
+                u'text': self.msg.text})
+            return
+
+        location = Location.get_by_code(location_code)
+        if location is None:
+            self.respond(ERROR_MESSAGES[u'invalid_location'] % {
+                u'location_code': location_code, u'text': self.msg.text})
+            return
+
+        if reason_code not in reason_codes:
+            self.respond(ERROR_MESSAGES[u'invalid_reason'] % {
+                u'reason_code': reason_code, u'text': self.msg.text})
+
+        NonCompliance.objects.create(reporter=self.persistent_connection.reporter,
+            location=location, reason=reason_code, cases=cases, time=now(),
+            connection=self.persistent_connection)
+
+        self.respond(RESPONSE_MESSAGES[u'nc'] % {
+            u'location': location.name, u'reason': report.get_reason_display(),
+            u'cases': cases, u'location_type': location.type.name})
 
     def handle_register(self, text):
-        pass
+        text = text.strip()
+
+        if text == u'':
+            self.respond(HELP_MESSAGES[u'register'])
+            return
+
+        try:
+            location_code, role_code, full_name = grammar(text).register()
+        except parsley.ParseError:
+            self.respond(ERROR_MESSAGES[u'invalid_message'] % {
+                u'text': self.msg.text})
+            return
+
+        location = Location.get_by_code(location_code)
+        if location is None:
+            self.respond(ERROR_MESSAGES[u'invalid_location'] % {
+                u'location_code': location_code, u'text': self.msg.text})
+            return
+
+        role = Role.get_by_code(role_code)
+        if role is None:
+            self.respond(ERROR_MESSAGES[u'invalid_role'] % {
+                u'role_code': role_code, u'text': self.msg.text})
+            return
+
+        kwargs = {u'location': location, u'role': role}
+        kwargs[u'alias'], kwargs[u'first_name'], kwargs[u'last_name'] = Reporter.parse_name(full_name)
+        rep = Reporter(**kwargs)
+
+        if self.persistent_connection.reporter and Reporter.exists(rep, self.persistent_connection):
+            self.respond(RESPONSE_MESSAGES[u'already_registered'] % {
+                u'name': rep.first_name, u'role': rep.role.name,
+                u'location': rep.location.name,
+                u'location_type': rep.location.type.name})
+            return
+
+        rep.save()
+        self.persistent_connection.reporter = rep
+        self.persistent_connection.save()
+
+        self.respond(RESPONSE_MESSAGES[u'register'] % {u'name': rep.first_name,
+            u'role': rep.role.code, u'location': rep.location.name,
+            u'location_type': rep.location.type.name})
 
     def handle_report(self, text):
-        pass
+        text = text.strip()
+
+        if text == u'':
+            self.respond(HELP_MESSAGES[u'report'])
+            return
+
+        if self.persistent_connection.reporter is None:
+            self.respond(ERROR_MESSAGES[u'not_registered'])
+            return
+
+        try:
+            location_code, pairs = text.split(None, 1)
+            pairs = grammar(pairs).report_list()
+        except (ValueError, parsley.ParseError):
+            self.respond(ERROR_MESSAGES[u'invalid_message'] % {
+                u'text': self.msg.text})
+            return
+
+        location = Location.get_by_code(location_code)
+        if location is None:
+            self.respond(ERROR_MESSAGES[u'invalid_location'] % {
+                u'location_code': location_code, u'text': self.msg.text})
+            return
+
+        amounts = []
+        commodities = []
+        for code, amount in pairs:
+            result = process.extractOne(code, commodity_codes, score_cutoff=50)
+
+            if result is None:
+                continue
+
+            comm = result[0]
+            amounts.append(amount)
+            commodities.append(comm.upper())
+
+            Report.objects.create(reporter=self.persistent_connection.reporter,
+                time=now(), connection=self.persistent_connection,
+                location=location, commodity=comm, immunized=amount)
+
+        response_pairs = u', '.join(u'{}={}'.format(a, b) for a, b in zip(commodities, amounts))
+        self.respond(RESPONSE_MESSAGES[u'report'] % {u'location': location.name,
+            u'location_type': location.type.name, u'pairs': response_pairs,
+            u'name': self.persistent_connection.reporter.first_name})
 
     def handle_shortage(self, text):
-        pass
+        text = text.strip()
+
+        if text == u'':
+            self.respond(HELP_MESSAGES[u'shortage'])
+            return
+
+        if self.persistent_connection.reporter is None:
+            self.respond(ERROR_MESSAGES[u'not_registered'])
+            return
+
+        try:
+            location_code, codes = text.split(None, 1)
+            codes = grammar(codes).shortage_list()
+        except (ValueError, parsley.ParseError):
+            self.respond(ERROR_MESSAGES[u'invalid_message'] % {
+                u'text': self.msg.text})
+            return
+
+        location = Location.get_by_code(location_code)
+        if location is None:
+            self.respond(ERROR_MESSAGES[u'invalid_location'] % {
+                u'location_code': location_code, u'text': self.msg.text})
+            return
+
+        results = [process.extractOne(c, codes, score_cutoff=50) for c in codes]
+        commodity = None
+
+        for result in results:
+            if result is None:
+                continue
+
+            comm = result[0]
+
+            if commodity is None:
+                commodity = comm
+
+            Shortage.objects.create(time=now(), commodity=comm,
+                reporter=self.persistent_connection.reporter, location=location,
+                connection=self.persistent_connection)
+
+        self.respond(RESPONSE_MESSAGES[u'shortage'] % {u'location': location.name,
+            u'location_type': location.type.name, u'commodity': commodity.upper()})
 
     def help(self):
         self.respond(HELP_MESSAGES[None])
