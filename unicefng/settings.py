@@ -26,8 +26,8 @@ ADMINS = (
 MANAGERS = ADMINS
 
 DATABASES = {
-    'default': dj_database_url.parse(config(u'DATABASE_URL',
-                                            default=u'sqlite://unicefng.db')),
+    'default': dj_database_url.parse(
+        config(u'DATABASE_URL',default=u'sqlite://unicefng.db')),
 }
 
 # Local time zone for this installation. Choices can be found here:
@@ -104,6 +104,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 )
 
 MIDDLEWARE_CLASSES = (
+    'subdomains.middleware.SubdomainURLRoutingMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -114,6 +115,10 @@ MIDDLEWARE_CLASSES = (
 )
 
 ROOT_URLCONF = 'unicefng.urls'
+SUBDOMAIN_URLCONFS = {
+    None: 'unicefng.urls',
+    'br': 'br.urls',
+}
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'unicefng.wsgi.application'
@@ -186,6 +191,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.humanize',
     'django.contrib.sitemaps',
+    'django.contrib.sites',
     # External apps
     "django_mysql",
     "django_tables2",
@@ -194,8 +200,8 @@ INSTALLED_APPS = (
     "locations",
     "reporters",
     "br",
-    u'campaigns',
-    u'mnchw',
+    "campaigns",
+    "mnchw",
     "rest_framework",
     "pipeline",
     # RapidSMS
@@ -225,6 +231,7 @@ RAPIDSMS_HANDLERS = (
 
 LOCATIONS_GRAPH_MAXAGE = 3600  # number of seconds cache the locations graph
 PAGE_SIZE = 30  # Number of submissions viewable per page
+SITE_ID = 1
 STATICFILES_STORAGE = 'pipeline.storage.PipelineCachedStorage'
 
 # django-pipeline settings
