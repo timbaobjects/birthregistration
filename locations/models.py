@@ -16,6 +16,9 @@ class LocationType(models.Model):
     def __unicode__(self):
         return self.name
 
+    def __str__(self):
+        return self.__unicode__()
+
 
 class Location(MPTTModel):
     """A Location is technically a geopgraphical point (lat+long), but is often
@@ -46,6 +49,9 @@ class Location(MPTTModel):
             return "%s %s" % (self.name, self.type.name)
         else:
             return self.name
+
+    def __str__(self):
+        return self.__unicode__()
 
     class Meta:
         ordering = ['name']
