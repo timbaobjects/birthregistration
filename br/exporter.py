@@ -1,12 +1,16 @@
+import calendar
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from itertools import product
+import numpy as np
 import pandas as pd
 # tablib is needed because apart from CSV, pandas doesn't do much to support
 # writing to in-memory buffers.
 import tablib
 from locations.models import Location
-from .models import BirthRegistration
+from br.helpers import get_record_dataset
+from br.models import BirthRegistration
+
 
 headers = ['Date', 'State', 'LGA', 'Boys < 1', 'Boys 1-4', 'Boys 5-9',
     'Boys 10-17', 'Girls < 1', 'Girls 1-4', 'Girls 5-9', 'Girls 10-17']
@@ -78,3 +82,46 @@ def export_records(location, year, month=None, cumulative=False, format=None):
         return getattr(dataset, format, dataset.xlsx)
     else:
         return dataset.xlsx
+
+
+def export_records_2(location, year, month=None, columns=None):
+    '''This function requires pandas 0.15+'''
+    dataframe = get_record_dataset(location, year, month)
+
+    column_map_data = {
+        u'boys_below1': u'Boys < 1',
+        u'boys_1to4': u'Boys 1 to 4',
+        u'boys_5to9': u'Boys 5 to 9',
+        u'boys_10to18': u'Boys 10 to 17',
+        u'girls_below1': u'Girls < 1',
+        u'girls_1to4': u'Girls 1 to 4',
+        u'girls_5to9': u'Girls 5 to 9',
+        u'girls_10to18': u'Girls 10 to 17',
+    }
+    column_map_locs = {
+        u'rc': u'RC',
+        u'lga': u'LGA',
+        u'state': u'State',
+    }
+
+    column_map = {}
+    column_map.update(column_map_data)
+    column_map.update(column_map_locs)
+
+    dataframe = dataframe.rename(columns=column_map)
+    dataframe.index = [calendar.month_abbr[i] for i in dataframe.index.month]
+    columns = column_map_data.values() if columns is None else [column_map_data[c] for c in columns]
+
+    # TODO: ensure that only a country or a state is sent in here.
+    if location.type.name == u'Country':
+        column_spec = [u'State']
+    else:
+        column_spec = [u'LGA']
+
+    pivot_table = pd.pivot_table(dataframe, index=dataframe.index, values=columns, columns=column_spec, aggfunc=[np.sum])
+
+    # get the transpose
+    export_df = pivot_table.T
+
+    # return CSV as a string
+    return export_df.ix[u'sum'].to_csv()
