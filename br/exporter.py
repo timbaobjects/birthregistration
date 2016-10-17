@@ -84,9 +84,12 @@ def export_records(location, year, month=None, cumulative=False, format=None):
         return dataset.xlsx
 
 
-def export_records_2(location, year, month=None, columns=None):
+def export_records_2(location, year, month=None, columns=None, format=None):
     '''This function requires pandas 0.15+'''
     dataframe = get_record_dataset(location, year, month)
+
+    if dataframe.empty:
+        return u''
 
     column_map_data = {
         u'boys_below1': u'Boys < 1',
@@ -109,19 +112,29 @@ def export_records_2(location, year, month=None, columns=None):
     column_map.update(column_map_locs)
 
     dataframe = dataframe.rename(columns=column_map)
-    dataframe.index = [calendar.month_abbr[i] for i in dataframe.index.month]
     columns = column_map_data.values() if columns is None else [column_map_data[c] for c in columns]
 
     # TODO: ensure that only a country or a state is sent in here.
     if location.type.name == u'Country':
         column_spec = [u'State']
-    else:
+    elif location.type.name == u'State':
         column_spec = [u'LGA']
 
-    pivot_table = pd.pivot_table(dataframe, index=dataframe.index, values=columns, columns=column_spec, aggfunc=[np.sum])
+    pivot_table = pd.pivot_table(dataframe, index=dataframe.index.month, values=columns, columns=column_spec, aggfunc=[np.sum])
 
     # get the transpose
-    export_df = pivot_table.T
+    export_df = pivot_table.T.loc[u'sum']
+ 
+    headers = [u''] + column_spec + [calendar.month_abbr[i] for i in export_df.columns.tolist()]
 
-    # return CSV as a string
-    return export_df.ix[u'sum'].to_csv()
+    dataset = tablib.Dataset(headers=headers)
+    indexer = product(export_df.index.levels[0], export_df.index.levels[1])
+
+    for index in indexer:
+        dataset.append(list(index) + export_df.ix[index].tolist())
+
+    if format:
+        return getattr(dataset, format, dataset.csv)
+
+    return dataset.csv
+
