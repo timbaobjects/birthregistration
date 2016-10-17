@@ -7,7 +7,7 @@ from rapidsms.router import receive
 class HttpBackendView(GenericHttpBackendView):
     params = {
         'identity_name': 'from',
-        'text_name': 'message',
+        'text_name': 'text',
     }
 
     def form_valid(self, form):
