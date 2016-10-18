@@ -114,24 +114,40 @@ def export_records_2(location, year, month=None, columns=None, format=None):
     dataframe = dataframe.rename(columns=column_map)
     columns = column_map_data.values() if columns is None else [column_map_data[c] for c in columns]
 
+    if month:
+        start_date = datetime(year, month, 1)
+        end_date = datetime(year, month, 1) + relativedelta(months=1) - relativedelta(seconds=1)
+    else:
+        start_date = datetime(year, 1, 1)
+        end_date = datetime(year, 1, 1) + relativedelta(years=1) - relativedelta(seconds=1)
+
+    dataframe = dataframe.truncate(before=start_date, after=end_date)
+
     # TODO: ensure that only a country or a state is sent in here.
     if location.type.name == u'Country':
         column_spec = [u'State']
     elif location.type.name == u'State':
         column_spec = [u'LGA']
+    descendant_locs = location.get_descendants().filter(
+        type__name=column_spec[0]).order_by(u'name')
 
     pivot_table = pd.pivot_table(dataframe, index=dataframe.index.month, values=columns, columns=column_spec, aggfunc=[np.sum])
 
     # get the transpose
-    export_df = pivot_table.T.loc[u'sum']
+    export_df = pivot_table.T.loc[u'sum'].fillna(u'-')
  
     headers = [u''] + column_spec + [calendar.month_abbr[i] for i in export_df.columns.tolist()]
 
     dataset = tablib.Dataset(headers=headers)
-    indexer = product(export_df.index.levels[0], export_df.index.levels[1])
+    indexer = product(columns, list(descendant_locs.values_list(u'name', flat=True)))
 
     for index in indexer:
-        dataset.append(list(index) + export_df.ix[index].tolist())
+        try:
+            row = export_df.ix[index].tolist()
+        except KeyError:
+            row = [u'-'] * export_df.shape[1]
+
+        dataset.append(list(index) + row)
 
     if format:
         return getattr(dataset, format, dataset.csv)
