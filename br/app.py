@@ -14,7 +14,7 @@ try:
 except ImportError:
     raise ImportError('python-dateutil is required for this app to work.')
 from rapidsms.apps.base import AppBase
-from models import BirthRegistration
+from br.models import BirthRegistration
 from reporters.models import PersistantConnection, Reporter, Role
 from locations.models import Location
 
@@ -131,7 +131,7 @@ class BirthRegistrationApp(AppBase):
 
                 self.help(message)
                 return True
-        except Exception, e:
+        except Exception as e:
             logger.error(e)
 
     def help(self, message):
@@ -231,7 +231,7 @@ class BirthRegistrationApp(AppBase):
                 boys_1to4=br.boys_1to4,
                 boys_5to9=br.boys_5to9,
                 boys_10to18=br.boys_10to18))
-        except Exception, e:
+        except Exception as e:
             logger.debug(e)
 
         return True
