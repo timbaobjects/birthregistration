@@ -8,8 +8,8 @@ from fuzzywuzzy import process
 import parsley
 from rapidsms.apps.base import AppBase
 
+from ipd.models import NonCompliance, Report, Shortage
 from locations.models import Location
-from mnchw.models import NonCompliance, Report, Shortage
 from reporters.models import PersistantConnection, Reporter, Role
 
 commodity_codes = [choice[0] for choice in Report.IM_COMMODITIES]
