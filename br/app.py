@@ -7,6 +7,7 @@ from django.utils.translation import ugettext as _
 import logging
 import parsley
 import re
+import string
 # requires python-dateutil to work
 try:
     from dateutil.parser import parse
@@ -71,7 +72,8 @@ class BirthRegistrationApp(AppBase):
 
     def handle(self, message):
         try:
-            text_message = message.text.lower().strip()
+            # strip whitespace and delete punctuations
+            text_message = message.text.lower().strip().translate(None, string.punctuation)
             if text_message.startswith('br'):
                 now = datetime.now()
                 # parse and extract any specified dates
