@@ -34,7 +34,7 @@ DATABASES = {
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
 # In a Windows environment this must be set to your system time zone.
-TIME_ZONE = config(u'TIME_ZONE', default=u'Africa/Lagos')
+TIME_ZONE = CELERY_TIMEZONE = config(u'TIME_ZONE', default=u'Africa/Lagos')
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -196,6 +196,7 @@ INSTALLED_APPS = (
     "django_mysql",
     "django_tables2",
     "selectable",
+    "django_celery_beat",
     "patterns",
     "locations",
     "reporters",
@@ -311,3 +312,5 @@ POPULATION_RATIOS = {
 }
 
 ALLOWED_HOSTS = config(u'ALLOWED_HOSTS', cast=config.tuple, default=tuple())
+BROKER_URL = config(u'BROKER_URL', default=u'redis://localhost:6379/0')
+
