@@ -83,6 +83,20 @@ class DeathRegistrationApp(AppBase):
 
         return False
 
+    def handle_help(self, message, message_text):
+        text = message_text.strip()
+
+        if text == u'':
+            message.respond(HELP_MESSAGES[None])
+            return
+
+        key = process.extractOne(text, self.subkeywords, score_cutoff=50)
+        if key is None:
+            message.respond(HELP_MESSAGES[None])
+            return
+
+        message.respond(HELP_MESSAGES[key[0]])
+
     def handle_register(self, message, message_text):
         text = message_text.strip()
 
