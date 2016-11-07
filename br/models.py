@@ -64,6 +64,20 @@ class CensusResult(models.Model):
 
         return dataframe
 
+    @staticmethod
+    def get_census_dataframe(year):
+        db_year = CensusResult.objects.filter(year__lte=year).aggregate(
+            max_year=models.Max(u'year')).get(u'max_year')
+
+        qs = CensusResult.objects.filter(year=db_year).annotate(
+            loc_id=models.F(u'location__pk')).values(u'year', u'population',
+            u'growth_rate', u'loc_id', u'under_1_rate', u'under_5_rate')
+
+        dataframe = pd.DataFrame.from_records(qs).set_index(
+            u'loc_id').sort_index()
+
+        return dataframe
+
 
 def generate_population_dataframe():
     qs = CensusResult.objects.values(
