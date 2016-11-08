@@ -6,6 +6,7 @@ from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from django.db.models import F, Func, SmallIntegerField, Sum
 import pandas as pd
+from locations.models import Location
 from .models import BirthRegistration, CensusResult
 
 
@@ -183,6 +184,15 @@ def get_performance_dataframe(location, year, month=None):
         dataframe.loc[node[u'id'], u'U5 Performance'] = (u5_numerator / u5_denominator) * 100
 
     return dataframe.fillna(u'-'), subnodes
+
+
+def get_nonperforming_centers(start_date, end_date):
+    rcs = Location.objects.filter(type__name=u'RC')
+    reports = BirthRegistration.objects.filter(
+        time__range=(start_date, end_date))
+    reported_pks = reports.values_list(u'location__pk', flat=True)
+
+    return rcs.exclude(pk__in=reported_pks)
 
 
 def get_record_dataset(location, year, month=None, cumulative=False):
