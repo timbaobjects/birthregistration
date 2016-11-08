@@ -10,9 +10,17 @@ from dr.models import FIELD_MAP, DeathReport
 from reporters.models import PersistantConnection, Reporter, Role
 
 
-grammar = parsley.makeGrammar('''
+reg_grammar = parsley.makeGrammar('''
 register = <digit+>:location_code ws <letterOrDigit+>:role_code ws <anything*>:full_name -> (location_code, role_code, full_name)
 ''', {})
+
+report_grammar_text = u'''
+entry = ({}):field_name ws <digit+>:value ws -> (field_name, int(value))
+entry_list = entry+
+report = <digit+>:location_code ws entry_list:entries -> (location_code, entries)
+'''.format(u'|'.join(u"'{}'".format(key) for key in FIELD_MAP.keys()))
+
+report_grammar = parsley.makeGrammar(report_grammar_text, {})
 
 ERROR_MESSAGES = {
     u'not_registered': _(u'Please register your number with RapidSMS before sending this report'),
@@ -105,7 +113,7 @@ class DeathRegistrationApp(AppBase):
             return
 
         try:
-            location_code, role_code, full_name = grammar(text).register()
+            location_code, role_code, full_name = reg_grammar(text).register()
         except parsley.ParseError:
             message.respond(ERROR_MESSAGES[u'invalid_message'] % {
                 u'text': message.text})
@@ -143,13 +151,30 @@ class DeathRegistrationApp(AppBase):
             u'location_type': rep.location.type.name})
 
     def handle_report(self, message, message_text):
-        text = message_text.strip()
+        text = message_text.strip().upper()
 
         if text == u'':
             message.respond(HELP_MESSAGES[u'register'])
             return
 
-        pass
+        if message.persistant_connection.reporter is None:
+            message.respond(ERROR_MESSAGES[u'not_registered'])
+            return
+
+        try:
+            location_code, entries = report_grammar(text).report()
+        except parsley.ParseError:
+            message.respond(ERROR_MESSAGES[u'invalid_message'] % {
+                u'text': message.text})
+            return
+
+        location = Location.get_by_code(location_code)
+        if location is None:
+            message.respond(ERROR_MESSAGES[u'invalid_location'] % {
+                u'location_code': location_code, u'text': message.text})
+            return
+
+        entries = [(FIELD_MAP[entry[0]], entry[1]) for entry in entries]
 
     def help(self, message):
         message.respond(HELP_MESSAGES[None])
