@@ -106,19 +106,19 @@ def get_data_records(location, year, month=None):
         subnodes = [node for node in descendant_nodes
             if node[u'type'] == u'State' and node[u'active']]
 
-        records = records.annotate(month=ExtractMonth(u'time'),
+        records = records.annotate(
             state_id=F(u'location__parent__parent__pk'),
             state=F(u'location__parent__parent__name'))
 
-        value_cols = [u'state', u'state_id', u'month']
+        value_cols = [u'state', u'state_id']
     elif location.type.name == u'State':
         subnodes = [node for node in descendant_nodes
             if node[u'type'] == u'LGA' and node[u'active']]
 
-        records = records.annotate(month=ExtractMonth(u'time'),
-            lga=F(u'location__parent__name'), lga_id=F(u'location__parent__pk'))
+        records = records.annotate(lga=F(u'location__parent__name'),
+            lga_id=F(u'location__parent__pk'))
 
-        value_cols = [u'lga', u'lga_id', u'month']
+        value_cols = [u'lga', u'lga_id']
     else:
         raise ValueError(u'Please specify a country or a state')
 
