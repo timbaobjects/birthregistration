@@ -183,7 +183,7 @@ def get_performance_dataframe(location, year, month=None):
         dataframe.loc[node[u'id'], u'U1 Performance'] = (u1_numerator / u1_denominator) * 100
         dataframe.loc[node[u'id'], u'U5 Performance'] = (u5_numerator / u5_denominator) * 100
 
-    return dataframe.fillna(u'-'), subnodes
+    return dataframe, subnodes
 
 
 def get_nonperforming_centers(start_date, end_date):
