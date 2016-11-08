@@ -186,13 +186,24 @@ def get_performance_dataframe(location, year, month=None):
     return dataframe, subnodes
 
 
-def get_nonperforming_centers(start_date, end_date):
-    rcs = Location.objects.filter(type__name=u'RC')
+def get_nonperforming_locations(location, start_date, end_date):
+    descendant_nodes = location.nx_descendants()
+    rc_pks = [n[u'id'] for n in descendant_nodes if n[u'type'] == u'RC']
+    rcs = Location.objects.filter(type__name=u'RC', pk__in=rc_pks)
+
     reports = BirthRegistration.objects.filter(
-        time__range=(start_date, end_date))
+        time__range=(start_date, end_date),
+        location__pk__in=rc_pks)
     reported_pks = reports.values_list(u'location__pk', flat=True)
 
-    return rcs.exclude(pk__in=reported_pks)
+    qs = rcs.exclude(pk__in=reported_pks)
+
+    if location.type.name == u'Country':
+        return set(qs.values_list(u'parent__parent__name', flat=True))
+    elif location.type.name == u'State':
+        return set(qs.values_list(u'parent__name', flat=True))
+    else:
+        return set(qs.values_list(u'name', flat=True))
 
 
 def get_record_dataset(location, year, month=None, cumulative=False):
