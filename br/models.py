@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.core.cache import cache, get_cache, InvalidCacheBackendError
 from django.db import models
 from django_mysql.models import QuerySetMixin
@@ -90,3 +91,9 @@ def generate_population_dataframe():
         'location__pk': 'loc_id',
     })
 
+
+class Subscription(models.Model):
+    subscriber = models.ForeignKey(User)
+    locations = models.ManyToManyField(Location)
+    is_active = models.BooleanField(default=True)
+    last_updated = models.DateTimeField(auto_now=True)

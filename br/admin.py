@@ -10,3 +10,4 @@ class BirthRegistrationAdmin(admin.ModelAdmin):
     search_fields = ['location__name', 'reporter__first_name', 'reporter__last_name']
 
 admin.site.register(BirthRegistration, BirthRegistrationAdmin)
+admin.site.register(Subscription)
