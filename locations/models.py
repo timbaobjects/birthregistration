@@ -2,7 +2,7 @@
 # vim: ai ts=4 sts=4 et sw=4
 import networkx as nx
 from django.conf import settings
-from django.core.cache import cache, get_cache, InvalidCacheBackendError
+from django.core.cache import cache, caches, InvalidCacheBackendError
 from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey
 
@@ -192,7 +192,7 @@ class Location(MPTTModel):
 
 def get_locations_graph(reverse=False):
     try:
-        app_cache = get_cache('graphs')
+        app_cache = caches['graphs']
     except InvalidCacheBackendError:
         app_cache = cache
 
