@@ -1,12 +1,16 @@
 # -*- coding: utf-8 -*-
+import calendar
+from datetime import date, datetime, time
 import re
 
+from django.utils.timezone import make_aware
 from django.utils.translation import ugettext as _
 from fuzzywuzzy import process
 import parsley
 from rapidsms.apps.base import AppBase
 
 from dr.models import FIELD_MAP, DeathReport
+from locations.models import Location
 from reporters.models import PersistantConnection, Reporter, Role
 
 
@@ -39,6 +43,28 @@ RESPONSE_MESSAGES = {
     u'register': _(u'Hello %(name)s! You are now registered as %(role)s at %(location)s %(location_type)s'),
     u'report': _(u'Thank you %(name)s. Received DR report for %(location)s %(location_type)s.')
 }
+
+
+def classify_date(dt):
+    if dt.day <= 7:
+        if dt.month == 1:
+            report_month = 12
+            report_year = dt.year - 1
+        else:
+            report_month = dt.month - 1
+            report_year = dt.year
+    else:
+        report_month = dt.month
+        report_year = dt.year
+
+    report_day = calendar.monthrange(report_year, report_month)[1]
+
+    report_time = make_aware(datetime.combine(
+        date(report_year, report_month, report_day),
+        time.min))
+
+    return report_time
+
 
 
 class DeathRegistrationApp(AppBase):
@@ -174,7 +200,24 @@ class DeathRegistrationApp(AppBase):
                 u'location_code': location_code, u'text': message.text})
             return
 
-        entries = [(FIELD_MAP[entry[0]], entry[1]) for entry in entries]
+        report_data = {FIELD_MAP[entry[0]]: entry[1] for entry in entries}
+
+        report_time = classify_date(datetime.now())
+        try:
+            report = DeathReport.objects.get(time=report_time, location=location,
+                connection=message.persistant_connection,
+                reporter=message.persistant_connection.reporter)
+        except DeathReport.DoesNotExist:
+            report = DeathReport(location=location, time=report_time,
+            connection=message.persistant_connection,
+            reporter=message.persistant_connection.reporter)
+
+        report.data = report_data
+        report.save()
+
+        message.respond(RESPONSE_MESSAGES[u'report'] % {
+            u'location': location.name, u'location_type': location.type.name,
+            u'name': message.persistant_connection.reporter.first_name})
 
     def help(self, message):
         message.respond(HELP_MESSAGES[None])
