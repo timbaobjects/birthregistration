@@ -16,7 +16,7 @@ config.starting_path = PROJECT_ROOT
 # wsgi.py, fixtures, etc.
 PROJECT_PATH = os.path.join(PROJECT_ROOT, 'unicefng')
 
-DEBUG = config(u'DEBUG', cast=config.boolean, default=True)
+DEBUG = config('DEBUG', cast=config.boolean, default=True)
 TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
@@ -27,14 +27,14 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': dj_database_url.parse(
-        config(u'DATABASE_URL',default=u'sqlite://unicefng.db')),
+        config('DATABASE_URL',default='sqlite://unicefng.db')),
 }
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
 # although not all choices may be available on all operating systems.
 # In a Windows environment this must be set to your system time zone.
-TIME_ZONE = CELERY_TIMEZONE = config(u'TIME_ZONE', default=u'Africa/Lagos')
+TIME_ZONE = CELERY_TIMEZONE = config('TIME_ZONE', default='Africa/Lagos')
 
 # Language code for this installation. All choices can be found here:
 # http://www.i18nguy.com/unicode/language-identifiers.html
@@ -84,7 +84,7 @@ STATICFILES_FINDERS = (
 )
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = config(u'SECRET_KEY', default=u'+*x2)pdq%r9rcz*=eb216t0o1+vw5#vx&(8ss$k6mbko!p!+p1')
+SECRET_KEY = config('SECRET_KEY', default='+*x2)pdq%r9rcz*=eb216t0o1+vw5#vx&(8ss$k6mbko!p!+p1')
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -312,6 +312,12 @@ POPULATION_RATIOS = {
     'above5': .45,
 }
 
-ALLOWED_HOSTS = config(u'ALLOWED_HOSTS', cast=config.tuple, default=tuple())
-BROKER_URL = config(u'BROKER_URL', default=u'redis://localhost:6379/0')
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=config.tuple, default=tuple())
+BROKER_URL = config('BROKER_URL', default='redis://localhost:6379/0')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='webmaster@localhost')
 
+EMAIL_HOST = config('EMAIL_HOST', default='localhost')
+EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
+EMAIL_PORT = config('EMAIL_PORT', default=25) 
+EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=config.boolean, default=False)
