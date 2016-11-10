@@ -157,30 +157,53 @@ def export_records_2(location, year, month=None, columns=None, format=None):
 def export_records_3(location, year, month=None, format=None):
     dataframe, subnodes = helpers.get_performance_dataframe(location, year, month)
 
-    column_map = {
-        u'sum_boys_10to18': u'Boys 10+',
-        u'sum_girls_1to4': u'Girls 1 to 4',
-        u'sum_girls_5to9': u'Girls 5 to 9',
-        u'sum_boys_1to4': u'Boys 1 to 4',
-        u'sum_girls_below1': u'Girls < 1',
-        u'sum_girls_10to18': u'Girls 10+',
-        u'sum_boys_5to9': u'Boys 5 to 9',
-        u'sum_boys_below1': u'Boys < 1',
-        u'under_1': u'Total < 1',
-        u'1to4': u'Total 1 to 4',
-        u'above5': u'Total 5+',
-    }
+    old_columns = [
+        u'sum_girls_below1',
+        u'sum_girls_1to4',
+        u'sum_girls_5to9',
+        u'sum_girls_10to18',
+        u'sum_boys_below1',
+        u'sum_boys_1to4',
+        u'sum_boys_5to9',
+        u'sum_boys_10to18',
+        u'under_1',
+        u'1to4',
+        u'above5',
+    ]
+
+    new_columns = [
+        u'Girls < 1',
+        u'Girls 1 to 4',
+        u'Girls 5 to 9',
+        u'Girls 10+',
+        u'Boys < 1',
+        u'Boys 1 to 4',
+        u'Boys 5 to 9',
+        u'Boys 10+',
+        u'Total < 1',
+        u'Total 1 to 4',
+        u'Total 5+',
+    ]
+
+    sort_column = u''
 
     if location.type.name == u'Country':
-        column_map.update(state=u'State')
+        old_columns.insert(0, u'state')
+        new_columns.insert(0, u'State')
+        sort_column = u'state'
     elif location.type.name == u'State':
-        column_map.update(lga=u'LGA')
+        old_columns.insert(0, u'lga')
+        new_columns.insert(0, u'LGA')
+        sort_column = u'lga'
 
-    # TODO: would be an excellent place to sort this data
-    dataframe = dataframe.rename(columns=column_map)
+    column_map = dict(zip(old_columns, new_columns))
 
-    dataset = tablib.Dataset(headers=sorted(column_map.keys()))
+    dataframe = dataframe.sort(sort_column).rename(columns=column_map)
+    headers = new_columns + [u'U1 Performance', u'U5 Performance']
+
+    dataset = tablib.Dataset()
     dataset.dict = dataframe.to_dict(orient=u'records')
+    dataset.headers = headers
 
     if format:
         return getattr(dataset, format, dataset.csv)
