@@ -198,12 +198,14 @@ def export_records_3(location, year, month=None, format=None):
 
     column_map = dict(zip(old_columns, new_columns))
 
-    dataframe = dataframe.sort(sort_column).rename(columns=column_map)
+    dataframe = dataframe.sort_values(sort_column).rename(columns=column_map)
     headers = new_columns + [u'U1 Performance', u'U5 Performance']
 
-    dataset = tablib.Dataset()
-    dataset.dict = dataframe.to_dict(orient=u'records')
-    dataset.headers = headers
+    dataset = tablib.Dataset(headers=headers)
+    for record in dataframe.to_dict(orient=u'records'):
+        record[u'U1 Performance'] = round(record[u'U1 Performance'], 2)
+        record[u'U5 Performance'] = round(record[u'U5 Performance'], 2)
+        dataset.append([record[col] for col in headers])
 
     if format:
         return getattr(dataset, format, dataset.csv)
