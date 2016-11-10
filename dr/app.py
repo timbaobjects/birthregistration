@@ -30,7 +30,7 @@ ERROR_MESSAGES = {
     u'not_registered': _(u'Please register your number with RapidSMS before sending this report'),
     u'invalid_location': _(u'You sent an incorrect location code: %(location_code)s. You sent: %(text)s'),
     u'invalid_role': _(u'You sent an incorrect role code: %(role_code)s. You sent: %(text)s'),
-    u'invalid_message': _(u'Your message is incorrect. Please send MNCHW HELP for help. You sent: %(text)s'),
+    u'invalid_message': _(u'Your message is incorrect. Please send DR HELP for help. You sent: %(text)s'),
 }
 
 HELP_MESSAGES = {
@@ -41,7 +41,7 @@ HELP_MESSAGES = {
 
 RESPONSE_MESSAGES = {
     u'register': _(u'Hello %(name)s! You are now registered as %(role)s at %(location)s %(location_type)s'),
-    u'report': _(u'Thank you %(name)s. Received DR report for %(location)s %(location_type)s.')
+    u'report': _(u'Thank you %(name)s. Received DR report for %(location)s %(location_type)s on %(date)s.')
 }
 
 
@@ -200,13 +200,11 @@ class DeathRegistrationApp(AppBase):
                 u'location_code': location_code, u'text': message.text})
             return
 
-        report_data = {FIELD_MAP[entry[0]]: entry[1] for entry in entries}
+        report_data = dict(entries)
 
         report_time = classify_date(datetime.now())
         try:
-            report = DeathReport.objects.get(time=report_time, location=location,
-                connection=message.persistant_connection,
-                reporter=message.persistant_connection.reporter)
+            report = DeathReport.objects.get(time=report_time, location=location)
         except DeathReport.DoesNotExist:
             report = DeathReport(location=location, time=report_time,
             connection=message.persistant_connection,
@@ -217,7 +215,8 @@ class DeathRegistrationApp(AppBase):
 
         message.respond(RESPONSE_MESSAGES[u'report'] % {
             u'location': location.name, u'location_type': location.type.name,
-            u'name': message.persistant_connection.reporter.first_name})
+            u'name': message.persistant_connection.reporter.first_name,
+            u'date': report.time.strftime(u'%d-%m-%Y')})
 
     def help(self, message):
         message.respond(HELP_MESSAGES[None])
