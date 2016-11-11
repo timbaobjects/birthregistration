@@ -41,7 +41,7 @@ HELP_MESSAGES = {
 
 RESPONSE_MESSAGES = {
     u'register': _(u'Hello %(name)s! You are now registered as %(role)s at %(location)s %(location_type)s'),
-    u'report': _(u'Thank you %(name)s. Received DR report for %(location)s %(location_type)s on %(date)s.')
+    u'report': _(u'Thank you %(name)s. Received DR report for %(location)s %(location_type)s for %(date)s')
 }
 
 
