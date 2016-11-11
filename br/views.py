@@ -6,7 +6,7 @@ from br.models import BirthRegistration
 from br.filters import BirthRegistrationFilter
 from br.forms import BirthRegistrationModelForm, CenterGroupCreationForm
 from br.helpers import get_record_dataset, stringify
-from br.exporter import export_records_2
+from br.exporter import export_records_3
 from locations.forms import generate_edit_form
 from locations.filters import CenterFilterSet
 from locations.models import Location, LocationType
@@ -45,7 +45,7 @@ def dashboardview(request, state=None, year=now().year, month=None):
         response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
         response['Content-Disposition'] = 'attachment; filename="{}-{}-{}.xlsx"'.format(location.name, year, month)
 
-        response.write(export_records_2(location, year, month, format='xlsx'))
+        response.write(export_records_3(location, year, month, format='xlsx'))
         return response
 
     dataframe = get_record_dataset(location, year, month, cumulative)
