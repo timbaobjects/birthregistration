@@ -198,7 +198,7 @@ def export_records_3(location, year, month=None, format=None):
 
     column_map = dict(zip(old_columns, new_columns))
 
-    dataframe = dataframe.sort_values(sort_column).rename(columns=column_map)
+    dataframe = dataframe.sort_values(by=sort_column).rename(columns=column_map)
     headers = new_columns + [u'U1 Performance', u'U5 Performance']
 
     dataset = tablib.Dataset(headers=headers)
