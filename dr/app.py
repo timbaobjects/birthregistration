@@ -210,7 +210,7 @@ class DeathRegistrationApp(AppBase):
             connection=message.persistant_connection,
             reporter=message.persistant_connection.reporter)
 
-        report.data = report_data
+        report.data.update(report_data)
         report.save()
 
         message.respond(RESPONSE_MESSAGES[u'report'] % {
