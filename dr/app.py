@@ -180,7 +180,7 @@ class DeathRegistrationApp(AppBase):
         text = message_text.strip().upper()
 
         if text == u'':
-            message.respond(HELP_MESSAGES[u'register'])
+            message.respond(HELP_MESSAGES[u'report'])
             return
 
         if message.persistant_connection.reporter is None:
