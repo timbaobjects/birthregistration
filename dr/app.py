@@ -7,8 +7,9 @@ from django.utils.timezone import make_aware
 from django.utils.translation import ugettext as _
 from fuzzywuzzy import process
 import parsley
-from rapidsms.apps.base import AppBase
+# from rapidsms.apps.base import AppBase
 
+from common.fuzzyapp.base import FuzzySubKeywordAppBase
 from dr.models import FIELD_MAP, DeathReport
 from locations.models import Location
 from reporters.models import PersistantConnection, Reporter, Role
@@ -67,55 +68,56 @@ def classify_date(dt):
 
 
 
-class DeathRegistrationApp(AppBase):
+# class DeathRegistrationApp(AppBase):
+class DeathRegistrationApp(FuzzySubKeywordAppBase):
     keyword = u'dr'
     subkeywords = [u'help', u'register', u'report']
     min_ratio = 70
 
-    def parse(self, message):
-        connection = PersistantConnection.from_message(message)
-        message.persistant_connection = connection
-        message.reporter = connection.reporter
+    # def parse(self, message):
+    #     connection = PersistantConnection.from_message(message)
+    #     message.persistant_connection = connection
+    #     message.reporter = connection.reporter
 
-        if message.reporter:
-            message.persistance_dict = {u'reporter': message.reporter}
-        else:
-            message.persistance_dict = {u'connection': message.connection}
+    #     if message.reporter:
+    #         message.persistance_dict = {u'reporter': message.reporter}
+    #     else:
+    #         message.persistance_dict = {u'connection': message.connection}
 
-        connection.seen()
+    #     connection.seen()
 
-    def handle(self, message):
-        text = message.text.lower().strip()
+    # def handle(self, message):
+    #     text = message.text.lower().strip()
 
-        if text.startswith(self.keyword):
-            try:
-                text = re.sub(self.keyword, u'', message.text, count=1)
-                parts = text.split(None, 1)
-            except ValueError:
-                self.help(message)
-                return True
+    #     if text.startswith(self.keyword):
+    #         try:
+    #             text = re.sub(self.keyword, u'', message.text, count=1)
+    #             parts = text.split(None, 1)
+    #         except ValueError:
+    #             self.help(message)
+    #             return True
 
-            if len(parts) == 0:
-                self.help(message)
-                return True
-            elif len(parts) == 1:
-                subkeyword = parts[0]
-                message_text = u''
-            else:
-                subkeyword, message_text = parts
+    #         if len(parts) == 0:
+    #             self.help(message)
+    #             return True
+    #         elif len(parts) == 1:
+    #             subkeyword = parts[0]
+    #             message_text = u''
+    #         else:
+    #             subkeyword, message_text = parts
 
-            result = process.extractOne(subkeyword, self.subkeywords,
-                score_cutoff=self.min_ratio)
-            if result is None:
-                self.help(message)
-                return True
+    #         result = process.extractOne(subkeyword, self.subkeywords,
+    #             score_cutoff=self.min_ratio)
+    #         if result is None:
+    #             self.help(message)
+    #             return True
 
-            handler_name, score = result
-            handler = getattr(self, u'handle_{}'.format(handler_name))
-            handler(message, message_text)
-            return True
+    #         handler_name, score = result
+    #         handler = getattr(self, u'handle_{}'.format(handler_name))
+    #         handler(message, message_text)
+    #         return True
 
-        return False
+    #     return False
 
     def handle_help(self, message, message_text):
         text = message_text.strip()
