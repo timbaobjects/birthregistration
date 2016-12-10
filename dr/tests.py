@@ -88,7 +88,7 @@ class DeathRegistrationTestCase(TestScript):
         self.runScript(u'''
             12345 > dr register 1001001 dr John Doe
             12345 < Hello John! You are now registered as DR at The Point Point
-            12345 > dr report 1001001 AB 1 AA 3 AD 2 AC 4
+            12345 > dr report 1001001 AB 1 AA 3 BD 2 CC 4
             12345 < Thank you John. Received DR report for The Point Point for {}-{}-{}
         '''.format(str(ts.day).zfill(2), str(ts.month).zfill(2), ts.year))
 
@@ -97,8 +97,8 @@ class DeathRegistrationTestCase(TestScript):
 
         self.assertEqual(report.data[u'AA'], 3)
         self.assertEqual(report.data[u'AB'], 1)
-        self.assertEqual(report.data[u'AC'], 4)
-        self.assertEqual(report.data[u'AD'], 2)
+        self.assertEqual(report.data[u'CC'], 4)
+        self.assertEqual(report.data[u'BD'], 2)
 
         self.assertEqual(report.time, ts)
 
