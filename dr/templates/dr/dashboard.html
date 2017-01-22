@@ -1,0 +1,214 @@
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="">
+    <title></title>
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.11/c3.min.css" integrity="sha256-gl80aFE+bSTFw7UJf+ne/RkwC55cjidIp0Oe3AX5pfo=" crossorigin="anonymous" />
+    <style>
+      .jumbotron-heading {
+        font-weight: 300;
+      }
+      .jumbotron .container {
+        max-width: 40rem;
+      }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/holder/2.9.4/holder.min.js" integrity="sha256-ifihHN6L/pNU1ZQikrAb7CnyMBvisKG3SUAab0F3kVU=" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <section class="jumbotron">
+      <div class="container">
+        <h3 class="jumbotron-heading">Death Report Statistics</h3>
+        <p class="lead text-muted">The National Population Commission, in 2017, started using the RapidSMS data collection and processing system to aggregate death reporting statistics in Nigeria. The reports below are generated realtime by the data submitted by the commission.</p>
+      </div>
+    </section>
+
+    <div class="text-muted">
+      <div class="container pb-4">
+        <!-- General Statistics -->
+        <div class="row">
+          <div class="col-4">
+            <div class="card">
+              {% if general_male or general_female %}<div id="general-gender" class="card-img-top"></div>{% else %}<img src="holder.js/100px320">{% endif %}
+              <div class="card-block">
+                <h6 class="card-title">Gender</h6>
+                <p class="card-text">Deaths reported by gender</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="card">
+              {% if general_certified or general_uncertified %}<div id="general-certification" class="card-img-top"></div>{% else %}<img src="holder.js/100px320">{% endif %}
+              <div class="card-block">
+                <h6 class="card-title">Certification</h6>
+                <p class="card-text">Deaths reported by certification</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="card">
+              {% if general_childbirth or general_fevers or general_accidents or general_hiv or general_others %}<div id="general-cause" class="card-img-top"></div>{% else %}<img src="holder.js/100px320">{% endif %}
+              <div class="card-block">
+                <h6 class="card-title">Cause</h6>
+                <p class="card-text">Deaths reported by cause of death</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Male Deaths -->
+        <div class="row justify-content-md-center pt-4">
+          <div class="col-4">
+            <div class="card">
+              {% if male_1 or male_4 or male_5 %}<div id="male-age" class="card-img-top"></div>{% else %}<img src="holder.js/100px320">{% endif %}
+              <div class="card-block">
+                <h6 class="card-title">Age &mdash; Male</h6>
+                <p class="card-text">Reported age at time of death</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="card">
+              {% if male_fevers or male_accidents or male_hiv or male_others %}<div id="male-cause" class="card-img-top"></div>{% else %}<img src="holder.js/100px320">{% endif %}
+              <div class="card-block">
+                <h6 class="card-title">Cause &mdash; Male</h6>
+                <p class="card-text">Reported cause of death</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Female Deaths -->
+        <div class="row justify-content-md-center pt-4">
+          <div class="col-4">
+            <div class="card">
+              {% if female_1 or female_4 or female_5 %}<div id="female-age" class="card-img-top"></div>{% else %}<img src="holder.js/100px320">{% endif %}
+              <div class="card-block">
+                <h6 class="card-title">Age &mdash; Female</h6>
+                <p class="card-text">Reported age at time of death</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="card">
+              {% if female_chilbirth or female_fevers or female_accidents or female_hiv or female_others %}<div id="female-cause" class="card-img-top"></div>{% else %}<img src="holder.js/100px320">{% endif %}
+              <div class="card-block">
+                <h6 class="card-title">Cause &mdash; Female</h6>
+                <p class="card-text">Reported cause of death</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.0/d3.min.js" integrity="sha256-dqMULkpKk8zC0jJ8tlqNHrS/4XneIex7kRQxO6OU8Xo=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.11/c3.min.js" integrity="sha256-mlJR4DaLFvEBAgHcavz/vASrM6RrzcQq2lXDBwMixZU=" crossorigin="anonymous"></script>
+    <script>
+      Holder.addTheme("gray", { bg: '#eee', fg: '#aaa', text: 'No Data Available', size: '8pt', fontweight: 400 });
+{% if general_male or general_female %}
+      var general_gender = c3.generate({
+        bindto: "#general-gender",
+        data: {
+          columns: [
+            ['Male ({{ general_male|intcomma }})', {{ general_male }}],
+            ['Female ({{ general_female|intcomma }})', {{ general_female }}]
+          ],
+          type: 'pie'
+        }
+      });
+{% endif %}
+{% if general_certified or general_uncertified %}
+      var general_certification = c3.generate({
+        bindto: "#general-certification",
+        data: {
+          columns: [
+            ['Certified ({{ general_certified|intcomma }})', {{ general_certified }}],
+            ['Uncertified ({{ general_uncertified|intcomma }})', {{ general_uncertified }}]
+          ],
+          type: 'pie'
+        }
+      });
+{% endif %}
+{% if general_childbirth or general_fevers or general_accidents or general_hiv or general_others %}
+      var general_cause = c3.generate({
+        bindto: "#general-cause",
+        data: {
+          columns: [
+            ['Childbirth ({{ general_childbirth|intcomma }})', {{ general_childbirth }}],
+            ['Fevers/Typhoid ({{ general_fevers|intcomma }})', {{ general_fevers }}],
+            ['Accidents/Injuries ({{ general_accidents|intcomma }})', {{ general_accidents }}],
+            ['HIV/AIDS ({{ general_hiv|intcomma }})', {{ general_hiv }}],
+            ['Other Ailments ({{ general_others|intcomma }})', {{ general_others }}]
+          ],
+          type: 'pie'
+        }
+      });
+{% endif %}
+{% if male_1 or male_4 or male_5 %}
+      var male_age = c3.generate({
+        bindto: "#male-age",
+        data: {
+          columns: [
+            ['Aged below 1 year ({{ male_1|intcomma }})', {{ male_1 }}],
+            ['Aged 1 to 4 years ({{ male_4|intcomma }})', {{ male_4 }}],
+            ['Aged 5 years and above ({{ male_5|intcomma }})', {{ male_5 }}]
+          ],
+          type: 'pie'
+        }
+      });
+{% endif %}
+{% if male_fevers or male_accidents or male_hiv or male_others %}
+      var male_cause = c3.generate({
+        bindto: "#male-cause",
+        data: {
+          columns: [
+            ['Fevers/Typhoid ({{ male_fevers|intcomma }})', {{ male_fevers }}],
+            ['Accidents/Injuries ({{ male_accidents|intcomma }})', {{ male_accidents }}],
+            ['HIV/AIDS ({{ male_hiv|intcomma }})', {{ male_hiv }}],
+            ['Other Ailments ({{ male_others|intcomma }})', {{ male_others }}]
+          ],
+          type: 'pie'
+        }
+      });
+{% endif %}
+{% if female_1 or female_4 or female_5 %}
+      var female_age = c3.generate({
+        bindto: "#female-age",
+        data: {
+          columns: [
+            ['Aged below 1 year ({{ female_1|intcomma }})', {{ female_1 }}],
+            ['Aged 1 to 4 years ({{ female_4|intcomma }})', {{ female_4 }}],
+            ['Aged 5 years and above ({{ female_5|intcomma }})', {{ female_5 }}]
+          ],
+          type: 'pie'
+        }
+      });
+{% endif %}
+{% if female_childbirth or female_fevers or female_accidents or female_hiv or female_others %}
+      var female_cause = c3.generate({
+        bindto: "#female-cause",
+        data: {
+          columns: [
+            ['Childbirth ({{ female_childbirth|intcomma }})', {{ female_childbirth }}],
+            ['Fevers/Typhoid ({{ female_fevers|intcomma }})', {{ female_fevers }}],
+            ['Accidents/Injuries ({{ female_accidents|intcomma }})', {{ female_accidents }}],
+            ['HIV/AIDS ({{ female_hiv|intcomma }})', {{ female_hiv }}],
+            ['Other Ailments ({{ female_others|intcomma }})', {{ female_others }}]
+          ],
+          type: 'pie'
+        }
+      });
+{% endif %}
+    </script>
+  </body>
+</html>

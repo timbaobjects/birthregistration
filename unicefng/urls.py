@@ -17,6 +17,7 @@ urlpatterns = [
 
     # Third party URLs
     url(r'^selectable/', include('selectable.urls')),
-    url(r'br/', include('br.urls')),
+    url(r'^br/', include('br.urls')),
+    url(r'^dr/', include('dr.urls')),
     url(r'incoming/', HttpBackendView.as_view(backend_name='polling')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
