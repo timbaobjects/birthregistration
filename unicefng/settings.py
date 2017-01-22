@@ -118,6 +118,7 @@ ROOT_URLCONF = 'unicefng.urls'
 SUBDOMAIN_URLCONFS = {
     None: 'unicefng.urls',
     'br': 'br.urls',
+    'dr': 'dr.urls',
 }
 
 # Python dotted path to the WSGI application used by Django's runserver.
