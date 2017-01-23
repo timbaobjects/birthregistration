@@ -313,7 +313,7 @@ POPULATION_RATIOS = {
     'above5': .45,
 }
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=config.tuple, default=tuple())
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=config.list, default=[])
 BROKER_URL = config('BROKER_URL', default='redis://localhost:6379/0')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='webmaster@localhost')
 
