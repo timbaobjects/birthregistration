@@ -41,6 +41,7 @@ def death_report_summary(queryset):
         country=F('location__parent__parent__parent__name')
     ).values('country', 'zone', 'state', 'lga').annotate(**extracted_fields_sum)
     df = pd.DataFrame(data=[pd.Series(data=item) for item in items])
-    for k in FORMULAS.keys():
-        df[k] = df.eval(FORMULAS[k])
+    if not df.empty:
+        for k in FORMULAS.keys():
+            df[k] = df.eval(FORMULAS[k])
     return df
