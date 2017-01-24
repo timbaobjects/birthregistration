@@ -21,7 +21,7 @@ register = <digit+>:location_code ws <letterOrDigit+>:role_code ws <anything*>:f
 report_grammar_text = u'''
 entry = ({}):field_name ws <digit+>:value ws -> (field_name, int(value))
 entry_list = entry+
-report = <digit+>:location_code ws entry_list:entries -> (location_code, entries)
+report = entry_list:entries -> entries
 '''.format(u'|'.join(u"'{}'".format(key) for key in FIELD_MAP.keys()))
 
 report_grammar = parsley.makeGrammar(report_grammar_text, {})
@@ -143,17 +143,13 @@ class DeathRegistrationApp(FuzzySubKeywordAppBase):
             return
 
         try:
-            location_code, entries = report_grammar(text).report()
+            entries = report_grammar(text).report()
         except parsley.ParseError:
             message.respond(ERROR_MESSAGES[u'invalid_message'] % {
                 u'text': message.text})
             return
 
-        location = Location.get_by_code(location_code)
-        if location is None:
-            message.respond(ERROR_MESSAGES[u'invalid_location'] % {
-                u'location_code': location_code, u'text': message.text})
-            return
+        location = message.persistant_connection.reporter.location
 
         report_data = dict(entries)
 
