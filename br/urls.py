@@ -7,6 +7,8 @@ from locations.api import LocationItemView, TypedLocationListView
 from unicefng.backend import HttpBackendView
 
 urlpatterns = [
+    url(r'^incoming/', HttpBackendView.as_view(backend_name='polling')),
+
     #url(r'^(?P<prefix>(monthly)?)/?(?P<state>\d*)/?(?P<year>\d*)/?(?P<month>\d*)/?$', 'unicefng.br.views.dashboard'),
     #url(r'^data/?(?P<prefix>(monthly)?)/?(?P<state>\d*)/?(?P<year>\d*)/?(?P<month>\d*)/?$', 'unicefng.br.views.csv_download'),
     url(r'^api/locations', TypedLocationListView.as_view(), name='api_location_list'),
@@ -30,8 +32,6 @@ urlpatterns = [
     url(r'^center/new/?$', CenterCreationView.as_view(), name='center_add'),
     url(r'^centers/?$', CenterListView.as_view(), name='center_list'),
     url(r'^center/(?P<pk>\d+)/?$', CenterUpdateView.as_view(), name='center_edit'),
-
-    url(r'^incoming/', HttpBackendView.as_view(backend_name='polling')),
 ]
 
 # authentication urls
