@@ -7,7 +7,8 @@ from django.utils.translation import ugettext as _
 import logging
 import parsley
 import re
-import string
+import sys
+import unicodedata
 # requires python-dateutil to work
 try:
     from dateutil.parser import parse
@@ -32,6 +33,10 @@ br_grammar = parsley.makeGrammar('''
     register = 'br' ws 'register' ws <digit+>:location_code ws <letterOrDigit+>:role ws <anything*>:name -> (location_code, role, name)
 ''', {})
 
+tbl = dict.fromkeys(i for i in xrange(sys.maxunicode)
+        if unicodedata.category(unichr(i)).startswith('P'))
+def remove_punctuation(text):
+    return unicode(text).translate(tbl)
 
 class BirthRegistrationApp(AppBase):
     error_messages = {
@@ -73,7 +78,7 @@ class BirthRegistrationApp(AppBase):
     def handle(self, message):
         try:
             # strip whitespace and delete punctuations
-            text_message = message.text.lower().strip().translate(None, string.punctuation)
+            text_message = remove_punctuation(message.text.lower().strip())
             if text_message.startswith('br'):
                 now = datetime.now()
                 # parse and extract any specified dates
