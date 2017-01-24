@@ -203,8 +203,8 @@ INSTALLED_APPS = (
     "reporters",
     "br",
     "dr",
-    "campaigns",
-    "ipd",
+    #"campaigns",
+    #"ipd",
     "rest_framework",
     "pipeline",
     # RapidSMS
