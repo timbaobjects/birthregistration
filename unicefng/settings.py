@@ -223,6 +223,9 @@ INSTALLED_BACKENDS = {
     "message_tester": {
         "ENGINE": "rapidsms.backends.database.DatabaseBackend",
     },
+    "polling": {
+        "ENGINE": "rapidsms.backends.database.DatabaseBackend",
+    },
 }
 
 LOGIN_REDIRECT_URL = '/'
