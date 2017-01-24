@@ -9,7 +9,13 @@
 .env
 .vagrant
 */settings/local.py
+bin/
+include/
+lib/
+local/
+share/
 public/static/
 public/media/
 *-env/
+pip-selfcheck.json
 rapidsms.log
