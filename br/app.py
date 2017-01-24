@@ -21,6 +21,7 @@ from reporters.models import PersistantConnection, Reporter, Role
 from locations.models import Location
 
 MAX_REPORT_WINDOW = 90 * 24 * 3600  # reports older than 90 days from the day of submission will be rejected
+ALLOWED_PUNCTUATIONS = [u'/', u'-']
 logger = logging.getLogger(__name__)
 help_grammar = parsley.makeGrammar('''
     help = 'br' ws 'help' ws <letter*>:selector -> (selector)
@@ -33,8 +34,9 @@ br_grammar = parsley.makeGrammar('''
     register = 'br' ws 'register' ws <digit+>:location_code ws <letterOrDigit+>:role ws <anything*>:name -> (location_code, role, name)
 ''', {})
 
-tbl = dict.fromkeys(i for i in xrange(sys.maxunicode)
-        if unicodedata.category(unichr(i)).startswith('P'))
+tbl = dict.fromkeys((i for i in xrange(sys.maxunicode)
+        if unicodedata.category(unichr(i)).startswith('P')
+        and i not in map(ord, ALLOWED_PUNCTUATIONS)), u' ')
 def remove_punctuation(text):
     return unicode(text).translate(tbl)
 
