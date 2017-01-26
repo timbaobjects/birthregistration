@@ -168,7 +168,7 @@
             </thead>
             <tbody>{% for entry in states_data %} 
               <tr>
-                <td class="text-muted">{{ entry.state|title }}</td>
+                <td class="text-muted">{{ entry.state }}</td>
                 <td class="text-right cb-gender{{ entry.general_male_rank }}">{{ entry.general_male|intcomma }}</td>
                 <td class="text-right cb-gender{{ entry.general_female_rank }}">{{ entry.general_female|intcomma }}</td>
                 <td class="text-right cb-cert{{ entry.general_certified_rank }}">{{ entry.general_certified|intcomma }}</td>
