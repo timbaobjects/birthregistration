@@ -30,6 +30,16 @@ FORMULAS = {
     'female_hiv': 'DC + DD + DG + DH + DM + DN',
     'female_others': 'EC + ED + EG + EH + EM + EN'
 }
+RANKINGS = [
+    ['general_male', 'general_female'],
+    ['general_certified', 'general_uncertified'],
+    ['general_childbirth', 'general_fevers', 'general_accidents', 'general_hiv', 'general_others'],
+    ['male_1', 'male_4', 'male_5'],
+    ['male_fevers', 'male_accidents', 'male_hiv', 'male_others'],
+    ['female_1', 'female_4', 'female_5'],
+    ['female_childbirth', 'female_fevers', 'female_accidents', 'female_hiv', 'female_others']
+]
+
 extracted_fields = {field: Func(F("data"), Value("$." + field), function="JSON_EXTRACT") for field in FIELD_MAP.keys()}
 extracted_fields_sum = {field: Sum(Func(F("data"), Value("$." + field), function="JSON_EXTRACT")) for field in FIELD_MAP.keys()}
 
@@ -45,3 +55,9 @@ def death_report_summary(queryset):
         for k in FORMULAS.keys():
             df[k] = df.eval(FORMULAS[k])
     return df
+
+def compute_rankings(dataframe):
+    for ranking in RANKINGS:
+        dataframe[map(lambda x: x + '_rank', ranking)] = dataframe[ranking].rank(
+            'columns', 'max', numeric_only=True, na_option='top', ascending=True)
+    return dataframe

@@ -1,4 +1,4 @@
-from dr.helpers import death_report_summary
+from dr.helpers import death_report_summary, compute_rankings
 from dr.models import DeathReport
 from django.shortcuts import render
 from django.http import HttpResponse
@@ -9,6 +9,7 @@ def dashboard(request):
 
     if not df.empty:
         general_data = df.groupby('country').sum().astype('int')
+        states_data = compute_rankings(df.groupby('state').sum()).astype('int')
 
         context = {
             'general_male':        general_data.ix[0]['general_male'],
@@ -38,4 +39,12 @@ def dashboard(request):
             'male_hiv':       general_data.ix[0]['male_hiv'],
             'male_others':    general_data.ix[0]['male_others'],
         }
+
+        context['states_data'] = []
+
+        for state in sorted(states_data.index):
+            data = {'state': state}
+            data.update(states_data.ix[state])
+            context['states_data'].append(data)
+
     return render(request, 'dr/dashboard.html', context)

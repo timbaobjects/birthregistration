@@ -17,6 +17,18 @@
       .jumbotron .container {
         max-width: 40rem;
       }
+      .cb-gender1 { background-color: #e5f5f9; }
+      .cb-gender2 { background-color: #99d8c9; }
+      .cb-cert1 { background-color: #e0ecf4; }
+      .cb-cert2 { background-color: #9ebcda; }
+      .cb-cause1 { background-color: #fff7f3; }
+      .cb-cause2 { background-color: #fde0dd; }
+      .cb-cause3 { background-color: #fcc5c0; }
+      .cb-cause4 { background-color: #fa9fb5; }
+      .cb-cause5 { background-color: #f768a1; }
+      .cb-age1 { background-color: #fed976; }
+      .cb-age2 { background-color: #feb24c; }
+      .cb-age3 { background-color: #fd8d3c; }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/holder/2.9.4/holder.min.js" integrity="sha256-ifihHN6L/pNU1ZQikrAb7CnyMBvisKG3SUAab0F3kVU=" crossorigin="anonymous"></script>
   </head>
@@ -62,7 +74,7 @@
         </div>
 
         <!-- Male Deaths -->
-        <div class="row justify-content-md-center pt-4">
+        <div class="row justify-content-sm-center pt-4">
           <div class="col-sm-4">
             <div class="card">
               {% if male_1 or male_4 or male_5 %}<div id="male-age" class="card-img-top"></div>{% else %}<img src="holder.js/100px320">{% endif %}
@@ -84,7 +96,7 @@
         </div>
 
         <!-- Female Deaths -->
-        <div class="row justify-content-md-center pt-4">
+        <div class="row justify-content-sm-center pt-4">
           <div class="col-sm-4">
             <div class="card">
               {% if female_1 or female_4 or female_5 %}<div id="female-age" class="card-img-top"></div>{% else %}<img src="holder.js/100px320">{% endif %}
@@ -104,16 +116,102 @@
             </div>
           </div>
         </div>
-
       </div>
     </div>
 
+    <div class="container pb-4">
+      <!-- Location-based Statistics -->
+      <div class="row">
+        <div class="col-12">
+          <table class="table table-striped table-hover table-responsive">
+            <thead class="">
+              <tr>
+                <th rowspan="3">Location</th>
+                <th rowspan="2" colspan="2">Gender</th>
+                <th rowspan="2" colspan="2">Certification</th>
+                <th rowspan="2" colspan="5">Cause</th>
+                <th colspan="7">Male</th>
+                <th colspan="8">Female</th>
+              </tr>
+              <tr>
+                <th colspan="3">Age</th>
+                <th colspan="4">Cause</th>
+                <th colspan="3">Age</th>
+                <th colspan="5">Cause</th>
+              </tr>
+              <tr>
+                <th class="text-center"><abbr title="Male" data-toggle="tooltip">M</abbr></th>
+                <th class="text-center"><abbr title="Female" data-toggle="tooltip">F</abbr></th>
+                <th class="text-center"><abbr title="Certified" data-toggle="tooltip">C</abbr></th>
+                <th class="text-center"><abbr title="Uncertified" data-toggle="tooltip">U</abbr></th>
+                <th class="text-center"><abbr title="Childbirth" data-toggle="tooltip">C</abbr></th>
+                <th class="text-center"><abbr title="Fevers/Typhoid" data-toggle="tooltip">F</abbr></th>
+                <th class="text-center"><abbr title="Accidents/Injuries" data-toggle="tooltip">A</abbr></th>
+                <th class="text-center"><abbr title="HIV/AIDS" data-toggle="tooltip">H</abbr></th>
+                <th class="text-center"><abbr title="Other Ailments" data-toggle="tooltip">O</abbr></th>
+                <th class="text-center"><abbr title="Aged below 1 year" data-toggle="tooltip">1</abbr></th>
+                <th class="text-center"><abbr title="Aged 1 to 4 years" data-toggle="tooltip">4</abbr></th>
+                <th class="text-center"><abbr title="Aged 5 years and above" data-toggle="tooltip">5</abbr></th>
+                <th class="text-center"><abbr title="Fevers/Typhoid" data-toggle="tooltip">F</abbr></th>
+                <th class="text-center"><abbr title="Accidents/Injuries" data-toggle="tooltip">A</abbr></th>
+                <th class="text-center"><abbr title="HIV/AIDS" data-toggle="tooltip">H</abbr></th>
+                <th class="text-center"><abbr title="Other Ailments" data-toggle="tooltip">O</abbr></th>
+                <th class="text-center"><abbr title="Aged below 1 year" data-toggle="tooltip">1</abbr></th>
+                <th class="text-center"><abbr title="Aged 1 to 4 years" data-toggle="tooltip">4</abbr></th>
+                <th class="text-center"><abbr title="Aged 5 years and above" data-toggle="tooltip">5</abbr></th>
+                <th class="text-center"><abbr title="Childbirth" data-toggle="tooltip">C</abbr></th>
+                <th class="text-center"><abbr title="Fevers/Typhoid" data-toggle="tooltip">F</abbr></th>
+                <th class="text-center"><abbr title="Accidents/Injuries" data-toggle="tooltip">A</abbr></th>
+                <th class="text-center"><abbr title="HIV/AIDS" data-toggle="tooltip">H</abbr></th>
+                <th class="text-center"><abbr title="Other Ailments" data-toggle="tooltip">O</abbr></th>
+              </tr>
+            </thead>
+            <tbody>{% for entry in states_data %} 
+              <tr>
+                <td class="text-muted">{{ entry.state|title }}</td>
+                <td class="text-right cb-gender{{ entry.general_male_rank }}">{{ entry.general_male|intcomma }}</td>
+                <td class="text-right cb-gender{{ entry.general_female_rank }}">{{ entry.general_female|intcomma }}</td>
+                <td class="text-right cb-cert{{ entry.general_certified_rank }}">{{ entry.general_certified|intcomma }}</td>
+                <td class="text-right cb-cert{{ entry.general_uncertified_rank }}">{{ entry.general_uncertified|intcomma }}</td>
+                <td class="text-right cb-cause{{ entry.general_childbirth_rank }}">{{ entry.general_childbirth|intcomma }}</td>
+                <td class="text-right cb-cause{{ entry.general_fevers_rank }}">{{ entry.general_fevers|intcomma }}</td>
+                <td class="text-right cb-cause{{ entry.general_accidents_rank }}">{{ entry.general_accidents|intcomma }}</td>
+                <td class="text-right cb-cause{{ entry.general_hiv_rank }}">{{ entry.general_hiv|intcomma }}</td>
+                <td class="text-right cb-cause{{ entry.general_others_rank }}">{{ entry.general_others|intcomma }}</td>
+                <td class="text-right cb-age{{ entry.male_1_rank }}">{{ entry.male_1|intcomma }}</td>
+                <td class="text-right cb-age{{ entry.male_4_rank }}">{{ entry.male_4|intcomma }}</td>
+                <td class="text-right cb-age{{ entry.male_5_rank }}">{{ entry.male_5|intcomma }}</td>
+                <td class="text-right cb-cause{{ entry.male_fevers_rank }}">{{ entry.male_fevers|intcomma }}</td>
+                <td class="text-right cb-cause{{ entry.male_accidents_rank }}">{{ entry.male_accidents|intcomma }}</td>
+                <td class="text-right cb-cause{{ entry.male_hiv_rank }}">{{ entry.male_hiv|intcomma }}</td>
+                <td class="text-right cb-cause{{ entry.male_others_rank }}">{{ entry.male_others|intcomma }}</td>
+                <td class="text-right cb-age{{ entry.female_1_rank }}">{{ entry.female_1|intcomma }}</td>
+                <td class="text-right cb-age{{ entry.female_4_rank }}">{{ entry.female_4|intcomma }}</td>
+                <td class="text-right cb-age{{ entry.female_5_rank }}">{{ entry.female_5|intcomma }}</td>
+                <td class="text-right cb-cause{{ entry.female_chilbirth_rank }}">{{ entry.female_chilbirth|intcomma }}</td>
+                <td class="text-right cb-cause{{ entry.female_fevers_rank }}">{{ entry.female_fevers|intcomma }}</td>
+                <td class="text-right cb-cause{{ entry.female_accidents_rank }}">{{ entry.female_accidents|intcomma }}</td>
+                <td class="text-right cb-cause{{ entry.female_hiv_rank }}">{{ entry.female_hiv|intcomma }}</td>
+                <td class="text-right cb-cause{{ entry.female_others_rank }}">{{ entry.female_others|intcomma }}</td>
+              </tr>{% empty %}
+              <tr>
+                <td colspan="25" class="text-center">No Data Available</td>
+              </tr>{% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
     <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.0/d3.min.js" integrity="sha256-dqMULkpKk8zC0jJ8tlqNHrS/4XneIex7kRQxO6OU8Xo=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.11/c3.min.js" integrity="sha256-mlJR4DaLFvEBAgHcavz/vASrM6RrzcQq2lXDBwMixZU=" crossorigin="anonymous"></script>
     <script>
+      $(function () {
+        $('[data-toggle="tooltip"]').tooltip()
+      });
+
       Holder.addTheme("gray", { bg: '#eee', fg: '#aaa', text: 'No Data Available', size: '8pt', fontweight: 400 });
 {% if general_male or general_female %}
       var general_gender = c3.generate({
