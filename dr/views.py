@@ -1,7 +1,14 @@
+# -*- coding: utf-8 -*-
+from django.core.urlresolvers import reverse
+from django.views.generic import ListView, UpdateView
+
+from django.conf import settings
+
+from dr.forms import DeathReportForm
 from dr.helpers import death_report_summary, compute_rankings
 from dr.models import DeathReport
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 
 def dashboard(request):
     context = {}
@@ -48,3 +55,28 @@ def dashboard(request):
             context['states_data'].append(data)
 
     return render(request, 'dr/dashboard.html', context)
+
+
+class DeathReportListView(ListView):
+    model = DeathReport
+    paginate_by = settings.PAGE_SIZE
+    ordering = (u'-pk')
+    template_name = u'dr/report_list.html'
+
+
+class DeathReportUpdateView(UpdateView):
+    form_class = DeathReportForm
+    model = DeathReport
+    template_name = u'dr/report_edit.html'
+
+    def form_valid(self, form):
+        self.object.data.update(form.cleaned_data)
+        self.object.save()
+
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_initial(self):
+        return self.object.data
+
+    # def get_success_url(self):
+    #     return reverse(u'dr-list')
