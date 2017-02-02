@@ -75,6 +75,14 @@ class DeathReportUpdateView(UpdateView):
 
         return HttpResponseRedirect(self.get_success_url())
 
+    def get_context_data(self, **kwargs):
+        context = super(DeathReportUpdateView, self).get_context_data(**kwargs)
+
+        context[u'page_title'] = u'Edit {date} report for {location}'.format(
+            date=self.object.time.date(), location=self.object.location.name)
+
+        return context
+
     def get_initial(self):
         return self.object.data
 
