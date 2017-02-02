@@ -19,11 +19,15 @@
             <div data-row-span="1">
               <div data-field-span="1">
                 <label for="{{ field.id_for_label }}">{{ field.help_text }}</label>
-                <input type="number" name="{{ field.name }}" value="{{ field.value }}" id="{{ field.id_for_label }}">
+                <input type="number" name="{{ field.name }}" value="{{ field.value }}" id="{{ field.id_for_label }}" placeholder="{{ field.name }}">
               </div>
             </div>
             {% endfor %}
           </fieldset>
+          <div class="card-footer pull-right">
+            <a class="btn btn-default" href="">Cancel</a>
+            <button class="btn btn-primary">Save</button>
+          </div>
         </form>
       </div>
     </div>
