@@ -5,21 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit-no">
   <title>{{ page_title }}</title>
   <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/gridforms/1.0.10/gridforms.min.css">
 </head>
 <body>
   <div class="container">
-    <form action="" method="POST">
-      {% csrf_token %}
-      {% for field in form %}
-      <div class="form-group row">
-        <label class="col-sm-2 col-form-label" for="{{ field.id_for_label }}">{{ field.name }}</label>
-        <div class="col-sm-10">
-          <input class="form-control" type="number" value="{{ field.value }}" placeholder="{{ field.name }}"></input>
-        </div>
-        <small class="form-text text-muted">{{ field.help_text }}</small>
+    <div class="card">
+      <div class="card-block">
+        <form action="" class="grid-form" method="POST">
+          <fieldset>
+            <legend>{{ page_title }}</legend>
+            {% csrf_token %}
+            {% for field in form %}
+            <div data-row-span="1">
+              <div data-field-span="1">
+                <label for="{{ field.id_for_label }}">{{ field.help_text }}</label>
+                <input type="number" name="{{ field.name }}" value="{{ field.value }}" id="{{ field.id_for_label }}">
+              </div>
+            </div>
+            {% endfor %}
+          </fieldset>
+        </form>
       </div>
-      {% endfor %}
-    </form>
+    </div>
   </div>
 </body>
 </html>
