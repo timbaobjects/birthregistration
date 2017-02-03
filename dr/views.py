@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
+from django.utils.decorators import method_decorator
 from django.views.generic import ListView, UpdateView
 
 from django.conf import settings
@@ -64,6 +66,10 @@ class DeathReportListView(ListView):
     ordering = (u'-pk')
     template_name = u'dr/report_list.html'
 
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(DeathReportListView, self).dispatch(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super(DeathReportListView, self).get_context_data(**kwargs)
 
@@ -76,6 +82,10 @@ class DeathReportUpdateView(UpdateView):
     form_class = DeathReportForm
     model = DeathReport
     template_name = u'dr/report_edit.html'
+
+    @method_decorator(login_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super(DeathReportUpdateView, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         self.object.data.update(form.cleaned_data)
