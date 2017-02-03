@@ -59,9 +59,17 @@ def dashboard(request):
 
 class DeathReportListView(ListView):
     model = DeathReport
+    page_title = u'Death reports'
     paginate_by = settings.PAGE_SIZE
     ordering = (u'-pk')
     template_name = u'dr/report_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(DeathReportListView, self).get_context_data(**kwargs)
+
+        context[u'page_title'] = self.page_title
+
+        return context
 
 
 class DeathReportUpdateView(UpdateView):
@@ -86,5 +94,5 @@ class DeathReportUpdateView(UpdateView):
     def get_initial(self):
         return self.object.data
 
-    # def get_success_url(self):
-    #     return reverse(u'dr-list')
+    def get_success_url(self):
+        return reverse(u'dr_report_list')
