@@ -207,6 +207,7 @@ INSTALLED_APPS = (
     #"ipd",
     "rest_framework",
     "pipeline",
+    "bootstrap_pagination",
     # RapidSMS
     "rapidsms",
     "rapidsms.backends.database",

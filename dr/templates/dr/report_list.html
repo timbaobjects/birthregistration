@@ -1,3 +1,4 @@
+{% load bootstrap_pagination %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -40,6 +41,11 @@
         </tbody>
       </table>
     </div>
+    {% if is_paginated %}
+    <div class="row">
+      {% bootstrap_paginate page_obj range=10 %}
+    </div>
+    {% endif %}
   </div>
 </body>
 </html>

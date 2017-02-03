@@ -2,6 +2,7 @@ Bottleneck==1.2.0
 celery==4.0.0
 dj-database-url==0.4.1
 Django>=1.8,<1.9
+django-bootstrap-pagination==1.6.2
 django-celery-beat==1.0.0
 django-filter==0.14.0
 django-mptt==0.8.6
