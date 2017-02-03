@@ -5,5 +5,7 @@ from dr import views
 urlpatterns = [
     url(r'^$', views.dashboard, name='dashboard'),
     url(r'reports/(?P<pk>\d+)/?$', views.DeathReportUpdateView.as_view(),
-    	name=u'report_edit'),
+        name=u'dr_report_edit'),
+    url(r'reports/?$', views.DeathReportListView.as_view(),
+        name=u'dr_report_list'),
 ]
