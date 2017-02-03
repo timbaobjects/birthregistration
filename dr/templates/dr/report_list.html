@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit-no">
+  <title>{{ page_title }}</title>
+  <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/gridforms/1.0.10/gridforms.min.css">
+</head>
+<body>
+  <div class="container">
+    <div class="row">
+      
+    </div>
+    <div class="row">
+      <table class="table table-bordered table-hover table-responsive table-striped">
+        <thead>
+          <tr>
+            <th>Location</th>
+            <th>Date</th>
+            <th>Male deaths</th>
+            <th>Female deaths</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for record in object_list %}
+          <tr>
+            <td>{{ record.location.name }}</td>
+            <td>{{ record.time.date }}</td>
+            <td>{{ record.male }}</td>
+            <td>{{ record.female }}</td>
+            <td><a href="{% url 'dr_report_edit' pk=record.pk %}">Edit</a></td>
+          </tr>
+          {% empty %}
+          <tr class="table-warning">
+            <td colspan="4">No records</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>
