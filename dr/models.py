@@ -2,6 +2,7 @@
 from django.db import models
 from django_mysql.models import JSONField
 
+from dr.utils import pick, values
 from locations.models import Location
 from reporters.models import Reporter, PersistantConnection
 
@@ -58,24 +59,44 @@ FIELD_MAP = {
     u'EN': u'The number of uncertified deaths of females 5 years and older due to other ailments',
 }
 
+class Groups(object):
+    male = [u'BA', u'BB', u'BE', u'BF', u'BJ', u'BK', u'CA', u'CB', u'CE', u'CF', u'CJ', u'CK', u'DA', u'DB', u'DE', u'DF', u'DJ', u'DK', u'EA', u'EB', u'EE', u'EF', u'EJ', u'EK']
+    female = [u'AA', u'AB', u'BC', u'BD', u'BG', u'BH', u'BM', u'BN', u'CC', u'CD', u'CG', u'CH', u'CM', u'CN', u'DC', u'DD', u'DG', u'DH', u'DM', u'DN', u'EC', u'ED', u'EG', u'EH', u'EM', u'EN']
+    certified = [u'AA', u'BA', u'BC', u'BE', u'BG', u'BJ', u'BM', u'CA', u'CC', u'CE', u'CG', u'CJ', u'CM', u'DA', u'DC', u'DE', u'DG', u'DJ', u'DM', u'EA', u'EC', u'EE', u'EG', u'EJ', u'EM']
+    uncertified = [u'AB', u'BB', u'BD', u'BF', u'BH', u'BK', u'BN', u'CB', u'CD', u'CF', u'CH', u'CK', u'CN', u'DB', u'DD', u'DF', u'DH', u'DK', u'DN', u'EB', u'ED', u'EF', u'EH', u'EK', u'EN']
+    childbirth = [u'AA', u'AB']
+    fevers = [u'BA', u'BB', u'BC', u'BD', u'BE', u'BF', u'BG', u'BH', u'BJ', u'BK', u'BM', u'BN']
+    accidents = [u'CA', u'CB', u'CC', u'CD', u'CE', u'CF', u'CG', u'CH', u'CJ', u'CK', u'CM', u'CN']
+    hiv = [u'DA', u'DB', u'DC', u'DD', u'DE', u'DF', u'DG', u'DH', u'DJ', u'DK', u'DM', u'DN']
+    other = [u'EA', u'EB', u'EC', u'ED', u'EE', u'EF', u'EG', u'EH', u'EJ', u'EK', u'EM', u'EN']
+    underOne = [u'BA', u'BB', u'BC', u'BD', u'CA', u'CB', u'CC', u'CD', u'DA', u'DB', u'DC', u'DD', u'EA', u'EB', u'EC', u'ED']
+    oneToFour = [u'BE', u'BF', u'BG', u'BH', u'CE', u'CF', u'CG', u'CH', u'DE', u'DF', u'DG', u'DH', u'EE', u'EF', u'EG', u'EH']
+    fiveAndOlder = [u'AA', u'AB', u'BJ', u'BK', u'BM', u'BN', u'CJ', u'CK', u'CM', u'CN', u'DJ', u'DK', u'DM', u'DN', u'EJ', u'EK', u'EM', u'EN']
+
 
 class DeathReport(models.Model):
-	'''
-	Represents a single death record.
+    '''
+    Represents a single death record.
 
-	Each death record contains the number of certified and uncertified
-	deaths, male and female, for each cause of death, for each of the age groups below:
-	- under 1y
-	- 1-4y
-	- 5+y
-	...bringing this to a total of 50 individual data points per record (only
+    Each death record contains the number of certified and uncertified
+    deaths, male and female, for each cause of death, for each of the age groups below:
+    - under 1y
+    - 1-4y
+    - 5+y
+    ...bringing this to a total of 50 individual data points per record (only
     females over 5 can die of childbirth and pregnancy complications)
-	For this reason, we're using a JSONField (which requires MySQL 5.7+)
-	'''
-	location = models.ForeignKey(Location, related_name=u'death_reports')
-	reporter = models.ForeignKey(Reporter, blank=True, null=True,
-		related_name=u'death_reports')
-	connection = models.ForeignKey(PersistantConnection, blank=True, null=True,
-		related_name=u'death_reports')
-	time = models.DateTimeField()
-	data = JSONField()
+    For this reason, we're using a JSONField (which requires MySQL 5.7+)
+    '''
+    location = models.ForeignKey(Location, related_name=u'death_reports')
+    reporter = models.ForeignKey(Reporter, blank=True, null=True,
+        related_name=u'death_reports')
+    connection = models.ForeignKey(PersistantConnection, blank=True, null=True,
+        related_name=u'death_reports')
+    time = models.DateTimeField()
+    data = JSONField()
+
+    def male(self):
+        return sum(values(pick(Groups.male, self.data)))
+
+    def female(self):
+        return sum(values(pick(Groups.female, self.data)))
