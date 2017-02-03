@@ -17,7 +17,6 @@ config.starting_path = PROJECT_ROOT
 PROJECT_PATH = os.path.join(PROJECT_ROOT, 'unicefng')
 
 DEBUG = config('DEBUG', cast=config.boolean, default=True)
-TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
@@ -92,17 +91,6 @@ TEMPLATE_LOADERS = (
     'django.template.loaders.app_directories.Loader',
 )
 
-TEMPLATE_CONTEXT_PROCESSORS = (
-    'django.contrib.auth.context_processors.auth',
-    'django.core.context_processors.debug',
-    'django.core.context_processors.i18n',
-    'django.core.context_processors.media',
-    'django.core.context_processors.static',
-    'django.core.context_processors.tz',
-    'django.core.context_processors.request',
-    'django.contrib.messages.context_processors.messages',
-)
-
 MIDDLEWARE_CLASSES = (
     'subdomains.middleware.SubdomainURLRoutingMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -124,9 +112,28 @@ SUBDOMAIN_URLCONFS = {
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'unicefng.wsgi.application'
 
-TEMPLATE_DIRS = (
-    os.path.join(PROJECT_PATH, 'templates'),
-)
+TEMPLATES = [
+    {
+        u'BACKEND': u'django.template.backends.django.DjangoTemplates',
+        u'APP_DIRS': True,
+        u'DIRS': [
+            os.path.join(PROJECT_PATH, 'templates'),
+        ],
+        u'OPTIONS': {
+            u'context_processors': (
+                u'django.contrib.auth.context_processors.auth',
+                u'django.core.context_processors.debug',
+                u'django.core.context_processors.i18n',
+                u'django.core.context_processors.media',
+                u'django.core.context_processors.static',
+                u'django.core.context_processors.tz',
+                u'django.core.context_processors.request',
+                u'django.contrib.messages.context_processors.messages',
+            ),
+            u'debug': DEBUG,
+        }
+    }
+]
 
 FIXTURE_DIRS = (
     os.path.join(PROJECT_PATH, 'fixtures'),
