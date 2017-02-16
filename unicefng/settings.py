@@ -206,6 +206,7 @@ INSTALLED_APPS = (
     "selectable",
     "django_celery_beat",
     "bootstrap3",
+    "django_filters",
     "patterns",
     "locations",
     "reporters",
