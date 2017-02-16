@@ -6,12 +6,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit-no">
   <title>{{ page_title }}</title>
   <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
-  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/gridforms/1.0.10/gridforms.min.css">
 </head>
 <body>
   <div class="container">
     <div class="row">
-      
+      <div class="card">
+        <form class="inline">
+          <label class="sr-only" for="{{ filter_form.location.id_for_label }}">Location</label>
+          <select></select>
+          <label class="sr-only" for="{{ filter_form.date_start.id_for_label }}"></label>
+          {{ filter_form.date_start }}
+          <label class="sr-only" for="{{ filter_form.date_end.id_for_label }}"></label>
+          {{ filter_form.date_end }}
+          <button class="btn btn-warning"><span class="glyphicon glyphicon-search"></span> Filter</button>
+          <a class="btn btn-secondary" href="{% url 'dr_report_list' %}">Cancel</a>
+        </form>
+      </div>
     </div>
     <div class="row">
       <table class="table table-bordered table-hover table-responsive table-striped">
