@@ -6,6 +6,7 @@ from django.views.generic import ListView, UpdateView
 
 from django.conf import settings
 
+from dr.filters import DeathReportFilter
 from dr.forms import DeathReportForm
 from dr.helpers import death_report_summary, compute_rankings
 from dr.models import DeathReport
@@ -73,9 +74,16 @@ class DeathReportListView(ListView):
     def get_context_data(self, **kwargs):
         context = super(DeathReportListView, self).get_context_data(**kwargs)
 
+        context[u'filter_form'] = self.filterset.form
         context[u'page_title'] = self.page_title
 
         return context
+
+    def get_queryset(self):
+        qs = super(DeathReportListView, self).get_queryset()
+        self.filterset = DeathReportFilter(self.request.GET, queryset=qs)
+
+        return self.filterset.qs
 
 
 class DeathReportUpdateView(UpdateView):
