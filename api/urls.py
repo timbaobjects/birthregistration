@@ -8,4 +8,6 @@ urlpatterns = [
         name=u'location_detail'),
     url(r'^locations/?$', locations_api.LocationListView.as_view(),
         name=u'location_list'),
+    url(r'^locations-typed/?$', locations_api.TypedLocationListView.as_view(),
+        name=u'location_list_typed'),
 ]
