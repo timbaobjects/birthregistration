@@ -30,6 +30,8 @@ class DateEndFilter(django_filters.DateFilter):
 class DeathReportFilter(django_filters.FilterSet):
     location = LocationFilter(queryset=Location.objects.filter())
     date_start = DateStartFilter(name=u'time', lookup_expr=u'date__gte',
-            widget=forms.DateInput(attrs={u'placeholder': u'Start date'}))
+            widget=forms.DateInput(attrs={
+                u'class': u'form-control mb-2 mr-sm-2 mb-sm-0', u'placeholder': u'start'}))
     date_end = DateEndFilter(name=u'time', lookup_expr=u'date__lte',
-            widget=forms.DateInput(attrs={u'placeholder': u'End date'}))
+            widget=forms.DateInput(attrs={
+                u'class': u'form-control mb-2 mr-sm-2 mb-sm-0', u'placeholder': u'end'}))
