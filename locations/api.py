@@ -4,43 +4,43 @@ from locations.models import Location
 from locations.serializers import LocationSerializer
 
 
-class TypedLocationListView(generics.ListAPIView):
-    '''
-    Lists all locations of a given type
-    '''
-    # permission_classes = (permissions.IsAdminUser,)
-    serializer_class = LocationSerializer
+# class TypedLocationListView(generics.ListAPIView):
+#     '''
+#     Lists all locations of a given type
+#     '''
+#     # permission_classes = (permissions.IsAdminUser,)
+#     serializer_class = LocationSerializer
 
-    def get_queryset(self):
-        queryset = Location.objects.none()
+#     def get_queryset(self):
+#         queryset = Location.objects.none()
 
-        # filter on type
-        location_type = self.request.QUERY_PARAMS.get('type', None)
-        if location_type is not None:
-            queryset = Location.objects.filter(type__name=location_type)
+#         # filter on type
+#         location_type = self.request.query_params.get('type', None)
+#         if location_type is not None:
+#             queryset = Location.objects.filter(type__name=location_type)
 
-        # filter on parent id
-        parent_id = self.request.QUERY_PARAMS.get('parent', None)
-        if parent_id:
-            queryset = queryset.filter(parent=parent_id)
+#         # filter on parent id
+#         parent_id = self.request.query_params.get('parent', None)
+#         if parent_id:
+#             queryset = queryset.filter(parent=parent_id)
 
-        # filter on name
-        name = self.request.QUERY_PARAMS.get('q', None)
-        if name:
-            queryset = queryset.filter(name__istartswith=name)
+#         # filter on name
+#         name = self.request.query_params.get('q', None)
+#         if name:
+#             queryset = queryset.filter(name__istartswith=name)
 
-        # filter on parent name
-        parent_name = self.request.QUERY_PARAMS.get('parent_name', None)
-        if parent_name:
-            queryset = queryset.filter(parent__name=parent_name)
+#         # filter on parent name
+#         parent_name = self.request.query_params.get('parent_name', None)
+#         if parent_name:
+#             queryset = queryset.filter(parent__name=parent_name)
 
-        return queryset
+#         return queryset
 
-    def list(self, request, *args, **kwargs):
-        self.object_list = self.filter_queryset(self.get_queryset())
-        serializer = self.get_serializer(self.object_list, many=True)
+#     def list(self, request, *args, **kwargs):
+#         self.object_list = self.filter_queryset(self.get_queryset())
+#         serializer = self.get_serializer(self.object_list, many=True)
 
-        return Response({'locations': serializer.data})
+#         return Response({'locations': serializer.data})
 
 
 class LocationItemView(generics.RetrieveAPIView):
@@ -49,3 +49,39 @@ class LocationItemView(generics.RetrieveAPIView):
     '''
     queryset = Location.objects.all()
     serializer_class = LocationSerializer
+
+
+class LocationListView(generics.ListAPIView):
+    queryset = Location.objects.all()
+    serializer_class = LocationSerializer
+
+    def get_queryset(self):
+        queryset = super(LocationListView, self).get_queryset()
+
+        # filter on prefix (for name-based lookups)
+        prefix = self.request.query_params.get(u'q', None)
+        if prefix:
+            queryset = queryset.filter(name__istartswith=prefix)
+
+        return queryset
+
+
+class TypedLocationListView(LocationListView):
+    def get_queryset(self):
+        queryset = super(TypedLocationListView, self).get_queryset()
+
+        # type is required
+        # this works without case sensitivity on MySQL
+        # TODO: implement explicit case-insensitivity
+        type_name = self.request.query_params.get(u'type')
+        if not type_name:
+            return queryset.none()
+
+        queryset = queryset.filter(type__name=type_name)
+
+        # filter on parent id
+        parent_id = self.request.query_params.get(u'parent')
+        if parent_id:
+            queryset = queryset.filter(parent=parent_id)
+
+        return queryset
