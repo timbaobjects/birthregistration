@@ -3,7 +3,6 @@
 from django.conf.urls import url
 from django.http import HttpResponseRedirect
 from br.views import *
-from locations.api import LocationItemView, TypedLocationListView
 from unicefng.backend import HttpBackendView
 
 urlpatterns = [
@@ -11,8 +10,6 @@ urlpatterns = [
 
     #url(r'^(?P<prefix>(monthly)?)/?(?P<state>\d*)/?(?P<year>\d*)/?(?P<month>\d*)/?$', 'unicefng.br.views.dashboard'),
     #url(r'^data/?(?P<prefix>(monthly)?)/?(?P<state>\d*)/?(?P<year>\d*)/?(?P<month>\d*)/?$', 'unicefng.br.views.csv_download'),
-    url(r'^api/locations', TypedLocationListView.as_view(), name='api_location_list'),
-    url(r'^api/location/(?P<pk>[0-9]+)/?$', LocationItemView.as_view(), name='api_location_detail'),
     url(r'^faq/?$', FAQView.as_view(), name='faq'),
     url(r'^reports/?$', ReportListView.as_view(), name='reports_list'),
     url(r'^report/(?P<pk>\d+)/?$', ReportEditView.as_view(),
