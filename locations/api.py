@@ -55,4 +55,12 @@ class LocationListView(generics.ListAPIView):
     queryset = Location.objects.all()
     serializer_class = LocationSerializer
 
+    def get_queryset(self):
+        queryset = super(LocationListView, self).get_queryset()
 
+        # filter on prefix (for name-based lookups)
+        prefix = self.request.query_params.get(u'q', None)
+        if prefix:
+            queryset = queryset.filter(name__istartswith=prefix)
+
+        return queryset
