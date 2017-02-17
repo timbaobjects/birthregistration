@@ -64,3 +64,24 @@ class LocationListView(generics.ListAPIView):
             queryset = queryset.filter(name__istartswith=prefix)
 
         return queryset
+
+
+class TypedLocationListView(LocationListView):
+    def get_queryset(self):
+        queryset = super(TypedLocationListView, self).get_queryset()
+
+        # type is required
+        # this works without case sensitivity on MySQL
+        # TODO: implement explicit case-insensitivity
+        type_name = self.request.query_params.get(u'type')
+        if not type_name:
+            return queryset.none()
+
+        queryset = queryset.filter(type__name=type_name)
+
+        # filter on parent id
+        parent_id = self.request.query_params.get(u'parent')
+        if parent_id:
+            queryset = queryset.filter(parent=parent_id)
+
+        return queryset
