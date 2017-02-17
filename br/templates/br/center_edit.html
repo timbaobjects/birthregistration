@@ -6,76 +6,76 @@
 {% block title %}{{ page_title }}{% endblock %}
 {% block content %}
 <div class="container">
-	<div class="row filter">
-		<div class="col-md-12">
-			<form class="form-horizontal" method="POST">
-				{% csrf_token %}
-				{{ form.id }}
-				<div class="form-group">
-					<label for="{{ form.name.name }}">{{ form.name.label }}</label>
-					<input type="text" class="form-control" id="{{ form.name.auto_id }}" name="{{ form.name.name }}" value="{{ form.name.value }}">
-				</div>
-				<div class="form-group">
-					<label for="{{ form.code.name }}">{{ form.code.label }}</label>
-					<input type="text" class="form-control" id="{{ form.code.auto_id }}" name="{{ form.code.name }}" value="{{ form.code.value }}">
-				</div>
-				<div class="form-group">
-					<label for="{{ form.state.name }}">{{ form.state.label }}</label>
-					{{ form.state }}
-				</div>
-				<div class="form-group">
-					<label for="{{ form.lga.name }}">{{ form.lga.label|upper }}</label>
-					{{ form.lga }}
-				</div>
-				<div class="form-group">
-					<div class="checkbox">
-						<label>
-							{{ form.active }} {{ form.active.label }}
-						</label>
-					</div>
-				</div>
-				<div class="form-group">
-					<button type="submit" class="btn btn-primary">Save</button>
-					<a class="btn btn-default" href="{% url 'center_list' %}">Cancel</a>
-				</div>
-			</form>
-		</div>
-	</div>
+    <div class="row filter">
+        <div class="col-md-12">
+            <form class="form-horizontal" method="POST">
+                {% csrf_token %}
+                {{ form.id }}
+                <div class="form-group">
+                    <label for="{{ form.name.name }}">{{ form.name.label }}</label>
+                    <input type="text" class="form-control" id="{{ form.name.auto_id }}" name="{{ form.name.name }}" value="{{ form.name.value }}">
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.code.name }}">{{ form.code.label }}</label>
+                    <input type="text" class="form-control" id="{{ form.code.auto_id }}" name="{{ form.code.name }}" value="{{ form.code.value }}">
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.state.name }}">{{ form.state.label }}</label>
+                    {{ form.state }}
+                </div>
+                <div class="form-group">
+                    <label for="{{ form.lga.name }}">{{ form.lga.label|upper }}</label>
+                    {{ form.lga }}
+                </div>
+                <div class="form-group">
+                    <div class="checkbox">
+                        <label>
+                            {{ form.active }} {{ form.active.label }}
+                        </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Save</button>
+                    <a class="btn btn-default" href="{% url 'center_list' %}">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 {% endblock %}
 {% block scripts %}
 {% compressed_js 'centers' %}
 <script type="text/javascript">
 $(document).ready(function() {
-	$('#id_state').select2({
-		width: 'resolve'
-	});
-	$('#id_lga').select2({
-		ajax: {
-			url: "{% url 'api_location_list' %}?type=lga&parent=" + $('#id_state').val(),
-			dataType: 'json',
-			quietMillis: 250,
-			data: function(term, page) {
-				return {q: term};
-			},
-			results: function(data, page) {
-				var results = [];
+    $('#id_state').select2({
+        width: 'resolve'
+    });
+    $('#id_lga').select2({
+        ajax: {
+            url: "{% url 'api:location_list_typed' %}?type=lga&parent=" + $('#id_state').val(),
+            dataType: 'json',
+            quietMillis: 250,
+            data: function(term, page) {
+                return {q: term};
+            },
+            results: function(data, page) {
+                var results = [];
 
-				$.each(data.locations, function(index, item) {
-					results.push({
-						id: item.id,
-						text: item.name
-					})
-				});
+                $.each(data.locations, function(index, item) {
+                    results.push({
+                        id: item.id,
+                        text: item.name
+                    })
+                });
 
-				return {results: results};
-			},
-			cache: true
-		},
-		minimumInputLength: 1,
-		placeholder: 'LGA',
-		width: '150px'
-	});
+                return {results: results};
+            },
+            cache: true
+        },
+        minimumInputLength: 1,
+        placeholder: 'LGA',
+        width: '150px'
+    });
 });
 </script>
 {% endblock %}
