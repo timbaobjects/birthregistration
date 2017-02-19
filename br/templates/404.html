@@ -1,4 +1,4 @@
-{% load compressed staticfiles %}
+{% load pipeline staticfiles %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -7,8 +7,8 @@
     <meta name="description" content="">
     <meta name="author" content="">
     <title>Page Not Found</title>
-    {% compressed_css 'dashboard' %}
-    {% compressed_js 'dashboard' %}
+    {% stylesheet 'dashboard' %}
+    {% javascript 'dashboard' %}
   </head>
 
   <body class="with-3d-shadow">

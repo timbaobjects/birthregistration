@@ -1,8 +1,8 @@
 {% extends "br/base.html" %}
 {% load bootstrap3 location_tags %}
-{% load compressed staticfiles %}
+{% load pipeline staticfiles %}
 {% block stylesheets %}
-{% compressed_css 'centers' %}
+{% stylesheet 'centers' %}
 {% endblock %}
 {% block title %}{{ page_title }}{% endblock %}
 {% block content %}
@@ -44,5 +44,5 @@
 </div>
 {% endblock %}
 {% block scripts %}
-{% compressed_js 'centers' %}
+{% javascript 'centers' %}
 {% endblock %}

@@ -1,7 +1,7 @@
 {% extends 'br/base.html' %}
-{% load compressed staticfiles %}
+{% load pipeline staticfiles %}
 {% block stylesheets %}
-{% compressed_css 'centers' %}
+{% stylesheet 'centers' %}
 {% endblock %}
 {% block title %}{{ page_title }}{% endblock %}
 {% block content %}
@@ -24,8 +24,10 @@
                     {{ form.state }}
                 </div>
                 <div class="form-group">
-                    <label for="{{ form.lga.name }}">{{ form.lga.label|upper }}</label>
-                    {{ form.lga }}
+                    <label for="{{ form.lga.id_for_label }}">{{ form.lga.label|upper }}</label>
+                    <select name="{{ form.lga.name }}" id="{{ form.lga.id_for_label }}">
+                        <option selected="true" value="{{ location.parent.pk }}">{{ location.parent.name }}</option>
+                    </select>
                 </div>
                 <div class="form-group">
                     <div class="checkbox">
@@ -44,37 +46,38 @@
 </div>
 {% endblock %}
 {% block scripts %}
-{% compressed_js 'centers' %}
+{% javascript 'centers' %}
 <script type="text/javascript">
 $(document).ready(function() {
+    var endpoint = "{% url 'api:location_list_typed' %}?type=lga&parent={{ location.parent.parent.pk }}";
     $('#id_state').select2({
         width: 'resolve'
     });
     $('#id_lga').select2({
-        ajax: {
-            url: "{% url 'api:location_list_typed' %}?type=lga&parent=" + $('#id_state').val(),
-            dataType: 'json',
-            quietMillis: 250,
-            data: function(term, page) {
-                return {q: term};
-            },
-            results: function(data, page) {
-                var results = [];
-
-                $.each(data.locations, function(index, item) {
-                    results.push({
-                        id: item.id,
-                        text: item.name
-                    })
-                });
-
-                return {results: results};
-            },
-            cache: true
+      ajax: {
+        data: function(params) {
+          return {q: params.term};
         },
-        minimumInputLength: 1,
-        placeholder: 'LGA',
-        width: '150px'
+        dataType: 'json',
+        delay: 250,
+        processResults: function(data, params) {
+          return {results: data.results};
+        },
+        url: endpoint
+      },
+      allowClear: true,
+      minimumInputLength: 2,
+      width: '150px',
+      placeholder: 'Location',
+      templateResult: function(item) {
+        return item.name;
+      },
+      templateSelection: function(item) {
+        if (item.text)
+          return item.text;
+        else
+          return item.name;
+      }
     });
 });
 </script>

@@ -256,11 +256,3 @@ def get_record_dataset(location, year, month=None, cumulative=False):
     dataset['total'] = dataset['below1'] + dataset['1to4'] + dataset['above5']
 
     return dataset.set_index('time').sort_index()
-
-
-def stringify(s):
-    if s is None:
-        return ''
-
-    return unicode(s)
-

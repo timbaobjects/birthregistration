@@ -1,7 +1,7 @@
-{% load compressed %}<html>
+{% load pipeline %}<html>
 <head>
 	<title>{{ page_title }}</title>
-	{% compressed_css 'rapidsms' %}
+	{% stylesheet 'rapidsms' %}
 </head>
 <style type="text/css">
 .table th{background: #eee;}
@@ -60,6 +60,6 @@ body,html{
 			</div>
 		</div>
 	</div>
-	{% compressed_js 'rapidsms' %}
+	{% javascript 'rapidsms' %}
 </body>
 </html>
