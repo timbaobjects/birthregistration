@@ -26,9 +26,6 @@ urlpatterns = [
         name='dashboard_with_state_and_year'),
     url(r'^(?P<state>[a-z\-]+)/(?P<year>\d+)/(?P<month>\d+)/?$', dashboardview,
         name='dashboard_with_state_year_and_month'),
-    url(r'^center/new/?$', CenterCreationView.as_view(), name='center_add'),
-    url(r'^centers/?$', CenterListView.as_view(), name='center_list'),
-    url(r'^center/(?P<pk>\d+)/?$', CenterUpdateView.as_view(), name='center_edit'),
 ]
 
 # authentication urls
