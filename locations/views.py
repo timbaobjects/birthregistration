@@ -60,6 +60,7 @@ class CenterUpdateView(FormView):
         context = super(CenterUpdateView, self).get_context_data(**kwargs)
 
         context['page_title'] = 'Edit center: {}'.format(self.object.name)
+        context[u'location'] = self.object
 
         return context
 
