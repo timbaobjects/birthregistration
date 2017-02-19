@@ -54,3 +54,7 @@ def generate_edit_form(location, data=None):
         }
 
     return CenterEditForm(data)
+
+
+class CenterGroupCreationForm(forms.Form):
+    center_data = forms.CharField(widget=forms.HiddenInput())

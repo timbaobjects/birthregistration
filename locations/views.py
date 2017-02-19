@@ -2,7 +2,7 @@
 from datetime import datetime
 import json
 from dateutil.relativedelta import relativedelta
-from locations.forms import generate_edit_form
+from locations.forms import generate_edit_form, CenterGroupCreationForm
 from locations.filters import CenterFilterSet
 from locations.models import Location, LocationType
 from django.conf import settings

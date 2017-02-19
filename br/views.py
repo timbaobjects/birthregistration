@@ -4,7 +4,7 @@ import json
 from dateutil.relativedelta import relativedelta
 from br.models import BirthRegistration
 from br.filters import BirthRegistrationFilter
-from br.forms import BirthRegistrationModelForm, CenterGroupCreationForm
+from br.forms import BirthRegistrationModelForm
 from br.helpers import get_record_dataset, stringify
 from br.exporter import export_records_3
 from locations.forms import generate_edit_form
