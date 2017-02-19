@@ -23,7 +23,7 @@ class CenterListView(ListView):
     context_object_name = 'centers'
     page_title = 'Centers'
     paginate_by = settings.PAGE_SIZE
-    template_name = 'br/center_list.html'
+    template_name = 'locations/center_list.html'
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
@@ -49,7 +49,7 @@ class CenterListView(ListView):
 
 
 class CenterUpdateView(FormView):
-    template_name = 'br/center_edit.html'
+    template_name = 'locations/center_edit.html'
 
     @method_decorator(login_required)
     def dispatch(self, *args, **kwargs):
@@ -116,14 +116,14 @@ class CenterCreationView(TemplateView):
         context['location_data'] = json.dumps(location_data)
         context['page_title'] = 'Create centers'
 
-        self.template_name = 'br/center_create_get.html'
+        self.template_name = 'locations/center_create_get.html'
 
         return self.render_to_response(context)
 
     def post(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         group_form = CenterGroupCreationForm(request.POST)
-        self.template_name = 'br/center_create_post.html'
+        self.template_name = 'locations/center_create_post.html'
 
         context['page_title'] = 'Center creation results'
 
