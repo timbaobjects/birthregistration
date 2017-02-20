@@ -36,36 +36,44 @@
         </div>
       </div>
     </div>
-    <div class="row">
-      <div class="col-12 text-center">
-        <table class="table table-bordered table-hover table-responsive table-striped">
-          <thead>
-            <tr>
-              <th>Location</th>
-              <th>Date</th>
-              <th>Male deaths</th>
-              <th>Female deaths</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for record in object_list %}
-            <tr>
-              <td>{{ record.location.name }}</td>
-              <td>{{ record.time.date }}</td>
-              <td>{{ record.male }}</td>
-              <td>{{ record.female }}</td>
-              <td><a href="{% url 'dr_report_edit' pk=record.pk %}">Edit</a></td>
-            </tr>
-            {% empty %}
-            <tr class="table-warning">
-              <td colspan="5">No records</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+    <form action="{% url 'dr_report_delete' %}" method="POST">
+      {% csrf_token %}
+      <div class="row">
+        <div class="col-12 text-center">
+          <table class="table table-bordered table-hover table-responsive table-striped">
+            <thead>
+              <tr>
+                <th><input type="checkbox" name="checkall" id="checkall"></th>
+                <th>Location</th>
+                <th>Date</th>
+                <th>Male deaths</th>
+                <th>Female deaths</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for record in object_list %}
+              <tr>
+                <td><input type="checkbox" name="reports" value="{{ record.pk }}" class="reports"></td>
+                <td>{{ record.location.name }}</td>
+                <td>{{ record.time.date }}</td>
+                <td>{{ record.male }}</td>
+                <td>{{ record.female }}</td>
+                <td><a href="{% url 'dr_report_edit' pk=record.pk %}">Edit</a></td>
+              </tr>
+              {% empty %}
+              <tr class="table-warning">
+                <td colspan="5">No records</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
+      <div class="row">
+        <button class="btn btn-danger" id="deleteBtn" disabled="true">Delete selected</button>
+      </div>
+    </form>
     {% if is_paginated %}
     <div class="row">
       {% bootstrap_paginate page_obj range=10 %}
@@ -83,6 +91,70 @@
   <script>
     (function () {
       document.addEventListener('DOMContentLoaded', function() {
+        var toggleAllCheckbox = document.getElementById('checkall');
+        var checkboxes = document.getElementsByClassName('reports');
+        var deleteBtn = document.getElementById('deleteBtn');
+
+        toggleAllCheckbox.addEventListener('click', function(event) {
+          var status = event.target.checked;
+
+          for (var i = 0; i < checkboxes.length; i++) {
+            setCheckStatus(checkboxes[i], status);
+          }
+        });
+
+        var setCheckStatus = function(checkbox, status) {
+          if (status === true) {
+            if ('indeterminate' in checkbox) {
+              checkbox.indeterminate = false;
+            }
+            checkbox.checked = true;
+          }
+          else if (status === false) {
+            if ('indeterminate' in checkbox) {
+              checkbox.indeterminate = false;
+            }
+            checkbox.checked = false;
+          }
+          else {
+            checkbox.checked = false;
+            if ('indeterminate' in checkbox) {
+              checkbox.indeterminate = true;
+            }
+          }
+        }
+
+        var setDeleteButtonStatus = function (btn, status) {
+          btn.disabled = !status;
+        }
+
+        var toggleAnchor = function () {
+          var all_checked = true;
+          var all_unchecked = true;
+
+          for (var i = 0; i < checkboxes.length; i++) {
+            all_checked = all_checked && checkboxes[i].checked;
+            all_unchecked = all_unchecked && !checkboxes[i].checked;
+          }
+
+          if (all_checked) {
+            setCheckStatus(toggleAllCheckbox, true);
+            setDeleteButtonStatus(deleteBtn, false);
+          }
+          else if (all_unchecked) {
+            setCheckStatus(toggleAllCheckbox, false);
+            setDeleteButtonStatus(deleteBtn, false);
+          }
+          else {
+            setCheckStatus(toggleAllCheckbox, null);
+            setDeleteButtonStatus(deleteBtn, true);
+          }
+        }
+
+        for (var i = 0; i < checkboxes.length; i++) {
+          checkboxes[i].addEventListener('click', toggleAnchor);
+        }
+
         var endpoint = '{% url "api:location_list" %}';
 
         $('.input-daterange').datepicker({
