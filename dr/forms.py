@@ -18,3 +18,8 @@ for key, value in sorted(FIELD_MAP.iteritems()):
 
 
 DeathReportForm = type('DeathReportForm', (BaseDeathReportForm,), attributes)
+
+
+class DeathReportDeleteForm(forms.Form):
+	reports = forms.ModelMultipleChoiceField(queryset=DeathReport.objects.all(),
+		required=False, widget=forms.CheckboxSelectMultiple)
