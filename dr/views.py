@@ -1,17 +1,21 @@
 # -*- coding: utf-8 -*-
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
+from django.http import (HttpResponse, HttpResponseNotAllowed,
+    HttpResponseRedirect)
 from django.utils.decorators import method_decorator
+from django.utils.http import is_safe_url
+from django.shortcuts import render
 from django.views.generic import ListView, UpdateView
+from django.views.generic.edit import FormMixin
 
 from django.conf import settings
 
 from dr.filters import DeathReportFilter
-from dr.forms import DeathReportForm
+from dr.forms import DeathReportForm, DeathReportDeleteForm
 from dr.helpers import death_report_summary, compute_rankings
 from dr.models import DeathReport
-from django.shortcuts import render
-from django.http import HttpResponse, HttpResponseRedirect
+
 
 def dashboard(request):
     context = {}
@@ -60,7 +64,28 @@ def dashboard(request):
     return render(request, 'dr/dashboard.html', context)
 
 
-class DeathReportListView(ListView):
+@login_required
+def delete_death_reports(request):
+    if request.method != u'POST':
+        return HttpResponseNotAllowed([u'POST'])
+
+    form = DeathReportDeleteForm(request.POST)
+    redirect_path = request.META.get(u'HTTP_REFERER', u'')
+
+    if not is_safe_url(url=redirect_path, host=request.get_host()):
+        redirect_path = reverse(u'dr_report_list')
+
+    if form.is_valid():
+        reports = form.cleaned_data.get(u'reports')
+
+        if reports.exists():
+            reports.delete()
+
+    return HttpResponseRedirect(redirect_path)
+
+
+class DeathReportListView(FormMixin, ListView):
+    form_class = DeathReportDeleteForm
     model = DeathReport
     page_title = u'Death reports'
     paginate_by = settings.PAGE_SIZE
