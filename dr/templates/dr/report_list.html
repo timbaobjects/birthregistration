@@ -3,43 +3,68 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit-no">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <title>{{ page_title }}</title>
   <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
-  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/gridforms/1.0.10/gridforms.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker.standalone.min.css" integrity="sha256-xQh/Xj//D3X4M2UndCTVnMfzln8x5/EDePR3uckJoRo=" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" integrity="sha256-xJOZHfpxLR/uhh1BwYFS5fhmOAdIRQaiOul5F/b7v3s=" crossorigin="anonymous" />
 </head>
 <body>
   <div class="container">
     <div class="row">
-      
+      <h3 class="display-4">Reports</h3>
     </div>
     <div class="row">
-      <table class="table table-bordered table-hover table-responsive table-striped">
-        <thead>
-          <tr>
-            <th>Location</th>
-            <th>Date</th>
-            <th>Male deaths</th>
-            <th>Female deaths</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for record in object_list %}
-          <tr>
-            <td>{{ record.location.name }}</td>
-            <td>{{ record.time.date }}</td>
-            <td>{{ record.male }}</td>
-            <td>{{ record.female }}</td>
-            <td><a href="{% url 'dr_report_edit' pk=record.pk %}">Edit</a></td>
-          </tr>
-          {% empty %}
-          <tr class="table-warning">
-            <td colspan="4">No records</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+      <div class="card">
+        <div class="card-block">
+          <form class="form-inline">
+            <label class="sr-only" for="{{ filter_form.location.id_for_label }}">Location</label>
+            <select class="form-control mb-2 mr-sm-2 mb-sm-0" id="{{ filter_form.location.id_for_label }}" name="{{ filter_form.location.name }}">
+              {% if filter_form.cleaned_data.location %}
+              <option selected="true" value="{{ filter_form.cleaned_data.location.pk }}">{{ filter_form.cleaned_data.location.name }} ({{ filter_form.cleaned_data.location.type.name }})</option>
+              {% endif %}
+            </select>
+            <span id="date_range_picker" class="input-daterange">
+              <label class="sr-only" for="{{ filter_form.date_start.id_for_label }}"></label>
+              {{ filter_form.date_start }}
+              <label class="sr-only" for="{{ filter_form.date_end.id_for_label }}"></label>
+              {{ filter_form.date_end }}
+              </span>
+            <button class="btn btn-warning mb-2 mr-sm-2 mb-sm-0"><span class="glyphicon glyphicon-search"></span> Filter</button>
+            <a class="btn btn-secondary mb-2 mr-sm-2 mb-sm-0" href="{% url 'dr_report_list' %}">Cancel</a>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-12 text-center">
+        <table class="table table-bordered table-hover table-responsive table-striped">
+          <thead>
+            <tr>
+              <th>Location</th>
+              <th>Date</th>
+              <th>Male deaths</th>
+              <th>Female deaths</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for record in object_list %}
+            <tr>
+              <td>{{ record.location.name }}</td>
+              <td>{{ record.time.date }}</td>
+              <td>{{ record.male }}</td>
+              <td>{{ record.female }}</td>
+              <td><a href="{% url 'dr_report_edit' pk=record.pk %}">Edit</a></td>
+            </tr>
+            {% empty %}
+            <tr class="table-warning">
+              <td colspan="5">No records</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
     {% if is_paginated %}
     <div class="row">
@@ -47,5 +72,51 @@
     </div>
     {% endif %}
   </div>
+  <script
+  src="https://code.jquery.com/jquery-3.1.1.min.js"
+  integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+  crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.min.js" integrity="sha256-urCxMaTtyuE8UK5XeVYuQbm/MhnXflqZ/B9AOkyTguo=" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js" integrity="sha256-+mWd/G69S4qtgPowSELIeVAv7+FuL871WXaolgXnrwQ=" crossorigin="anonymous"></script>
+  <script>
+    (function () {
+      document.addEventListener('DOMContentLoaded', function() {
+        var endpoint = '{% url "api:location_list" %}';
+
+        $('.input-daterange').datepicker({
+          autoclose: true
+        });
+
+        $('#{{ filter_form.location.id_for_label }}').select2({
+          ajax: {
+            data: function(params) {
+              return {q: params.term};
+            },
+            dataType: 'json',
+            delay: 250,
+            processResults: function(data, params) {
+              return {results: data.results};
+            },
+            url: endpoint
+          },
+          width: '150px',
+          allowClear: true,
+          minimumInputLength: 2,
+          placeholder: 'Location',
+          templateResult: function(item) {
+            return item.name + ' (' + item.type + ')';
+          },
+          templateSelection: function(item) {
+            if (item.text)
+              return item.text;
+            else
+              return item.name + ' (' + item.type + ')';
+          }
+        });
+      });
+    })();
+  </script>
 </body>
 </html>
