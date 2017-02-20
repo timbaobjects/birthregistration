@@ -8,4 +8,6 @@ urlpatterns = [
         name=u'dr_report_edit'),
     url(r'reports/?$', views.DeathReportListView.as_view(),
         name=u'dr_report_list'),
+    url(r'reports/delete/?$', views.delete_death_reports,
+    	name=u'dr_report_delete'),
 ]
