@@ -3,7 +3,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit-no">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <title>{{ page_title }}</title>
   <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker.standalone.min.css" integrity="sha256-xQh/Xj//D3X4M2UndCTVnMfzln8x5/EDePR3uckJoRo=" crossorigin="anonymous" />
@@ -19,7 +19,7 @@
         <div class="card-block">
           <form class="form-inline">
             <label class="sr-only" for="{{ filter_form.location.id_for_label }}">Location</label>
-            <select class="form-control mb-2 mr-sm-2 mb-sm-0"></select>
+            <select class="form-control mb-2 mr-sm-2 mb-sm-0" id="{{ filter_form.location.id_for_label }}"></select>
             <span id="date_range_picker" class="input-daterange">
               <label class="sr-only" for="{{ filter_form.date_start.id_for_label }}"></label>
               {{ filter_form.date_start }}
@@ -68,7 +68,10 @@
     </div>
     {% endif %}
   </div>
-  <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
+  <script
+  src="https://code.jquery.com/jquery-3.1.1.min.js"
+  integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+  crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.min.js" integrity="sha256-urCxMaTtyuE8UK5XeVYuQbm/MhnXflqZ/B9AOkyTguo=" crossorigin="anonymous"></script>
@@ -76,7 +79,7 @@
   <script>
     (function () {
       document.addEventListener('DOMContentLoaded', function() {
-        var endpoint = '{% url "api-location-list" %}';
+        var endpoint = '{% url "api_location_list" %}';
 
         $('.input-daterange').datepicker({
           autoclose: true
@@ -85,7 +88,7 @@
         $('#{{ filter_form.location.id_for_label }}').select2({
           ajax: {
             data: function(params) {
-              return {name: params.term};
+              return {q: params.term};
             },
             dataType: 'json',
             delay: 250,
@@ -94,6 +97,7 @@
             },
             url: endpoint
           },
+          width: '150px',
           allowClear: true,
           minimumInputLength: 2,
           placeholder: 'Location',
