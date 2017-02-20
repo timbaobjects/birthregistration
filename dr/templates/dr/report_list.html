@@ -19,7 +19,11 @@
         <div class="card-block">
           <form class="form-inline">
             <label class="sr-only" for="{{ filter_form.location.id_for_label }}">Location</label>
-            <select class="form-control mb-2 mr-sm-2 mb-sm-0" id="{{ filter_form.location.id_for_label }}"></select>
+            <select class="form-control mb-2 mr-sm-2 mb-sm-0" id="{{ filter_form.location.id_for_label }}" name="{{ filter_form.location.name }}">
+              {% if filter_form.cleaned_data.location %}
+              <option selected="true" value="{{ filter_form.cleaned_data.location.pk }}">{{ filter_form.cleaned_data.location.name }} ({{ filter_form.cleaned_data.location.type.name }})</option>
+              {% endif %}
+            </select>
             <span id="date_range_picker" class="input-daterange">
               <label class="sr-only" for="{{ filter_form.date_start.id_for_label }}"></label>
               {{ filter_form.date_start }}
@@ -79,7 +83,7 @@
   <script>
     (function () {
       document.addEventListener('DOMContentLoaded', function() {
-        var endpoint = '{% url "api_location_list" %}';
+        var endpoint = '{% url "api:location_list" %}';
 
         $('.input-daterange').datepicker({
           autoclose: true
@@ -102,13 +106,13 @@
           minimumInputLength: 2,
           placeholder: 'Location',
           templateResult: function(item) {
-            return item.name;
+            return item.name + ' (' + item.type + ')';
           },
           templateSelection: function(item) {
             if (item.text)
               return item.text;
             else
-              return item.name;
+              return item.name + ' (' + item.type + ')';
           }
         });
       });
