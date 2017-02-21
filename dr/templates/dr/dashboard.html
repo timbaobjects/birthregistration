@@ -42,6 +42,22 @@
 
     <div class="text-muted">
       <div class="container pb-4">
+        {% if period_urls %}
+        <div class="row pb-4">
+          <div class="col-12">
+            <div class="dropdown float-right">
+              <a class="btn btn-secondary dropdown-toggle" href="" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ period|date:"N, Y"|default:"Choose Period" }}</a>
+
+              <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                {% for item in period_urls %}
+                <a class="dropdown-item" href="{{ item.1 }}">{{ item.0|date:"N, Y" }}</a>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+
         <!-- General Statistics -->
         <div class="row">
           <div class="col-sm-4">

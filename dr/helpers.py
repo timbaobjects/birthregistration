@@ -1,5 +1,7 @@
+from datetime import date
 from dr.models import FIELD_MAP
-from django.db.models import F, Func, Value, Sum
+from django.core.urlresolvers import reverse
+from django.db.models import F, Func, Value, Sum, Max
 import pandas as pd
 
 FORMULAS = {
@@ -61,3 +63,14 @@ def compute_rankings(dataframe):
         dataframe[map(lambda x: x + '_rank', ranking)] = dataframe[ranking].rank(
             'columns', 'max', numeric_only=True, na_option='top', ascending=True)
     return dataframe
+
+def death_report_periods(queryset):
+    return queryset.annotate(
+        year=Func(F('date'), function='YEAR'),
+        month=Func(F('date'), function='MONTH'),
+    ).values('year', 'month').order_by('-year').annotate(max_year=Max('year')).values_list('year', 'month')
+
+def death_report_period_url(period):
+    period_date = date(year=period[0], month=period[1], day=1)
+    period_url = reverse('dashboard_with_period', args=[period_date.year, period_date.month])
+    return (period_date, period_url)

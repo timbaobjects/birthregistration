@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from datetime import date
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import (HttpResponse, HttpResponseNotAllowed,
@@ -13,13 +14,23 @@ from django.conf import settings
 
 from dr.filters import DeathReportFilter
 from dr.forms import DeathReportForm, DeathReportDeleteForm
-from dr.helpers import death_report_summary, compute_rankings
+from dr.helpers import death_report_summary, compute_rankings, death_report_periods, death_report_period_url
 from dr.models import DeathReport
 
 
-def dashboard(request):
+def dashboard(request, year=None, month=None):
     context = {}
-    df = death_report_summary(DeathReport.objects.all())
+    qs = DeathReport.objects.all()
+    if year and month:
+        period = date(year=int(year), month=int(month), day=1)
+        qs = qs.filter(date__year=period.year, date__month=period.month)
+    else:
+        period = None
+
+    df = death_report_summary(qs)
+    period_urls = map(
+        lambda p: death_report_period_url(p),
+        death_report_periods(DeathReport.objects.all()))
 
     if not df.empty:
         general_data = df.groupby('country').sum().astype('int')
@@ -52,6 +63,9 @@ def dashboard(request):
             'male_accidents': general_data.ix[0]['male_accidents'],
             'male_hiv':       general_data.ix[0]['male_hiv'],
             'male_others':    general_data.ix[0]['male_others'],
+
+            'period_urls': period_urls,
+            'period': period,
         }
 
         context['states_data'] = []
