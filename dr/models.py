@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from datetime import date
 from django.db import models
 from django_mysql.models import JSONField
 
@@ -92,7 +93,7 @@ class DeathReport(models.Model):
         related_name=u'death_reports')
     connection = models.ForeignKey(PersistantConnection, blank=True, null=True,
         related_name=u'death_reports')
-    time = models.DateTimeField()
+    date = models.DateField(default=date.today)
     data = JSONField()
 
     def male(self):
