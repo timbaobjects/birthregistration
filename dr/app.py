@@ -1,9 +1,8 @@
 # -*- coding: utf-8 -*-
 import calendar
-from datetime import date, datetime, time
+from datetime import date
 import re
 
-from django.utils.timezone import make_aware
 from django.utils.translation import ugettext as _
 from fuzzywuzzy import process
 import parsley
@@ -57,13 +56,11 @@ def classify_date(dt):
         report_month = dt.month
         report_year = dt.year
 
-    report_day = calendar.monthrange(report_year, report_month)[1]
+    report_day = 1
 
-    report_time = make_aware(datetime.combine(
-        date(report_year, report_month, report_day),
-        time.min))
+    report_date = date(report_year, report_month, report_day)
 
-    return report_time
+    return report_date
 
 
 
@@ -153,11 +150,11 @@ class DeathRegistrationApp(FuzzySubKeywordAppBase):
 
         report_data = dict(entries)
 
-        report_time = classify_date(datetime.now())
+        report_date = classify_date(date.today())
         try:
-            report = DeathReport.objects.get(time=report_time, location=location)
+            report = DeathReport.objects.get(date=report_date, location=location)
         except DeathReport.DoesNotExist:
-            report = DeathReport(location=location, time=report_time,
+            report = DeathReport(location=location, date=report_date,
             connection=message.persistant_connection,
             reporter=message.persistant_connection.reporter)
 
@@ -167,7 +164,7 @@ class DeathRegistrationApp(FuzzySubKeywordAppBase):
         message.respond(RESPONSE_MESSAGES[u'report'] % {
             u'location': location.name, u'location_type': location.type.name,
             u'name': message.persistant_connection.reporter.first_name,
-            u'date': report.time.strftime(u'%d-%m-%Y')})
+            u'date': report.date.strftime(u'%d-%m-%Y')})
 
     def help(self, message):
         message.respond(HELP_MESSAGES[None])
