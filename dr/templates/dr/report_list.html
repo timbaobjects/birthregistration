@@ -12,7 +12,7 @@
 <body>
   <div class="container">
     <div class="row">
-      <h3 class="display-4">Reports</h3>
+      <h3 class="display-4">Death reports</h3>
     </div>
     <div class="row">
       <div class="card">
@@ -39,7 +39,7 @@
     <form action="{% url 'dr_report_delete' %}" method="POST">
       {% csrf_token %}
       <div class="row">
-        <div class="col-12 text-center">
+        <div class="col-12">
           <table class="table table-bordered table-hover table-responsive table-striped">
             <thead>
               <tr>
@@ -56,7 +56,7 @@
               <tr>
                 <td><input type="checkbox" name="reports" value="{{ record.pk }}" class="reports"></td>
                 <td>{{ record.location.name }}</td>
-                <td>{{ record.time.date }}</td>
+                <td>{{ record.date | date:'SHORT_DATE_FORMAT' }}</td>
                 <td>{{ record.male }}</td>
                 <td>{{ record.female }}</td>
                 <td><a href="{% url 'dr_report_edit' pk=record.pk %}">Edit</a></td>
