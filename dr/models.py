@@ -92,7 +92,7 @@ class DeathReport(models.Model):
         related_name=u'death_reports')
     connection = models.ForeignKey(PersistantConnection, blank=True, null=True,
         related_name=u'death_reports')
-    time = models.DateTimeField()
+    time = models.DateField()
     data = JSONField()
 
     def male(self):
