@@ -144,7 +144,7 @@ class DeathReportUpdateView(UpdateView):
         context = super(DeathReportUpdateView, self).get_context_data(**kwargs)
 
         context[u'page_title'] = u'Edit {date} report for {location}'.format(
-            date=self.object.time.date(), location=self.object.location.name)
+            date=self.object.date, location=self.object.location.name)
 
         return context
 
