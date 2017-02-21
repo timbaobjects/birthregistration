@@ -9,29 +9,13 @@ from common.filters import LocationFilter
 from locations.models import Location
 
 
-class DateStartFilter(django_filters.DateFilter):
-    def filter(self, qs, value):
-        if value:
-            limit = make_aware(datetime.combine(value, time.min))
-            return qs.filter(time__gte=limit)
-
-        return qs
-
-
-class DateEndFilter(django_filters.DateFilter):
-    def filter(self, qs, value):
-        if value:
-            limit = make_aware(datetime.combine(value, time.max))
-            return qs.filter(time__lte=limit)
-
-        return qs
-
-
 class DeathReportFilter(django_filters.FilterSet):
     location = LocationFilter(queryset=Location.objects.filter())
-    date_start = DateStartFilter(name=u'time', lookup_expr=u'date__gte',
+    date_start = django_filters.DateFilter(name=u'date', lookup_expr=u'gte',
             widget=forms.DateInput(attrs={
-                u'class': u'form-control mb-2 mr-sm-2 mb-sm-0', u'placeholder': u'start'}))
-    date_end = DateEndFilter(name=u'time', lookup_expr=u'date__lte',
+                u'class': u'form-control mb-2 mr-sm-2 mb-sm-0',
+                u'placeholder': u'start'}))
+    date_end = django_filters.DateFilter(name=u'date', lookup_expr=u'lte',
             widget=forms.DateInput(attrs={
-                u'class': u'form-control mb-2 mr-sm-2 mb-sm-0', u'placeholder': u'end'}))
+                u'class': u'form-control mb-2 mr-sm-2 mb-sm-0',
+                u'placeholder': u'end'}))
