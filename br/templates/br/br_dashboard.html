@@ -13,9 +13,9 @@
 			  <ul class="nav nav-pills pull-right">
 			  {% for yr in year_range %}
 			  {% if location.type.name == "Country" %}
-					<li{% if yr == year %} class="active"{% endif %}><a href="{% url 'dashboard_with_year' yr %}">{{ yr }}</a></li>
+					<li{% if yr == year %} class="active"{% endif %}><a href="{% url 'br:dashboard_with_year' yr %}">{{ yr }}</a></li>
 				{% else %}{% with location.name|lower|slugify as state %}
-					<li{% if yr == year %} class="active"{% endif %}><a href="{% url 'dashboard_with_state_and_year' state yr %}">{{ yr }}</a></li>{% endwith %}
+					<li{% if yr == year %} class="active"{% endif %}><a href="{% url 'br:dashboard_with_state_and_year' state yr %}">{{ yr }}</a></li>{% endwith %}
 				{% endif %}
 				{% endfor %}
 				{% if month %}
@@ -26,9 +26,9 @@
 				  	<ul class="dropdown-menu pull-right">
 				  	{% for mth in month_range %}
 				  		{% if location.type.name == 'Country' %}
-				  		<li{% if mth == month %} class="active"{% endif %}><a href="{% url 'dashboard_with_year_and_month' year mth %}">{% month_name mth %}</a></li>
+				  		<li{% if mth == month %} class="active"{% endif %}><a href="{% url 'br:dashboard_with_year_and_month' year mth %}">{% month_name mth %}</a></li>
 				  		{% else %}{% with location.name|lower|slugify as state %}
-				  		<li{% if mth == month %} class="active"{% endif %}><a href="{% url 'dashboard_with_state_year_and_month' state year mth %}">{% month_name mth %}</a></li>{% endwith %}
+				  		<li{% if mth == month %} class="active"{% endif %}><a href="{% url 'br:dashboard_with_state_year_and_month' state year mth %}">{% month_name mth %}</a></li>{% endwith %}
 				  		{% endif %}
 				  	{% endfor %}
 				  	</ul>
@@ -36,7 +36,7 @@
  					<li><a href="javascript:;" id="export_button">Export</a></li>
 			  </ul>
 			  <ul class="nav nav-pills pull-right" style="margin-right:3em">
-					<li {% if location.type.name == "Country" %}class="active"{% endif %}><a href="{% url 'dashboard' %}">Nigeria</a></li>
+					<li {% if location.type.name == "Country" %}class="active"{% endif %}><a href="{% url 'br:dashboard' %}">Nigeria</a></li>
 				{% if location.type.name == "Country" %}
 					<li class="dropdown"><a class="dropdown-toggle" data-toggle="dropdown" href="javascript:;">State <span class="caret"></span></a>
 				{% else %}
@@ -45,9 +45,9 @@
 				  	<ul class="dropdown-menu">
 					{% for state in states %}{% with state|lower|slugify as state_slug %}
 						{% if state == location.name %}
-							<li class="active"><a href="{% url 'dashboard_with_state' state_slug %}">{{ state|lower|title }}</a></li>
+							<li class="active"><a href="{% url 'br:dashboard_with_state' state_slug %}">{{ state|lower|title }}</a></li>
 						{% else %}
-							<li><a href="{% url 'dashboard_with_state' state_slug %}">{{ state|lower|title }}</a></li>
+							<li><a href="{% url 'br:dashboard_with_state' state_slug %}">{{ state|lower|title }}</a></li>
 						{% endif %}{% endwith %}
 					{% endfor %}
 				  	</ul>

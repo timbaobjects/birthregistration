@@ -2,7 +2,7 @@
 {% block content %}
 	<div class="container-fluid">
 		<div class="span10 offset1">
-			<form class="form-inline well" method="POST" action="{% url 'reports_list' %}">
+			<form class="form-inline well" method="POST" action="{% url 'br:reports_list' %}">
 				{% csrf_token %}
 				<div class="input-append span2">
 					<input class="span2 date_sel" data-date-format="mm/dd/yyyy" size="16" id="start_time" name="start_time" type="text" value="{{ filter_form.start_time.value|default:"" }}" style="height:30px;" placeholder="From Date" readonly="readonly">
@@ -53,8 +53,8 @@
 					<td>{{ report.girls_1to4 }}</td>
 					<td>{{ report.girls_5to9 }}</td>
 					<td>{{ report.girls_10to18 }}</td>
-					<td class="center"><a href="{% url 'report_edit' report.pk %}">Edit</a></td>
-					<form action="{% url 'report_delete' report.pk %}" method="POST" class="delete_report">{% csrf_token %}
+					<td class="center"><a href="{% url 'br:report_edit' report.pk %}">Edit</a></td>
+					<form action="{% url 'br:report_delete' report.pk %}" method="POST" class="delete_report">{% csrf_token %}
 					<td class="center">
 						<button class="btn btn-small btn-danger" type="submit"><i class="icon-remove icon-white"></i></button>
 					</td>

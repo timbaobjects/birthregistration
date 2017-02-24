@@ -19,14 +19,14 @@
 			  <span class="icon-bar"></span>
 			  <span class="icon-bar"></span>
 			</button>
-			<a class="navbar-brand" href="{% url 'dashboard' %}"><img src="{% static "img/rapidsms-dashboard.png" %}"></a>
+			<a class="navbar-brand" href="{% url 'br:dashboard' %}"><img src="{% static "img/rapidsms-dashboard.png" %}"></a>
 		  </div>
 		  <div class="collapse navbar-collapse">
 			<ul class="nav navbar-nav pull-right">
-			  <li><a href="{% url 'reports_list' %}"><i class="glyphicon glyphicon-list"></i> Reports</a></li>
-			  <li><a href="{% url 'faq' %}"><i class="glyphicon glyphicon-question-sign"></i> FAQ</a></li>
+			  <li><a href="{% url 'br:reports_list' %}"><i class="glyphicon glyphicon-list"></i> Reports</a></li>
+			  <li><a href="{% url 'br:faq' %}"><i class="glyphicon glyphicon-question-sign"></i> FAQ</a></li>
 			  {% if user.is_authenticated %}
-			  <li><a href="{% url 'center_list' %}"><i class="glyphicon glyphicon-map-marker"></i> Centers</a></li>
+			  <li><a href="{% url 'locations:center_list' %}"><i class="glyphicon glyphicon-map-marker"></i> Centers</a></li>
 			  <li><a href="{% url 'rapidsms-logout' %}"><i class="glyphicon glyphicon-log-out"></i> Logout {{ user.username }}</a></li>
 			  {% endif %}
 			</ul>
