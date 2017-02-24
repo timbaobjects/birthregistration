@@ -6,40 +6,44 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <title>{{ page_title }}</title>
   <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker.standalone.min.css" integrity="sha256-xQh/Xj//D3X4M2UndCTVnMfzln8x5/EDePR3uckJoRo=" crossorigin="anonymous" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker3.standalone.min.css" integrity="sha256-RMGrTGgTqr/RK4mbfJ/9dLy8Dz0oetp7mREUfq7o3IA=" crossorigin="anonymous" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" integrity="sha256-xJOZHfpxLR/uhh1BwYFS5fhmOAdIRQaiOul5F/b7v3s=" crossorigin="anonymous" />
 </head>
 <body>
   <div class="container">
-    <div class="row">
+    <div class="row justify-content-center">
       <h3 class="display-4">Death reports</h3>
     </div>
-    <div class="row">
-      <div class="card">
-        <div class="card-block">
-          <form class="form-inline">
-            <label class="sr-only" for="{{ filter_form.location.id_for_label }}">Location</label>
-            <select class="form-control mb-2 mr-sm-2 mb-sm-0" id="{{ filter_form.location.id_for_label }}" name="{{ filter_form.location.name }}">
-              {% if filter_form.cleaned_data.location %}
-              <option selected="true" value="{{ filter_form.cleaned_data.location.pk }}">{{ filter_form.cleaned_data.location.name }} ({{ filter_form.cleaned_data.location.type.name }})</option>
-              {% endif %}
-            </select>
-            <span id="date_range_picker" class="input-daterange">
-              <label class="sr-only" for="{{ filter_form.date_start.id_for_label }}"></label>
-              {{ filter_form.date_start }}
-              <label class="sr-only" for="{{ filter_form.date_end.id_for_label }}"></label>
-              {{ filter_form.date_end }}
-              </span>
-            <button class="btn btn-warning mb-2 mr-sm-2 mb-sm-0"><span class="glyphicon glyphicon-search"></span> Filter</button>
-            <a class="btn btn-secondary mb-2 mr-sm-2 mb-sm-0" href="{% url 'dr_report_list' %}">Cancel</a>
-          </form>
+    <div class="row justify-content-center">
+      <div class="col col-auto">
+        <div class="card m-2">
+          <div class="card-block">
+            <form class="form-inline">
+              <label class="sr-only" for="{{ filter_form.location.id_for_label }}">Location</label>
+              <select class="form-control mr-1" id="{{ filter_form.location.id_for_label }}" name="{{ filter_form.location.name }}">
+                {% if filter_form.cleaned_data.location %}
+                <option selected="true" value="{{ filter_form.cleaned_data.location.pk }}">{{ filter_form.cleaned_data.location.name }} ({{ filter_form.cleaned_data.location.type.name }})</option>
+                {% endif %}
+              </select>
+              <div class="form-group ml-1">
+                <span id="date_range_picker" class="input-daterange">
+                  <label class="sr-only" for="{{ filter_form.date_start.id_for_label }}"></label>
+                  <input type="text" name="{{ filter_form.date_start.name }}" id="{{ filter_form.date_start.id_for_label }}" class="form-control mr-1" placeholder="start date">
+                  <label class="sr-only" for="{{ filter_form.date_end.id_for_label }}"></label>
+                  <input type="text" name="{{ filter_form.date_end.name }}" id="{{ filter_form.date_end.id_for_label }}" class="form-control mr-1" placeholder="end date">
+                </span>
+              </div>
+              <button class="btn btn-warning mr-1"><span class="glyphicon glyphicon-search"></span> Filter</button>
+              <a class="btn btn-secondary" href="{% url 'dr_report_list' %}">Cancel</a>
+            </form>
+          </div>
         </div>
       </div>
     </div>
     <form action="{% url 'dr_report_delete' %}" method="POST">
       {% csrf_token %}
-      <div class="row">
-        <div class="col-12">
+      <div class="row justify-content-center">
+        <div class="col col-auto m-3">
           <table class="table table-bordered table-hover table-responsive table-striped">
             <thead>
               <tr>
@@ -57,8 +61,8 @@
                 <td><input type="checkbox" name="reports" value="{{ record.pk }}" class="reports"></td>
                 <td>{{ record.location.name }}</td>
                 <td>{{ record.date | date:'SHORT_DATE_FORMAT' }}</td>
-                <td>{{ record.male }}</td>
-                <td>{{ record.female }}</td>
+                <td class="text-center">{{ record.male }}</td>
+                <td class="text-center">{{ record.female }}</td>
                 <td><a href="{% url 'dr_report_edit' pk=record.pk %}">Edit</a></td>
               </tr>
               {% empty %}
@@ -71,11 +75,13 @@
         </div>
       </div>
       <div class="row">
-        <button class="btn btn-danger" id="deleteBtn" disabled="true">Delete selected</button>
+        <div class="col-6 offset-3">
+          <button class="btn btn-danger" id="deleteBtn" disabled="true">Delete selected</button>
+        </div>
       </div>
     </form>
     {% if is_paginated %}
-    <div class="row">
+    <div class="row m-2 justify-content-center">
       {% bootstrap_paginate page_obj range=10 %}
     </div>
     {% endif %}
