@@ -1,0 +1,49 @@
+{% extends 'common/base.html' %}
+{% load bootstrap_pagination static %}
+{% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/navbar.css' %}">
+{% endblock %}
+{% block navbar %}
+{% include 'campaigns/navbar.html' %}
+{% endblock %}
+{% block page_content %}
+<div class="row justify-content-center">
+  <h3 class="display-4">MNCHW campaigns</h3>
+</div>
+<div class="row justify-content-center">
+  <div class="col col-auto"></div>
+</div>
+<div class="row justify-content-center">
+  <div class="col col-auto">
+    <table class="table table-bordered table-hover table-responsive table-sm table-striped">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Start date</th>
+          <th>End date</th>
+          <th>Locations</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for campaign in object_list %}
+        <tr>
+          <td>{{ campaign.name }}</td>
+          <td>{{ campaign.start_date|date:'SHORT_DATE_FORMAT' }}</td>
+          <td>{{ campaign.end_date|date:'SHORT_DATE_FORMAT' }}</td>
+          <td>{{ campaign.location_names }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td class="table-warning text-center" colspan="4">No campaigns found</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% if is_paginated %}
+<div class="row m-2 justify-content-center">
+  {% bootstrap_paginate page_obj range=10 %}
+</div>
+{% endif %}
+{% endblock %}

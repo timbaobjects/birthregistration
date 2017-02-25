@@ -212,7 +212,7 @@ INSTALLED_APPS = (
     "reporters",
     "br",
     "dr",
-    #"campaigns",
+    "campaigns",
     #"ipd",
     "rest_framework",
     "pipeline",

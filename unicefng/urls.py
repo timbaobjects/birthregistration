@@ -21,5 +21,6 @@ urlpatterns = [
     url(r'^dr/', include('dr.urls', namespace=u'dr')),
     url(r'^locations/', include('locations.urls', namespace=u'locations')),
     url(r'^api/', include('api.urls', namespace=u'api')),
+    url(r'^campaigns/', include('campaigns.urls', namespace=u'campaigns')),
     url(r'incoming/', HttpBackendView.as_view(backend_name='polling')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
