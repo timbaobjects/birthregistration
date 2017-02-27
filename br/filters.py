@@ -34,9 +34,7 @@ class LocationFilter(django_filters.ChoiceFilter):
 
 
 class BirthRegistrationFilter(django_filters.FilterSet):
-    location = LocationFilter(widget=forms.Select(attrs={
-        'class': 'span3 input-xlarge select2',
-        'data-placeholder': 'Location'}))
+    location = LocationFilter()
     start_time = django_filters.DateFilter(name='time', lookup_type='gte')
     end_time = django_filters.DateFilter(name='time', lookup_type='lte')
 
