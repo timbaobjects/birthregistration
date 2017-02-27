@@ -72,5 +72,5 @@ def death_report_periods(queryset):
 
 def death_report_period_url(period):
     period_date = date(year=period[0], month=period[1], day=1)
-    period_url = reverse('dashboard_with_period', args=[period_date.year, period_date.month])
+    period_url = reverse('dr:dashboard_with_period', args=[period_date.year, period_date.month])
     return (period_date, period_url)
