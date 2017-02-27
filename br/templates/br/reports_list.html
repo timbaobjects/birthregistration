@@ -1,78 +1,218 @@
-{% extends "br/layout.html" %}{% load bootstrap_pagination %}
-{% block content %}
-	<div class="container-fluid">
-		<div class="span10 offset1">
-			<form class="form-inline well" method="POST" action="{% url 'br:reports_list' %}">
-				{% csrf_token %}
-				<div class="input-append span2">
-					<input class="span2 date_sel" data-date-format="mm/dd/yyyy" size="16" id="start_time" name="start_time" type="text" value="{{ filter_form.start_time.value|default:"" }}" style="height:30px;" placeholder="From Date" readonly="readonly">
-					<span class="add-on"><i class="icon-calendar"></i></span>
-				</div>
-				<div class="input-append span2">
-					<input class="span2 date_sel" data-date-format="mm/dd/yyyy" size="16" id="end_time" name="end_time" type="text" value="{{ filter_form.end_time.value|default:"" }}" style="height:30px;" placeholder="To Date" readonly="readonly">
-					<span class="add-on"><i class="icon-calendar"></i></span>
-				</div>
-				{{ filter_form.location }}
-				<button class="btn btn-warning" style="margin-left:10px"><i class="icon-white icon-search"></i> Filter</button>
-				<button class="btn form-reset" style="margin-left:5px">Clear</button>
-			</form>
-		</div>
-	</div>
-	<div class="container-fluid">
-		<div class="span10 offset1">
-			<table class="table table-bordered table-striped table-hover" style="font-size:13px;">
-				<tr>
-					<th>Date</th>
-					<th>State</th>
-					<th>LGA</th>
-					<th>Facility</th>
-					<th>Phone</th>
-					<th class="center">Boys<br />&lt; 1</th>
-					<th class="center">Boys<br />1 - 4</th>
-					<th class="center">Boys<br />5 - 9</th>
-					<th class="center">Boys<br />10 - 17</th>
-					<th class="center">Girls<br />&lt; 1</th>
-					<th class="center">Girls<br />1 - 4</th>
-					<th class="center">Girls<br />5 - 9</th>
-					<th class="center">Girls<br />10 - 17</th>
-					<th class="center">Edit</th>
-					<th class="center">Delete</th>
-				</tr>
-				{% for report in reports %}
-				<tr>
-					<td>{{ report.time|date:"d/m/Y" }}</td>
-					<td>{{ report.location.parent.parent.name }}</td>
-					<td>{{ report.location.parent.name }}</td>
-					<td>{{ report.location.name }}</td>
-					<td>{{ report.connection.identity }}</td>
-					<td>{{ report.boys_below1 }}</td>
-					<td>{{ report.boys_1to4 }}</td>
-					<td>{{ report.boys_5to9 }}</td>
-					<td>{{ report.boys_10to18 }}</td>
-					<td>{{ report.girls_below1 }}</td>
-					<td>{{ report.girls_1to4 }}</td>
-					<td>{{ report.girls_5to9 }}</td>
-					<td>{{ report.girls_10to18 }}</td>
-					<td class="center"><a href="{% url 'br:report_edit' report.pk %}">Edit</a></td>
-					<form action="{% url 'br:report_delete' report.pk %}" method="POST" class="delete_report">{% csrf_token %}
-					<td class="center">
-						<button class="btn btn-small btn-danger" type="submit"><i class="icon-remove icon-white"></i></button>
-					</td>
-					</form>
-				</tr>
-				{% empty %}
-				<tr>
-					<td colspan="15" class="center"><em>No Data Available</em></td>
-				</tr>
-				{% endfor %}
-			</table>
-		</div>
-	</div>
-{% if is_paginated %}
-<div class="row">
-  <div class="span12">
-  {% bootstrap_paginate page_obj range=10 show_first_last="true" %}
+{% extends "common/base.html" %}
+{% load bootstrap_pagination static %}
+{% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/navbar.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker3.standalone.min.css" integrity="sha256-RMGrTGgTqr/RK4mbfJ/9dLy8Dz0oetp7mREUfq7o3IA=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" integrity="sha256-xJOZHfpxLR/uhh1BwYFS5fhmOAdIRQaiOul5F/b7v3s=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+{% endblock %}
+{% block navbar %}
+{% include 'br/navbar.html' %}
+{% endblock %}
+{% block page_content %}
+<div class="row justify-content-center">
+  <h3 class="display-4">Birth reports</h3>
+</div>
+<div class="row justify-content-center">
+  <div class="col col-auto">
+    <div class="card m-3">
+      <div class="card-block">
+        <form class="form-inline">
+          <label class="sr-only" for="{{ filter_form.location.id_for_label }}">Location</label>
+          <select class="form-control" id="{{ filter_form.location.id_for_label }}" name="{{ filter_form.location.name }}">
+            {% if filter_form.cleaned_data.location %}
+            <option selected="true" value="{{ filter_form.cleaned_data.location.pk }}">{{ filter_form.cleaned_data.location.name }} ({{ filter_form.cleaned_data.location.type.name }})</option>
+            {% endif %}
+          </select>
+          <div class="form-group ml-1">
+            <span class="input-daterange">
+              <label class="sr-only" for="{{ filter_form.start_time.id_for_label }}">Start date</label>
+                <input type="text" name="{{ filter_form.start_time.name }}" id="{{ filter_form.start_time.id_for_label }}" class="form-control mr-1" placeholder="start date">
+                <label class="sr-only" for="{{ filter_form.end_time.id_for_label }}">End date</label>
+                <input type="text" name="{{ filter_form.end_time.name }}" id="{{ filter_form.end_time.id_for_label }}" class="form-control mr-1" placeholder="end date">
+            </span>
+          </div>
+          <button class="btn btn-warning mr-1"><span class="fa fa-search" aria-hidden="true"></span> Filter</button>
+          <a class="btn btn-secondary" href="{% url 'br:reports_list' %}">Cancel</a>
+        </form>
+      </div>
+    </div>
   </div>
 </div>
+<form action="" method="POST">
+  {% csrf_token %}
+  <div class="row justify-content-center">
+    <div class="col col-auto m-2">
+      <table class="table table-bordered table-hover table-responsive table-striped table-sm">
+        <thead>
+          <tr>
+            <th rowspan="2"><input type="checkbox" name="checkall" id="checkall"></th>
+            <th rowspan="2">Date</th>
+            <th rowspan="2">State</th>
+            <th rowspan="2">LGA</th>
+            <th rowspan="2">RC</th>
+            <th rowspan="2">Phone</th>
+            <th colspan="4" class="text-center">Boys</th>
+            <th colspan="4" class="text-center">Girls</th>
+            <th rowspan="2"></th>
+          </tr>
+          <tr>
+            <th class="text-center">&lt; 1</th>
+            <th class="text-center">1 &ndash; 4</th>
+            <th class="text-center">5 &ndash; 9</th>
+            <th class="text-center">10 &ndash; 17</th>
+            <th class="text-center">&lt; 1</th>
+            <th class="text-center">1 &ndash; 4</th>
+            <th class="text-center">5 &ndash; 9</th>
+            <th class="text-center">10 &ndash; 17</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for report in reports %}
+          <tr>
+            <td><input type="checkbox" name="reports" value="{{ record.pk }}" class="reports"></td>
+            <td>{{ report.time|date:'SHORT_DATE_FORMAT' }}</td>
+            <td>{{ report.location.parent.parent.name }}</td>
+            <td>{{ report.location.parent.name }}</td>
+            <td>{{ report.location.name }}</td>
+            <td>{{ report.connection.identity }}</td>
+            <td class="text-center">{{ report.boys_below1 }}</td>
+            <td class="text-center">{{ report.boys_1to4 }}</td>
+            <td class="text-center">{{ report.boys_5to9 }}</td>
+            <td class="text-center">{{ report.boys_10to18 }}</td>
+            <td class="text-center">{{ report.girls_below1 }}</td>
+            <td class="text-center">{{ report.girls_1to4 }}</td>
+            <td class="text-center">{{ report.girls_5to9 }}</td>
+            <td class="text-center">{{ report.girls_10to18 }}</td>
+            <td class="text-center"><a href="{% url 'br:report_edit' report.pk %}">Edit</a></td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td class="table-warning text-center" colspan="15">No records found</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</form>
+<div class="row">
+  <div class="col-6 offset-3">
+    <button class="btn btn-danger" id="deleteBtn" disabled="true">Delete selected</button>
+  </div>
+</div>
+{% if is_paginated %}
+<div class="row m-2 justify-content-center">
+  {% bootstrap_paginate page_obj range=10 %}
+</div>
 {% endif %}
+{% endblock %}
+{% block javascripts %}
+<script src="http://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js" integrity="sha256-+mWd/G69S4qtgPowSELIeVAv7+FuL871WXaolgXnrwQ=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.min.js" integrity="sha256-urCxMaTtyuE8UK5XeVYuQbm/MhnXflqZ/B9AOkyTguo=" crossorigin="anonymous"></script>
+<script>
+(function () {
+  document.addEventListener('DOMContentLoaded', function() {
+    var toggleAllCheckbox = document.getElementById('checkall');
+    var checkboxes = document.getElementsByClassName('reports');
+    var deleteBtn = document.getElementById('deleteBtn');
+
+    toggleAllCheckbox.addEventListener('click', function(event) {
+      var status = event.target.checked;
+
+      for (var i = 0; i < checkboxes.length; i++) {
+        setCheckStatus(checkboxes[i], status);
+      }
+    });
+
+    var setCheckStatus = function(checkbox, status) {
+      if (status === true) {
+        if ('indeterminate' in checkbox) {
+          checkbox.indeterminate = false;
+        }
+        checkbox.checked = true;
+      }
+      else if (status === false) {
+        if ('indeterminate' in checkbox) {
+          checkbox.indeterminate = false;
+        }
+        checkbox.checked = false;
+      }
+      else {
+        checkbox.checked = false;
+        if ('indeterminate' in checkbox) {
+          checkbox.indeterminate = true;
+        }
+      }
+    }
+
+    var setDeleteButtonStatus = function (btn, status) {
+      btn.disabled = !status;
+    }
+
+    var toggleAnchor = function () {
+      var all_checked = true;
+      var all_unchecked = true;
+
+      for (var i = 0; i < checkboxes.length; i++) {
+        all_checked = all_checked && checkboxes[i].checked;
+        all_unchecked = all_unchecked && !checkboxes[i].checked;
+      }
+
+      if (all_checked) {
+        setCheckStatus(toggleAllCheckbox, true);
+        setDeleteButtonStatus(deleteBtn, false);
+      }
+      else if (all_unchecked) {
+        setCheckStatus(toggleAllCheckbox, false);
+        setDeleteButtonStatus(deleteBtn, false);
+      }
+      else {
+        setCheckStatus(toggleAllCheckbox, null);
+        setDeleteButtonStatus(deleteBtn, true);
+      }
+    }
+
+    for (var i = 0; i < checkboxes.length; i++) {
+      checkboxes[i].addEventListener('click', toggleAnchor);
+    }
+
+    var endpoint = '{% url "api:location_list_typed" %}?type=state,lga';
+
+    $('.input-daterange').datepicker({
+      autoclose: true
+    });
+
+    $('#{{ filter_form.location.id_for_label }}').select2({
+      ajax: {
+        data: function(params) {
+          return {q: params.term};
+        },
+        dataType: 'json',
+        delay: 250,
+        processResults: function(data, params) {
+          return {results: data.results};
+        },
+        url: endpoint
+      },
+      width: '150px',
+      allowClear: true,
+      minimumInputLength: 2,
+      placeholder: 'Location',
+      templateResult: function(item) {
+        return item.name + ' (' + item.type + ')';
+      },
+      templateSelection: function(item) {
+        if (item.text)
+          return item.text;
+        else
+          return item.name + ' (' + item.type + ')';
+      }
+    });
+  });
+})();
+</script>  
 {% endblock %}
