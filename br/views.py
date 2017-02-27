@@ -90,12 +90,11 @@ def dashboardview(request, state=None, year=now().year, month=None):
 
 class ReportListView(ListView):
     context_object_name = 'reports'
+    model = BirthRegistration
     template_name = 'br/reports_list.html'
+    ordering = (u'-time',)
     paginate_by = settings.PAGE_SIZE
     page_title = 'Reports List'
-
-    def get_queryset(self):
-        return self.filter_set.qs.order_by('-time')
 
     def get_context_data(self, **kwargs):
         context = super(ReportListView, self).get_context_data(**kwargs)
@@ -108,19 +107,12 @@ class ReportListView(ListView):
         self.report_filter = BirthRegistrationFilter
         return super(ReportListView, self).dispatch(*args, **kwargs)
 
-    def post(self, request, *args, **kwargs):
-        self.filter_set = self.report_filter(request.POST,
-            queryset=BirthRegistration.objects.all().select_related(),
-            request=request)
-        request.session['report_filter'] = self.filter_set.form.data
-        return super(ReportListView, self).get(request, *args, **kwargs)
+    def get_queryset(self):
+        queryset = super(ReportListView, self).get_queryset()
+        self.filter_set = self.report_filter(self.request.GET,
+            queryset=queryset)
 
-    def get(self, request, *args, **kwargs):
-        initial_data = request.session.get('report_filter', None)
-        self.filter_set = self.report_filter(initial_data,
-            queryset=BirthRegistration.objects.all().select_related(),
-            request=request)
-        return super(ReportListView, self).get(request, *args, **kwargs)
+        return self.filter_set.qs
 
 
 class ReportEditView(UpdateView):
