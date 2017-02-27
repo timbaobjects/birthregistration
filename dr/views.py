@@ -87,7 +87,7 @@ def delete_death_reports(request):
     redirect_path = request.META.get(u'HTTP_REFERER', u'')
 
     if not is_safe_url(url=redirect_path, host=request.get_host()):
-        redirect_path = reverse(u'dr_report_list')
+        redirect_path = reverse(u'dr:dr_report_list')
 
     if form.is_valid():
         reports = form.cleaned_data.get(u'reports')
@@ -152,4 +152,4 @@ class DeathReportUpdateView(UpdateView):
         return self.object.data
 
     def get_success_url(self):
-        return reverse(u'dr_report_list')
+        return reverse(u'dr:dr_report_list')
