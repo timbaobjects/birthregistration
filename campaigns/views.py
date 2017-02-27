@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
+from django.db.models import F
 from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, ListView
 
@@ -38,3 +39,14 @@ class CampaignListView(BaseCampaignViewMixin, ListView):
     page_title = u'Campaigns'
     paginate_by = settings.PAGE_SIZE
     template_name = u'campaigns/campaign_list.html'
+
+    def get_queryset(self):
+        queryset = super(CampaignListView, self).get_queryset()
+
+        queryset = queryset.prefetch_related(u'locations').annotate(
+            loc_name=F(u'locations__name'),
+            loc_type=F(u'locations__type__name')).values(
+            u'name', u'start_date', u'end_date', u'loc_name', u'loc_type')
+
+        return queryset
+

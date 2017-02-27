@@ -30,7 +30,7 @@
           <td>{{ campaign.name }}</td>
           <td>{{ campaign.start_date|date:'SHORT_DATE_FORMAT' }}</td>
           <td>{{ campaign.end_date|date:'SHORT_DATE_FORMAT' }}</td>
-          <td>{{ campaign.location_names }}</td>
+          <td>{{ campaign.loc_name }} ({{ campaign.loc_type }})</td>
         </tr>
         {% empty %}
         <tr>

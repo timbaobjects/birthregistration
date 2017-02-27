@@ -65,6 +65,3 @@ class Campaign(models.Model):
                 locations__rght__gte=location.rght)
 
         return qs
-
-    def location_names(self):
-        return u', '.join(str(loc) for loc in self.locations.all())
