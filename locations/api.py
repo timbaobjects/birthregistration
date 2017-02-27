@@ -73,11 +73,12 @@ class TypedLocationListView(LocationListView):
         # type is required
         # this works without case sensitivity on MySQL
         # TODO: implement explicit case-insensitivity
-        type_name = self.request.query_params.get(u'type')
-        if not type_name:
+        type_names = self.request.query_params.get(u'type')
+        if not type_names:
             return queryset.none()
 
-        queryset = queryset.filter(type__name=type_name)
+        types = type_names.split(u',')
+        queryset = queryset.filter(type__name__in=types)
 
         # filter on parent id
         parent_id = self.request.query_params.get(u'parent')
