@@ -4,7 +4,7 @@ import json
 from dateutil.relativedelta import relativedelta
 from br.models import BirthRegistration
 from br.filters import BirthRegistrationFilter
-from br.forms import BirthRegistrationModelForm
+from br.forms import BirthRegistrationModelForm, ReportDeleteForm
 from br.helpers import get_record_dataset
 from br.exporter import export_records_3
 from locations.forms import generate_edit_form
@@ -20,6 +20,7 @@ from django.http import (
     HttpResponseNotAllowed, HttpResponseForbidden, HttpResponseBadRequest)
 from django.shortcuts import get_object_or_404, render
 from django.utils.decorators import method_decorator
+from django.utils.http import is_safe_url
 from django.utils.timezone import now
 from django.views.generic import ListView, UpdateView, DeleteView, TemplateView
 
@@ -155,3 +156,23 @@ class ReportDeleteView(DeleteView):
 class FAQView(TemplateView):
     template_name = 'br/faq.html'
     page_title = 'Frequently Asked Questions'
+
+
+def br_report_delete(request):
+    if request.method != u'POST':
+        return HttpResponseNotAllowed([u'POST'])
+
+    if not request.user.is_authenticated:
+        return HttpResponseForbidden()
+
+    form = ReportDeleteForm(request.POST)
+    redirect_path = request.META.get(u'HTTP_REFERER', reverse(u'br:reports_list'))
+
+    if form.is_valid():
+        reports = form.cleaned_data.get(u'reports')
+        reports.delete()
+
+        if not is_safe_url(url=redirect_path, host=request.get_host()):
+            redirect_path = reverse(u'br:reports_list')
+
+    return HttpResponseRedirect(redirect_path)
