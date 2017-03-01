@@ -213,7 +213,7 @@ INSTALLED_APPS = (
     "br",
     "dr",
     "campaigns",
-    #"ipd",
+    "ipd",
     "rest_framework",
     "pipeline",
     "bootstrap_pagination",
