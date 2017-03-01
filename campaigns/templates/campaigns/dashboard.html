@@ -4,5 +4,37 @@
 <link rel="stylesheet" type="text/css" href="{% static 'css/navbar.css' %}">
 {% endblock %}
 {% block navbar %}
-{% include 'navbar.html' %}
+{% include 'campaigns/navbar.html' %}
+{% endblock %}
+{% block page_content %}
+<div class="row">
+  <h3 class="display-4">{{ page_title }}</h3>
+</div>
+<div class="row justify-content-center">
+  <div class="col col-auto">
+    <div class="card">
+      <form class="form-inline">
+        <label>Select campaign:</label>
+        <select class="form-control" id="campaign_selector">
+          {% for campaign in campaigns %}
+          <option data-url="{% url 'mnchw:dashboard_detail' campaign_id=campaign.pk location_id=campaign.loc_pk %}" {% if selected_campaign.pk == campaign.pk %}selected="true"{% endif %}>{{ campaign.name }} ({{ campaign.loc_name }} {{ campaign.loc_type }})</option>
+          {% endfor %}
+        </select>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block javascripts %}
+<script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
+<script>
+(function() {
+  document.addEventListener('DOMContentLoaded', function() {
+    $('#campaign_selector').change(function() {
+      var option = $('#campaign_selector option:selected')[0];
+      window.location.assign(option.dataset['url']);
+    });
+  });
+})();
+</script>
 {% endblock %}
