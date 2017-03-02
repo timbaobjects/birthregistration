@@ -1,5 +1,5 @@
 {% extends 'common/base.html' %}
-{% load bootstrap_pagination static %}
+{% load bootstrap_pagination static utils %}
 {% block stylesheets %}
 <link rel="stylesheet" type="text/css" href="{% static 'css/navbar.css' %}">
 {% endblock %}
@@ -22,6 +22,36 @@
         </select>
       </form>
     </div>
+  </div>
+</div>
+<div class="row justify-content-center">
+  <div class="col col-auto">
+    <table class="table table-bordered table-hover table-responsive table-sm table-striped">
+      <thead>
+        <tr>
+          <td>LGA</td>
+          {% for code, description in commodities.iteritems %}
+          <td><abbr title="{{ description }}">{{ code | upper }}</abbr></td>
+          {% endfor %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for lga in lgas %}
+        <tr>
+          <td>{{ lga.name }}</td>
+          {% with current_data=vaccination_data|getitem:lga.name %}
+          {% for item in current_data %}
+          <td>{{ item|default_if_none:'-' }}</td>
+          {% endfor %}
+          {% endwith %}
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="{{ commodities | length | add:'1' }}" class="text-center table-warning">No data found</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
 </div>
 {% endblock %}
