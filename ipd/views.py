@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
+from itertools import groupby
+import json
 
 from django.db.models import F, Sum
 from django.shortcuts import get_object_or_404, render
@@ -14,6 +16,7 @@ def dashboard(request, campaign_id=None, location_id=None):
     context = {}
     lgas = None
     lga_data = {}
+    chart_data = []
 
     if campaign_id and location_id:
         campaign = get_object_or_404(Campaign, pk=campaign_id)
@@ -48,6 +51,13 @@ def dashboard(request, campaign_id=None, location_id=None):
             ]
             lga_data[lga.name] = the_data
 
+        chart_data.append([u'x'] + [d.strftime(u'%Y-%m-%d') for d in reports.values_list(u'time', flat=True).distinct().order_by(u'time')])
+        extracted_data = list(reports.values(u'time', u'commodity').annotate(total=Sum(u'immunized')).order_by(u'commodity', u'time'))
+        for commodity, group in groupby(extracted_data, lambda r: r.get(u'commodity')):
+            row = [commodity.upper()] + [i.get('total') for i in sorted(group, key=lambda s: s.get('time'))]
+            chart_data.append(row)
+
+    context[u'chart_data'] = json.dumps(chart_data)
     context[u'campaigns'] = campaign_qs
     context[u'lgas'] = lgas
     context[u'commodities'] = OrderedDict(Report.IM_COMMODITIES)

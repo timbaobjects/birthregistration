@@ -2,6 +2,7 @@
 {% load bootstrap_pagination static utils %}
 {% block stylesheets %}
 <link rel="stylesheet" type="text/css" href="{% static 'css/navbar.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.11/c3.min.css" integrity="sha256-gl80aFE+bSTFw7UJf+ne/RkwC55cjidIp0Oe3AX5pfo=" crossorigin="anonymous" />
 {% endblock %}
 {% block navbar %}
 {% include 'campaigns/navbar.html' %}
@@ -13,19 +14,28 @@
 <div class="row justify-content-center">
   <div class="col col-auto">
     <div class="card">
-      <form class="form-inline">
-        <label>Select campaign:</label>
-        <select class="form-control" id="campaign_selector">
-          {% for campaign in campaigns %}
-          <option data-url="{% url 'mnchw:dashboard_detail' campaign_id=campaign.pk location_id=campaign.loc_pk %}" {% if selected_campaign.pk == campaign.pk %}selected="true"{% endif %}>{{ campaign.name }} ({{ campaign.loc_name }} {{ campaign.loc_type }})</option>
-          {% endfor %}
-        </select>
-      </form>
+      <div class="card-block m-1">
+        <form class="form-inline">
+          <label>Select campaign:</label>
+          <select class="form-control" id="campaign_selector">
+            {% for campaign in campaigns %}
+            <option data-url="{% url 'mnchw:dashboard_detail' campaign_id=campaign.pk location_id=campaign.loc_pk %}" {% if selected_campaign.pk == campaign.pk %}selected="true"{% endif %}>{{ campaign.name }} ({{ campaign.loc_name }} {{ campaign.loc_type }})</option>
+            {% endfor %}
+          </select>
+        </form>
+      </div>
     </div>
   </div>
 </div>
+{% if vaccination_data %}
 <div class="row justify-content-center">
   <div class="col col-auto">
+    <div id="chart" style="width: 600px" data-values='{{ chart_data|safe }}'></div>
+  </div>
+</div>
+{% endif %}
+<div class="row justify-content-center">
+  <div class="col col-auto m-2">
     <table class="table table-bordered table-hover table-responsive table-sm table-striped">
       <thead>
         <tr>
@@ -57,6 +67,8 @@
 {% endblock %}
 {% block javascripts %}
 <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js" integrity="sha256-dsOXGNHAo/syFnazt+KTBsCQeRmlcW1XKL0bCK4Baec=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.11/c3.min.js" integrity="sha256-mlJR4DaLFvEBAgHcavz/vASrM6RrzcQq2lXDBwMixZU=" crossorigin="anonymous"></script>
 <script>
 (function() {
   document.addEventListener('DOMContentLoaded', function() {
@@ -64,6 +76,25 @@
       var option = $('#campaign_selector option:selected')[0];
       window.location.assign(option.dataset['url']);
     });
+    {% if vaccination_data %}
+    var chartBox = document.getElementById('chart');
+    var chart_values = JSON.parse(chartBox.dataset.values);
+    c3.generate({
+      bindto: '#chart',
+      data: {
+        x: 'x',
+        columns: chart_values
+      },
+      axis: {
+        x: {
+          type: 'timeseries',
+          tick: {
+            format: '%Y-%m-%d'
+          }
+        }
+      }
+    });
+    {% endif %}
   });
 })();
 </script>
