@@ -5,17 +5,19 @@ import json
 
 from django.db.models import F, Sum
 from django.shortcuts import get_object_or_404, render
-from django_pandas.io import read_frame
 
 from campaigns.models import Campaign
-from ipd.models import Report
+from ipd.helpers import get_campaign_data
+from ipd.models import NonCompliance, Report, Shortage
 from locations.models import Location
 
 
 def dashboard(request, campaign_id=None, location_id=None):
     context = {}
     lgas = None
-    lga_data = {}
+    vaccination_data = {}
+    noncompliance_data = {}
+    shortage_data = {}
     chart_data = []
 
     if campaign_id and location_id:
@@ -36,20 +38,30 @@ def dashboard(request, campaign_id=None, location_id=None):
         u'name', u'loc_name', u'loc_type', u'loc_pk', u'pk')
 
     if campaign:
-        reports = campaign.get_related_objects(Report, location).annotate(
-            lga=F(u'location__parent__name'), ward=F(u'location__name'))
-        # dataframe = read_frame(reports, [u'immunized', u'commodity', u'lga', u'ward'], index_col=u'time')
+        reports, noncompliance_reports, shortages = get_campaign_data(campaign, location)
         lgas = campaign.campaign_lgas(location).order_by(u'name')
 
         for lga in lgas:
-            the_data = [
+            lga_summary = [
                 reports.filter(lga=lga.name,
-                    commodity=code).aggregate(total=Sum(u'immunized')).get(u'total', None)
+                    commodity=code).aggregate(total=Sum(u'immunized')).get(u'total')
                 for code, description in Report.IM_COMMODITIES
-                # dataframe[lga == lga.name && commodity == code][u'immunized'].sum()
-                # for code, description in Report.IM_COMMODITIES
             ]
-            lga_data[lga.name] = the_data
+            vaccination_data[lga.name] = lga_summary
+
+            lga_noncompliance_summary = [
+                noncompliance_reports.filter(lga=lga.name,
+                    reason=reason).aggregate(total=Sum(u'cases')).get(u'total')
+                for reason, description in NonCompliance.NC_REASONS
+            ]
+            noncompliance_data[lga.name] = lga_noncompliance_summary
+
+            lga_shortage_summary = [
+                shortages.filter(lga=lga.name, commodity=commodity).exists()
+                for commodity, description in Shortage.SHORTAGE_COMMODITIES
+            ]
+
+            shortage_data[lga.name] = lga_shortage_summary
 
         chart_data.append([u'x'] + [d.strftime(u'%Y-%m-%d') for d in reports.values_list(u'time', flat=True).distinct().order_by(u'time')])
         extracted_data = list(reports.values(u'time', u'commodity').annotate(total=Sum(u'immunized')).order_by(u'commodity', u'time'))
@@ -61,7 +73,11 @@ def dashboard(request, campaign_id=None, location_id=None):
     context[u'campaigns'] = campaign_qs
     context[u'lgas'] = lgas
     context[u'commodities'] = OrderedDict(Report.IM_COMMODITIES)
-    context[u'vaccination_data'] = lga_data
+    context[u'nc_reasons'] = OrderedDict(NonCompliance.NC_REASONS)
+    context[u'shortage_commodities'] = OrderedDict(Shortage.SHORTAGE_COMMODITIES)
+    context[u'vaccination_data'] = vaccination_data
+    context[u'noncompliance_data'] = noncompliance_data
+    context[u'shortage_data'] = shortage_data
     context[u'selected_campaign'] = campaign
     context[u'selected_location'] = location
 
