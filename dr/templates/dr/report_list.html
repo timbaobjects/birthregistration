@@ -34,13 +34,13 @@
                 </span>
               </div>
               <button class="btn btn-warning mr-1"><span class="glyphicon glyphicon-search"></span> Filter</button>
-              <a class="btn btn-secondary" href="{% url 'dr_report_list' %}">Cancel</a>
+              <a class="btn btn-secondary" href="{% url 'dr:dr_report_list' %}">Cancel</a>
             </form>
           </div>
         </div>
       </div>
     </div>
-    <form action="{% url 'dr_report_delete' %}" method="POST">
+    <form action="{% url 'dr:dr_report_delete' %}" method="POST">
       {% csrf_token %}
       <div class="row justify-content-center">
         <div class="col col-auto m-3">
@@ -63,7 +63,7 @@
                 <td>{{ record.date | date:'SHORT_DATE_FORMAT' }}</td>
                 <td class="text-center">{{ record.male }}</td>
                 <td class="text-center">{{ record.female }}</td>
-                <td><a href="{% url 'dr_report_edit' pk=record.pk %}">Edit</a></td>
+                <td><a href="{% url 'dr:dr_report_edit' pk=record.pk %}">Edit</a></td>
               </tr>
               {% empty %}
               <tr class="table-warning">
