@@ -42,6 +42,13 @@
     </ul>
     <div class="tab-content">
       <div class="tab-pane active" id="reports" role="tabpanel">
+        {% if vaccination_data %}
+        <div class="card m-2">
+          <div class="card-block">
+            <div id="chart" style="width: 600px" data-values='{{ chart_data|safe }}'></div>
+          </div>
+        </div>
+        {% endif %}
         <table class="table table-bordered table-hover table-responsive table-striped">
           <thead>
             <tr>
@@ -142,6 +149,25 @@
       var option = $('#campaign_selector option:selected')[0];
       window.location.assign(option.dataset['url']);
     });
+    {% if vaccination_data %}
+    var chartBox = document.getElementById('chart');
+    var chart_values = JSON.parse(chartBox.dataset.values);
+    c3.generate({
+      bindto: '#chart',
+      data: {
+        x: 'x',
+        columns: chart_values
+      },
+      axis: {
+        x: {
+          type: 'timeseries',
+          tick: {
+            format: '%Y-%m-%d'
+          }
+        }
+      }
+    });
+    {% endif %}
   });
 })();
 </script>
