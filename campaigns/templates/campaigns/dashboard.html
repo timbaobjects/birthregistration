@@ -27,46 +27,112 @@
     </div>
   </div>
 </div>
-{% if vaccination_data %}
-<div class="row justify-content-center">
-  <div class="col col-auto">
-    <div id="chart" style="width: 600px" data-values='{{ chart_data|safe }}'></div>
-  </div>
-</div>
-{% endif %}
 <div class="row justify-content-center">
   <div class="col col-auto m-2">
-    <table class="table table-bordered table-hover table-responsive table-sm table-striped">
-      <thead>
-        <tr>
-          <td>LGA</td>
-          {% for code, description in commodities.iteritems %}
-          <td><abbr title="{{ description }}">{{ code | upper }}</abbr></td>
-          {% endfor %}
-        </tr>
-      </thead>
-      <tbody>
-        {% for lga in lgas %}
-        <tr>
-          <td>{{ lga.name }}</td>
-          {% with current_data=vaccination_data|getitem:lga.name %}
-          {% for item in current_data %}
-          <td>{{ item|default_if_none:'-' }}</td>
-          {% endfor %}
-          {% endwith %}
-        </tr>
-        {% empty %}
-        <tr>
-          <td colspan="{{ commodities | length | add:'1' }}" class="text-center table-warning">No data found</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+    <ul class="nav nav-tabs" role="tablist">
+      <li class="nav-item">
+        <a class="nav-link active" data-toggle="tab" href="#reports" role="tab">Reports</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" data-toggle="tab" href="#nc" role="tab">Non-compliance</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" data-toggle="tab" href="#shortage" role="tab">Shortage</a>
+      </li>
+    </ul>
+    <div class="tab-content">
+      <div class="tab-pane active" id="reports" role="tabpanel">
+        <table class="table table-bordered table-hover table-responsive table-striped">
+          <thead>
+            <tr>
+              <th>LGA</th>
+              {% for code, description in commodities.iteritems %}
+              <th><abbr title="{{ description }}">{{ code | upper }}</abbr></th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for lga in lgas %}
+            <tr>
+              <td>{{ lga.name }}</td>
+              {% with current_data=vaccination_data|getitem:lga.name %}
+              {% for item in current_data %}
+              <td>{{ item|default_if_none:'-' }}</td>
+              {% endfor %}
+              {% endwith %}
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="{{ commodities | length | add:'1' }}" class="text-center table-warning">No data found</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="tab-pane" id="nc" role="tabpanel">
+        <table class="table table-bordered table-hover table-responsive table-striped">
+          <thead>
+            <tr>
+              <th>LGA</th>
+              {% for code, description in nc_reasons.iteritems %}
+              <th><abbr title="{{ description }}">{{ code | upper }}</abbr></th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for lga in lgas %}
+            <tr>
+              <td>{{ lga.name }}</td>
+              {% with current_data=noncompliance_data|getitem:lga.name %}
+              {% for item in current_data %}
+              <td>{{ item|default_if_none:'-' }}</td>
+              {% endfor %}
+              {% endwith %}
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="{{ nc_reasons | length | add:'1' }}" class="text-center table-warning">No data found</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="tab-pane" id="shortage" role="tabpanel">
+        <table class="table table-bordered table-hover table-responsive table-striped">
+          <thead>
+            <tr>
+              <th>LGA</th>
+              {% for code, description in shortage_commodities.iteritems %}
+              <th><abbr title="{{ description }}">{{ code | upper }}</abbr></th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for lga in lgas %}
+            <tr>
+              <td>{{ lga.name }}</td>
+              {% with current_data=shortage_data|getitem:lga.name %}
+              {% for item in current_data %}
+              <td>{% if item %}Y{% endif %}</td>
+              {% endfor %}
+              {% endwith %}
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="{{ shortage_commodities | length | add:'1' }}" class="text-center table-warning">No data found</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </div>
 {% endblock %}
 {% block javascripts %}
 <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js" integrity="sha256-dsOXGNHAo/syFnazt+KTBsCQeRmlcW1XKL0bCK4Baec=" crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.11/c3.min.js" integrity="sha256-mlJR4DaLFvEBAgHcavz/vASrM6RrzcQq2lXDBwMixZU=" crossorigin="anonymous"></script>
 <script>
@@ -76,25 +142,6 @@
       var option = $('#campaign_selector option:selected')[0];
       window.location.assign(option.dataset['url']);
     });
-    {% if vaccination_data %}
-    var chartBox = document.getElementById('chart');
-    var chart_values = JSON.parse(chartBox.dataset.values);
-    c3.generate({
-      bindto: '#chart',
-      data: {
-        x: 'x',
-        columns: chart_values
-      },
-      axis: {
-        x: {
-          type: 'timeseries',
-          tick: {
-            format: '%Y-%m-%d'
-          }
-        }
-      }
-    });
-    {% endif %}
   });
 })();
 </script>
