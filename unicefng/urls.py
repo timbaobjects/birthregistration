@@ -8,7 +8,7 @@ from unicefng.backend import HttpBackendView
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     # RapidSMS core URLs
-    url(r'^accounts/', include('rapidsms.urls.login_logout')),
+    # url(r'^accounts/', include('rapidsms.urls.login_logout')),
     # RapidSMS contrib app URLs
     url(r'^httptester/', include('rapidsms.contrib.httptester.urls')),
     url(r'^messagelog/', include('rapidsms.contrib.messagelog.urls')),
@@ -24,3 +24,9 @@ urlpatterns = [
     url(r'^mnchw/', include('campaigns.urls', namespace=u'mnchw')),
     url(r'incoming/', HttpBackendView.as_view(backend_name='polling')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+# authentication urls
+urlpatterns += [
+    url(r'^accounts/login/$', 'django.contrib.auth.views.login', {'template_name': 'login.html'}, name="user-login"),
+    url(r'^accounts/logout/$', 'django.contrib.auth.views.logout_then_login', name="user-logout")
+]
