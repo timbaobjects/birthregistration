@@ -16,6 +16,7 @@ urlpatterns = [
         name='report_edit'),
     url(r'^report/(?P<pk>\d+)/delete$', ReportDeleteView.as_view(),
         name='report_delete'),
+    url(r'^reports/delete/?$', br_report_delete, name=u'rep_delete'),
     url(r'^/?$', dashboardview, name='dashboard'),
     url(r'^(?P<year>\d+)/?$', dashboardview, name='dashboard_with_year'),
     url(r'^(?P<year>\d+)/(?P<month>\d+)/?$', dashboardview,
@@ -26,10 +27,4 @@ urlpatterns = [
         name='dashboard_with_state_and_year'),
     url(r'^(?P<state>[a-z\-]+)/(?P<year>\d+)/(?P<month>\d+)/?$', dashboardview,
         name='dashboard_with_state_year_and_month'),
-]
-
-# authentication urls
-urlpatterns += [
-    url(r'^accounts/login/$', 'django.contrib.auth.views.login', {'template_name': 'br/login.html'}, name="user-login"),
-    url(r'^accounts/logout/$', 'django.contrib.auth.views.logout_then_login', name="user-logout")
 ]
