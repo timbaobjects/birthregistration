@@ -10,7 +10,7 @@ from locations.models import Location
 
 
 class DeathReportFilter(django_filters.FilterSet):
-    location = LocationFilter(queryset=Location.objects.filter())
+    location = LocationFilter(queryset=Location.objects.all())
     date_start = django_filters.DateFilter(name=u'date', lookup_expr=u'gte',
             widget=forms.DateInput(attrs={
                 u'class': u'form-control mb-2 mr-sm-2 mb-sm-0',
