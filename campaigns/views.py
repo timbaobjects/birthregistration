@@ -45,8 +45,7 @@ class CampaignListView(BaseCampaignViewMixin, ListView):
 
         queryset = queryset.prefetch_related(u'locations').annotate(
             loc_name=F(u'locations__name'),
-            loc_type=F(u'locations__type__name')).values(
+            loc_type=F(u'locations__type__name')).values(u'pk',
             u'name', u'start_date', u'end_date', u'loc_name', u'loc_type')
 
         return queryset
-

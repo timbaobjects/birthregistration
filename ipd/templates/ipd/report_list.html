@@ -8,7 +8,7 @@
 {% endblock %}
 {% block page_content %}
 <div class="row justify-content-center">
-  <h3 class="display-4">MNCHW campaigns</h3>
+  <h3 class="display-4">{{ page_title }}</h3>
 </div>
 <div class="row justify-content-center">
   <div class="col col-auto"></div>
@@ -18,25 +18,25 @@
     <table class="table table-bordered table-hover table-responsive table-sm table-striped">
       <thead>
         <tr>
-          <th>Name</th>
-          <th>Start date</th>
-          <th>End date</th>
-          <th>Locations</th>
-          <th></th>
+          <th>Location</th>
+          <th>Date</th>
+          <th>Reporter</th>
+          <th>Commodity</th>
+          <th>No. immunized</th>
         </tr>
       </thead>
       <tbody>
-        {% for campaign in object_list %}
+        {% for report in object_list %}
         <tr>
-          <td>{{ campaign.name }}</td>
-          <td>{{ campaign.start_date|date:'SHORT_DATE_FORMAT' }}</td>
-          <td>{{ campaign.end_date|date:'SHORT_DATE_FORMAT' }}</td>
-          <td>{{ campaign.loc_name }} ({{ campaign.loc_type }})</td>
-          <td><a href="{% url 'mnchw:report_list' campaign_id=campaign.pk %}">View reports</a></td>
+          <td>{{ report.location }}</td>
+          <td>{{ report.time|date:'SHORT_DATE_FORMAT' }}</td>
+          <td>{{ report.reporter|date:'SHORT_DATE_FORMAT' }}</td>
+          <td>{{ report.get_commodity_display }}</td>
+          <td>{{ report.immunized }}</td>
         </tr>
         {% empty %}
         <tr>
-          <td class="table-warning text-center" colspan="5">No campaigns found</td>
+          <td class="table-warning text-center" colspan="5">No reports found</td>
         </tr>
         {% endfor %}
       </tbody>

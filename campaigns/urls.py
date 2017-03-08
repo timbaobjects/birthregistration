@@ -10,4 +10,6 @@ urlpatterns = [
 		name=u'dashboard_detail'),
 	url(r'^campaigns/?$', views.CampaignListView.as_view(), name=u'campaign_list'),
 	url(r'^campaigns/new/?$', views.CampaignCreateView.as_view(), name=u'campaign_new'),
+	url(r'^reports/(?P<campaign_id>\d+)/?$',
+		ipd_views.ReportListView.as_view(), name=u'report_list'),
 ]

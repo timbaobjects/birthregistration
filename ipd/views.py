@@ -5,8 +5,12 @@ import json
 
 from django.db.models import F, Sum
 from django.shortcuts import get_object_or_404, render
+from django.views.generic import ListView
+
+from django.conf import settings
 
 from campaigns.models import Campaign
+from ipd.filters import CampaignRelatedFilter
 from ipd.helpers import get_campaign_data
 from ipd.models import NonCompliance, Report, Shortage
 from locations.models import Location
@@ -82,3 +86,47 @@ def dashboard(request, campaign_id=None, location_id=None):
     context[u'selected_location'] = location
 
     return render(request, u'campaigns/dashboard.html', context)
+
+
+class CampaignRelatedObjectListMixin(object):
+    paginate_by = settings.PAGE_SIZE
+
+    def get_campaign(self):
+        campaign_id = self.kwargs.get(u'campaign_id')
+
+        campaign = get_object_or_404(Campaign, pk=campaign_id)
+
+        return campaign
+
+    def get_context_data(self, **kwargs):
+        context = super(CampaignRelatedObjectListMixin, self).get_context_data(**kwargs)
+
+        context[u'filter_form'] = self.filterset.form
+
+        return context
+
+    def get_queryset(self):
+        campaign = self.get_campaign()
+        model_class = self.model
+        queryset = model_class.objects.filter(
+            time__range=(campaign.start_date, campaign.end_date))
+
+        # add in the filter
+        self.filterset = CampaignRelatedFilter(self.request.GET, queryset=queryset)
+
+        return self.filterset.qs
+
+
+class ReportListView(CampaignRelatedObjectListMixin, ListView):
+    model = Report
+    template_name = u'ipd/report_list.html'
+
+
+class NonComplianceReportListView(CampaignRelatedObjectListMixin, ListView):
+    model = NonCompliance
+    template_name = u'ipd/nc_report_list.html'
+
+
+class ShortageReportListView(CampaignRelatedObjectListMixin, ListView):
+    model = Shortage
+    template_name = u'ipd/shortage_report_list.html'
