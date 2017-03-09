@@ -42,30 +42,69 @@
     </ul>
     <div class="tab-content">
       <div class="tab-pane active" id="reports" role="tabpanel">
-        <table class="table table-bordered table-hover table-responsive table-striped">
-          <thead>
-            <tr>
-              <th>LGA</th>
-              {% for code, description in commodities.iteritems %}
-              <th><abbr title="{{ description }}">{{ code | upper }}</abbr></th>
-              {% endfor %}
-            </tr>
-          </thead>
-          <tbody>
-            {% for record in vaccination_data %}
-            <tr>
-              <td>{{ record.name }}</td>
-              {% for num_immunized in record.summary %}
-              <td>{{ num_immunized }}</td>
-              {% endfor %}
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="{{ commodities | length | add:'1' }}" class="text-center table-warning">No data found</td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
+        <div class="card">
+          <div class="card-block">
+            <table class="table table-bordered table-hover table-responsive table-sm table-striped">
+              <thead>
+                <tr>
+                  <th>LGA</th>
+                  {% for code, description in commodities.iteritems %}
+                  <th><abbr title="{{ description }}">{{ code | upper }}</abbr></th>
+                  {% endfor %}
+                </tr>
+              </thead>
+              <tbody>
+                {% for record in vaccination_data %}
+                <tr>
+                  <td>{{ record.name }}</td>
+                  {% for num_immunized in record.summary %}
+                  <td>{{ num_immunized }}</td>
+                  {% endfor %}
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="{{ commodities | length | add:'1' }}" class="text-center table-warning">No data found</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <div class="card-block">
+            <table class="table table-bordered table-hover table-responsive table-sm table-striped">
+              <thead>
+                <tr>
+                  <th>Ward</th>
+                  {% for code, description in commodities.iteritems %}
+                  <th><abbr title="{{ description }}">{{ code | upper }}</abbr></th>
+                  {% endfor %}
+                </tr>
+              </thead>
+              <tbody>
+                {% for record in vaccination_data %}
+                <tr>
+                  <th class="bg-primary text-center" colspan="{{ commodities | length | add:'1' }}">{{ record.name }} LGA</th>
+                </tr>
+                  {% for ward_record in record.wards %}
+                  <tr>
+                    <td>{{ ward_record.name }}</td>
+                  {% for num_immunized in ward_record.summary %}
+                    <td>{{ num_immunized }}</td>
+                  {% endfor %}
+                  </tr>
+                  {% empty %}
+                  <tr>
+                    <td class="table-warning text-center">No records for this ward</td>
+                  </tr>
+                  {% endfor %}
+                {% empty %}
+                <tr>
+                  <td class="table-warning text-center">No records</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
       <div class="tab-pane" id="nc" role="tabpanel">
         <table class="table table-bordered table-hover table-responsive table-striped">
