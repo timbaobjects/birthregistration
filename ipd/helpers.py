@@ -20,7 +20,7 @@ def get_campaign_data(campaign, state):
 	return reports, noncompliance_reports, shortage_reports, lgas
 
 
-def get_vaccination_data(reports, lgas):
+def get_vaccination_summary(reports, lgas):
 	summary = OrderedDict()
 
 	for lga in lgas:
