@@ -23,6 +23,7 @@
           <th>Reporter</th>
           <th>Commodity</th>
           <th>No. immunized</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -33,10 +34,11 @@
           <td>{{ report.reporter|date:'SHORT_DATE_FORMAT' }}</td>
           <td>{{ report.get_commodity_display }}</td>
           <td>{{ report.immunized }}</td>
+          <td><a href="{% url 'mnchw:report_update' pk=report.pk %}">Edit</a></td>
         </tr>
         {% empty %}
         <tr>
-          <td class="table-warning text-center" colspan="5">No reports found</td>
+          <td class="table-warning text-center" colspan="6">No reports found</td>
         </tr>
         {% endfor %}
       </tbody>

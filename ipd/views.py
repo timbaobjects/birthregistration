@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
 from collections import OrderedDict
 from itertools import groupby
-import json
 
+from django.core.urlresolvers import reverse
 from django.db.models import F, Sum
 from django.shortcuts import get_object_or_404, render
-from django.views.generic import ListView
+from django.views.generic import ListView, UpdateView
 
 from django.conf import settings
 
 from campaigns.models import Campaign
 from ipd.filters import CampaignRelatedFilter
+from ipd import forms
 from ipd import helpers
 from ipd.models import NonCompliance, Report, Shortage
 from locations.models import Location
@@ -103,3 +104,20 @@ class NonComplianceReportListView(CampaignRelatedObjectListMixin, ListView):
 class ShortageReportListView(CampaignRelatedObjectListMixin, ListView):
     model = Shortage
     template_name = u'ipd/shortage_report_list.html'
+
+
+class ReportUpdateView(UpdateView):
+    form_class = forms.ReportForm
+    model = Report
+    template_name = u'ipd/report_update.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ReportUpdateView, self).get_context_data(**kwargs)
+        context[u'page_title'] = u'Edit {} report for {} {}'.format(
+            self.object.time.strftime(u'%d/%m/%Y'), self.object.location.name,
+            self.object.location.type.name)
+
+        return context
+
+    def get_success_url(self):
+        return reverse(u'mnchw:report_list')

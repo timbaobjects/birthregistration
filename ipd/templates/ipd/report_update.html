@@ -1,0 +1,26 @@
+{% extends 'common/base.html' %}
+{% load bootstrap_pagination static %}
+{% block stylesheets %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/navbar.css' %}">
+{% endblock %}
+{% block navbar %}
+{% include 'campaigns/navbar.html' %}
+{% endblock %}
+{% block page_content %}
+<div class="row justify-content-center">
+  <div class="col col-auto">
+    <div class="card">
+      <div class="card-block">
+        <h4 class="card-title">{{ page_title }}</h4>
+        <form method="POST">
+          <div class="form-group">
+            <label for="{{ form.immunized.id_for_label }}">Number immunized</label>
+            <input class="form-control" type="text" id="{{ form.immunized.id_for_label }}" name="{{ form.immunized.name }}" value="{{ form.immunized.value }}">
+          </div>
+          <button class="btn btn-primary" type="submit">Save</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
