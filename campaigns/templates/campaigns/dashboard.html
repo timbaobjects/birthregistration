@@ -71,19 +71,17 @@
           </div>
           <div class="card-block">
             <table class="table table-bordered table-hover table-responsive table-sm table-striped">
-              <thead>
-                <tr>
-                  <th>Ward</th>
-                  {% for code, description in commodities.iteritems %}
-                  <th><abbr title="{{ description }}">{{ code | upper }}</abbr></th>
-                  {% endfor %}
-                </tr>
-              </thead>
               <tbody>
                 {% for record in vaccination_data %}
                 <tr>
                   <th class="bg-primary text-center" colspan="{{ commodities | length | add:'1' }}">{{ record.name }} LGA</th>
                 </tr>
+                  <tr>
+                    <th>Ward</th>
+                    {% for code, description in commodities.iteritems %}
+                    <th><abbr title="{{ description }}">{{ code | upper }}</abbr></th>
+                    {% endfor %}
+                  </tr>
                   {% for ward_record in record.wards %}
                   <tr>
                     <td>{{ ward_record.name }}</td>
