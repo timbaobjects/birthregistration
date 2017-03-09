@@ -1,5 +1,5 @@
 {% extends 'common/base.html' %}
-{% load bootstrap_pagination static utils %}
+{% load bootstrap_pagination static %}
 {% block stylesheets %}
 <link rel="stylesheet" type="text/css" href="{% static 'css/navbar.css' %}">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.11/c3.min.css" integrity="sha256-gl80aFE+bSTFw7UJf+ne/RkwC55cjidIp0Oe3AX5pfo=" crossorigin="anonymous" />
@@ -52,14 +52,12 @@
             </tr>
           </thead>
           <tbody>
-            {% for lga in lgas %}
+            {% for record in vaccination_data %}
             <tr>
-              <td>{{ lga.name }}</td>
-              {% with current_data=vaccination_data|getitem:lga.name %}
-              {% for item in current_data %}
-              <td>{{ item|default_if_none:'-' }}</td>
+              <td>{{ record.name }}</td>
+              {% for num_immunized in record.summary %}
+              <td>{{ num_immunized }}</td>
               {% endfor %}
-              {% endwith %}
             </tr>
             {% empty %}
             <tr>
@@ -80,14 +78,12 @@
             </tr>
           </thead>
           <tbody>
-            {% for lga in lgas %}
+            {% for record in noncompliance_data %}
             <tr>
-              <td>{{ lga.name }}</td>
-              {% with current_data=noncompliance_data|getitem:lga.name %}
-              {% for item in current_data %}
-              <td>{{ item|default_if_none:'-' }}</td>
+              <td>{{ record.name }}</td>
+              {% for num_cases in record.summary %}
+              <td>{{ num_cases|default_if_none:'-' }}</td>
               {% endfor %}
-              {% endwith %}
             </tr>
             {% empty %}
             <tr>
@@ -108,14 +104,12 @@
             </tr>
           </thead>
           <tbody>
-            {% for lga in lgas %}
+            {% for record in shortage_data %}
             <tr>
-              <td>{{ lga.name }}</td>
-              {% with current_data=shortage_data|getitem:lga.name %}
-              {% for item in current_data %}
-              <td>{% if item %}Y{% endif %}</td>
+              <td>{{ record.name }}</td>
+              {% for flag in record.summary %}
+              <td>{% if flag %}Y{% endif %}</td>
               {% endfor %}
-              {% endwith %}
             </tr>
             {% empty %}
             <tr>
