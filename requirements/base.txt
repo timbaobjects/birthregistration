@@ -2,6 +2,7 @@ Bottleneck==1.2.0
 celery==4.0.0
 dj-database-url==0.4.1
 Django>=1.8,<1.9
+django-braces==1.11.0
 django-bootstrap3==8.1.0
 django-bootstrap-pagination==1.6.2
 django-celery-beat==1.0.0
@@ -10,6 +11,7 @@ django-mptt==0.8.6
 django-mysql==1.1.0
 django-pandas==0.4.1
 django-pipeline==1.6.9
+django-redis==4.7.0
 django-subdomains==2.1.0
 djangorestframework==3.4.6
 fuzzywuzzy==0.12.0
