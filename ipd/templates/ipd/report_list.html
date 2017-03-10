@@ -26,7 +26,7 @@
             <input class="form-control" id="id_time_1" name="time_1">
           </span>
           <button class="btn btn-warning">Filter</button>
-          <a class="btn btn-default" href="{% url 'mnchw:report_list' campaign_id=campaign.pk %}">Clear</a>
+          <a class="btn btn-default" href="{% url 'mnchw:report_list' campaign_id=campaign.pk location_id=location.pk %}">Clear</a>
         </form>
       </div>
     </div>

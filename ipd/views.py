@@ -62,8 +62,15 @@ def dashboard(request, campaign_id=None, location_id=None):
     return render(request, u'campaigns/dashboard.html', context)
 
 
-class CampaignRelatedObjectListMixin(object):
+class CampaignLocationRelatedObjectMixin(object):
     paginate_by = settings.PAGE_SIZE
+
+    def dispatch(self, request, *args, **kwargs):
+        self.campaign = self.get_campaign()
+        self.location = self.get_location()
+
+        return super(CampaignLocationRelatedObjectMixin, self).dispatch(request,
+            *args, **kwargs)
 
     def get_campaign(self):
         campaign_id = self.kwargs.get(u'campaign_id')
@@ -72,19 +79,30 @@ class CampaignRelatedObjectListMixin(object):
 
         return campaign
 
+    def get_location(self):
+        location_id = self.kwargs.get(u'location_id')
+
+        location = get_object_or_404(Location, pk=location_id)
+
+        return location
+
     def get_context_data(self, **kwargs):
-        context = super(CampaignRelatedObjectListMixin, self).get_context_data(**kwargs)
+        context = super(CampaignLocationRelatedObjectMixin, self).get_context_data(**kwargs)
 
         context[u'filter_form'] = self.filterset.form
-        context[u'campaign'] = self.get_campaign()
+        context[u'campaign'] = self.campaign
+        context[u'location'] = self.location
 
         return context
 
     def get_queryset(self):
-        campaign = self.get_campaign()
+        campaign = self.campaign
+        location_descendants = self.location.get_descendants(
+            include_self=True)
         model_class = self.model
         queryset = model_class.objects.filter(
-            time__range=(campaign.start_date, campaign.end_date))
+            time__range=(campaign.start_date, campaign.end_date),
+            location__in=location_descendants)
 
         # add in the filter
         self.filterset = CampaignRelatedFilter(self.request.GET, queryset=queryset)
@@ -92,23 +110,24 @@ class CampaignRelatedObjectListMixin(object):
         return self.filterset.qs
 
 
-class ReportListView(CampaignRelatedObjectListMixin, ListView):
+class ReportListView(CampaignLocationRelatedObjectMixin, ListView):
     model = Report
     template_name = u'ipd/report_list.html'
 
     def get_context_data(self, **kwargs):
         context = super(ReportListView, self).get_context_data(**kwargs)
-        context[u'page_title'] = u'Reports for {}'.format(self.get_campaign().name)
+        context[u'page_title'] = u'Reports for {} ({} {})'.format(self.campaign.name,
+            self.location.name, self.location.type.name)
 
         return context
 
 
-class NonComplianceReportListView(CampaignRelatedObjectListMixin, ListView):
+class NonComplianceReportListView(CampaignLocationRelatedObjectMixin, ListView):
     model = NonCompliance
     template_name = u'ipd/nc_report_list.html'
 
 
-class ShortageReportListView(CampaignRelatedObjectListMixin, ListView):
+class ShortageReportListView(CampaignLocationRelatedObjectMixin, ListView):
     model = Shortage
     template_name = u'ipd/shortage_report_list.html'
 

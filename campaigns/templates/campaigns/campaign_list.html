@@ -32,7 +32,7 @@
           <td>{{ campaign.start_date|date:'SHORT_DATE_FORMAT' }}</td>
           <td>{{ campaign.end_date|date:'SHORT_DATE_FORMAT' }}</td>
           <td>{{ campaign.loc_name }} ({{ campaign.loc_type }})</td>
-          <td><a href="{% url 'mnchw:report_list' campaign_id=campaign.pk %}">View reports</a></td>
+          <td><a href="{% url 'mnchw:report_list' campaign_id=campaign.pk location_id=campaign.loc_pk %}">View reports</a></td>
         </tr>
         {% empty %}
         <tr>
