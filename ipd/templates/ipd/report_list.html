@@ -2,6 +2,8 @@
 {% load bootstrap_pagination static %}
 {% block stylesheets %}
 <link rel="stylesheet" type="text/css" href="{% static 'css/navbar.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker3.standalone.min.css" integrity="sha256-RMGrTGgTqr/RK4mbfJ/9dLy8Dz0oetp7mREUfq7o3IA=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" integrity="sha256-xJOZHfpxLR/uhh1BwYFS5fhmOAdIRQaiOul5F/b7v3s=" crossorigin="anonymous" />
 {% endblock %}
 {% block navbar %}
 {% include 'campaigns/navbar.html' %}
@@ -11,7 +13,24 @@
   <h3 class="display-4">{{ page_title }}</h3>
 </div>
 <div class="row justify-content-center">
-  <div class="col col-auto"></div>
+  <div class="col col-auto">
+    <div class="card">
+      <div class="card-block">
+        <form class="form-inline">
+          <label class="sr-only" for="{{ filter_form.location.id_for_label }}">Location</label>
+          <select class="form-control" id="{{ filter_form.location.id_for_label }}"></select>
+          </div>
+          <span id="date_range_picker" class="input-daterange">
+            <label class="sr-only" for="id_time_0">Start</label>
+            <input class="form-control" id="id_time_0" name="time_0">
+            <input class="form-control" id="id_time_1" name="time_1">
+          </span>
+          <button class="btn btn-warning">Filter</button>
+          <a class="btn btn-default" href="{% url 'mnchw:report_list' campaign_id=campaign.pk %}">Clear</a>
+        </form>
+      </div>
+    </div>
+  </div>
 </div>
 <div class="row justify-content-center">
   <div class="col col-auto">
@@ -50,4 +69,23 @@
   {% bootstrap_paginate page_obj range=10 %}
 </div>
 {% endif %}
+{% endblock %}
+{% block javascripts %}
+<script
+  src="https://code.jquery.com/jquery-3.1.1.min.js"
+  integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
+  crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.min.js" integrity="sha256-urCxMaTtyuE8UK5XeVYuQbm/MhnXflqZ/B9AOkyTguo=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js" integrity="sha256-+mWd/G69S4qtgPowSELIeVAv7+FuL871WXaolgXnrwQ=" crossorigin="anonymous"></script>
+<script>
+(function() {
+  document.addEventListener('DOMContentLoaded', function() {
+    $('.input-daterange').datepicker({
+      autoclose: true
+    });
+  });
+})();
+</script>
 {% endblock %}

@@ -76,6 +76,7 @@ class CampaignRelatedObjectListMixin(object):
         context = super(CampaignRelatedObjectListMixin, self).get_context_data(**kwargs)
 
         context[u'filter_form'] = self.filterset.form
+        context[u'campaign'] = self.get_campaign()
 
         return context
 
@@ -94,6 +95,12 @@ class CampaignRelatedObjectListMixin(object):
 class ReportListView(CampaignRelatedObjectListMixin, ListView):
     model = Report
     template_name = u'ipd/report_list.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(ReportListView, self).get_context_data(**kwargs)
+        context[u'page_title'] = u'Reports for {}'.format(self.get_campaign().name)
+
+        return context
 
 
 class NonComplianceReportListView(CampaignRelatedObjectListMixin, ListView):
