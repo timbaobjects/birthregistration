@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 from datetime import date
+
+from braces.views import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
-from django.http import (HttpResponse, HttpResponseNotAllowed,
-    HttpResponseRedirect)
-from django.utils.decorators import method_decorator
+from django.http import (HttpResponse, HttpResponseForbidden,
+    HttpResponseNotAllowed, HttpResponseRedirect)
 from django.utils.http import is_safe_url
 from django.shortcuts import render
 from django.views.generic import ListView, UpdateView
@@ -16,6 +17,8 @@ from dr.filters import DeathReportFilter
 from dr.forms import DeathReportForm, DeathReportDeleteForm
 from dr.helpers import death_report_summary, compute_rankings, death_report_periods, death_report_period_url
 from dr.models import DeathReport
+
+PROTECTED_VIEW_PERMISSION = u'dr.change_deathreport'
 
 
 def dashboard(request, year=None, month=None):
@@ -83,6 +86,9 @@ def delete_death_reports(request):
     if request.method != u'POST':
         return HttpResponseNotAllowed([u'POST'])
 
+    if not request.user.has_perm(PROTECTED_VIEW_PERMISSION):
+        return HttpResponseForbidden()
+
     form = DeathReportDeleteForm(request.POST)
     redirect_path = request.META.get(u'HTTP_REFERER', u'')
 
@@ -98,17 +104,15 @@ def delete_death_reports(request):
     return HttpResponseRedirect(redirect_path)
 
 
-class DeathReportListView(FormMixin, ListView):
+class DeathReportListView(LoginRequiredMixin, PermissionRequiredMixin,
+        FormMixin, ListView):
     form_class = DeathReportDeleteForm
     model = DeathReport
     page_title = u'Death reports'
     paginate_by = settings.PAGE_SIZE
+    permission_required = PROTECTED_VIEW_PERMISSION
     ordering = (u'-pk')
     template_name = u'dr/report_list.html'
-
-    @method_decorator(login_required)
-    def dispatch(self, request, *args, **kwargs):
-        return super(DeathReportListView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(DeathReportListView, self).get_context_data(**kwargs)
@@ -125,14 +129,12 @@ class DeathReportListView(FormMixin, ListView):
         return self.filterset.qs
 
 
-class DeathReportUpdateView(UpdateView):
+class DeathReportUpdateView(LoginRequiredMixin, PermissionRequiredMixin,
+        UpdateView):
     form_class = DeathReportForm
     model = DeathReport
+    permission_required = PROTECTED_VIEW_PERMISSION
     template_name = u'dr/report_edit.html'
-
-    @method_decorator(login_required)
-    def dispatch(self, request, *args, **kwargs):
-        return super(DeathReportUpdateView, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
         self.object.data.update(form.cleaned_data)
