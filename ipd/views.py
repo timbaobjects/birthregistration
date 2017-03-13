@@ -2,6 +2,7 @@
 from collections import OrderedDict
 from itertools import groupby
 
+from braces.views import LoginRequiredMixin, PermissionRequiredMixin
 from django.core.urlresolvers import reverse
 from django.db.models import F, Sum
 from django.shortcuts import get_object_or_404, render
@@ -15,6 +16,8 @@ from ipd import forms
 from ipd import helpers
 from ipd.models import NonCompliance, Report, Shortage
 from locations.models import Location
+
+PROTECTED_VIEW_PERMISSION = u'ipd.change_report'
 
 
 def dashboard(request, campaign_id=None, location_id=None):
@@ -62,8 +65,9 @@ def dashboard(request, campaign_id=None, location_id=None):
     return render(request, u'campaigns/dashboard.html', context)
 
 
-class CampaignLocationRelatedObjectMixin(object):
+class CampaignLocationRelatedObjectMixin(LoginRequiredMixin, PermissionRequiredMixin):
     paginate_by = settings.PAGE_SIZE
+    permission_required = PROTECTED_VIEW_PERMISSION
 
     def dispatch(self, request, *args, **kwargs):
         self.campaign = self.get_campaign()
@@ -132,9 +136,10 @@ class ShortageReportListView(CampaignLocationRelatedObjectMixin, ListView):
     template_name = u'ipd/shortage_report_list.html'
 
 
-class ReportUpdateView(UpdateView):
+class ReportUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     form_class = forms.ReportForm
     model = Report
+    permission_required = PROTECTED_VIEW_PERMISSION
     template_name = u'ipd/report_update.html'
 
     def get_context_data(self, **kwargs):
