@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-from django.contrib.auth.decorators import login_required
+from braces.views import LoginRequiredMixin, PermissionRequiredMixin
 from django.core.urlresolvers import reverse
 from django.db.models import F
-from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, ListView
 
 from django.conf import settings
@@ -10,18 +9,18 @@ from django.conf import settings
 from campaigns.forms import CampaignCreateForm
 from campaigns.models import Campaign
 
+PROTECTED_VIEW_PERMISSION = u'ipd.change_report'
 
-class BaseCampaignViewMixin(object):
-	@method_decorator(login_required)
-	def dispatch(self, request, *args, **kwargs):
-		return super(BaseCampaignViewMixin, self).dispatch(request, *args, **kwargs)
 
-	def get_context_data(self, **kwargs):
-		context = super(BaseCampaignViewMixin, self).get_context_data(**kwargs)
+class BaseCampaignViewMixin(LoginRequiredMixin, PermissionRequiredMixin):
+    permission_required = PROTECTED_VIEW_PERMISSION
 
-		context[u'page_title'] = self.page_title
+    def get_context_data(self, **kwargs):
+        context = super(BaseCampaignViewMixin, self).get_context_data(**kwargs)
 
-		return context
+        context[u'page_title'] = self.page_title
+
+        return context
 
 
 class CampaignCreateView(BaseCampaignViewMixin, CreateView):
