@@ -7,22 +7,23 @@ from br.filters import BirthRegistrationFilter
 from br.forms import BirthRegistrationModelForm, ReportDeleteForm
 from br.helpers import get_record_dataset
 from br.exporter import export_records_3
+from braces.views import LoginRequiredMixin, PermissionRequiredMixin
 from locations.forms import generate_edit_form
 from locations.filters import CenterFilterSet
 from locations.models import Location, LocationType
 from django.conf import settings
 from django.core.urlresolvers import reverse
-from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.db.models import Max, Min
 from django.http import (
     HttpResponse, HttpResponseNotFound, HttpResponseRedirect,
     HttpResponseNotAllowed, HttpResponseForbidden, HttpResponseBadRequest)
 from django.shortcuts import get_object_or_404, render
-from django.utils.decorators import method_decorator
 from django.utils.http import is_safe_url
 from django.utils.timezone import now
 from django.views.generic import ListView, UpdateView, DeleteView, TemplateView
+
+PROTECTED_VIEW_PERMISSION = u'br.change_birthregistration'
 
 
 def dashboardview(request, state=None, year=now().year, month=None):
@@ -89,24 +90,21 @@ def dashboardview(request, state=None, year=now().year, month=None):
     return render(request, 'br/br_dashboard.html', context)
 
 
-class ReportListView(ListView):
+class ReportListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     context_object_name = 'reports'
     model = BirthRegistration
     template_name = 'br/reports_list.html'
     ordering = (u'-time',)
     paginate_by = settings.PAGE_SIZE
     page_title = 'Reports List'
+    permission_required = PROTECTED_VIEW_PERMISSION
+    report_filter = BirthRegistrationFilter
 
     def get_context_data(self, **kwargs):
         context = super(ReportListView, self).get_context_data(**kwargs)
         context['filter_form'] = self.filter_set.form
         context['page_title'] = self.page_title
         return context
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        self.report_filter = BirthRegistrationFilter
-        return super(ReportListView, self).dispatch(*args, **kwargs)
 
     def get_queryset(self):
         queryset = super(ReportListView, self).get_queryset()
@@ -116,23 +114,17 @@ class ReportListView(ListView):
         return self.filter_set.qs
 
 
-class ReportEditView(UpdateView):
+class ReportEditView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     template_name = 'br/report_edit.html'
+    permission_required = PROTECTED_VIEW_PERMISSION
     page_title = 'Edit Report'
-
-    def get_object(self, queryset=None):
-        return self.report
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        self.report = get_object_or_404(BirthRegistration, pk=kwargs['pk'])
-        self.form_class = BirthRegistrationModelForm
-        return super(ReportEditView, self).dispatch(*args, **kwargs)
+    model = BirthRegistration
+    form_class = BirthRegistrationModelForm
 
     def get_context_data(self, **kwargs):
         context = super(ReportEditView, self).get_context_data(**kwargs)
-        context['report'] = self.report
-        context['report_form'] = self.form_class(instance=self.report)
+        context['report'] = self.object
+        context['report_form'] = context[u'form']
         context['page_title'] = self.page_title
         return context
 
@@ -140,14 +132,9 @@ class ReportEditView(UpdateView):
         return reverse('reports_list')
 
 
-class ReportDeleteView(DeleteView):
-    def get_object(self, queryset=None):
-        return self.report
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        self.report = get_object_or_404(BirthRegistration, pk=kwargs['pk'])
-        return super(ReportDeleteView, self).dispatch(*args, **kwargs)
+class ReportDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
+    model = BirthRegistration
+    permission_required = PROTECTED_VIEW_PERMISSION
 
     def get_success_url(self):
         return reverse('reports_list')
@@ -163,6 +150,9 @@ def br_report_delete(request):
         return HttpResponseNotAllowed([u'POST'])
 
     if not request.user.is_authenticated:
+        return HttpResponseForbidden()
+
+    if not request.user.has_perm(PROTECTED_VIEW_PERMISSION):
         return HttpResponseForbidden()
 
     form = ReportDeleteForm(request.POST)
