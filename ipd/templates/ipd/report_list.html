@@ -18,15 +18,18 @@
       <div class="card-block">
         <form class="form-inline">
           <label class="sr-only" for="{{ filter_form.location.id_for_label }}">Location</label>
-          <select class="form-control" id="{{ filter_form.location.id_for_label }}"></select>
+          <select class="form-control mr-1" id="{{ filter_form.location.id_for_label }}"></select>
+          <div class="form-group mr-1">
+            <span id="date_range_picker" class="input-daterange">
+              <label class="sr-only" for="id_time_0">Start</label>
+              <input class="form-control" id="id_time_0" name="time_0">
+              <input class="form-control" id="id_time_1" name="time_1">
+            </span>
           </div>
-          <span id="date_range_picker" class="input-daterange">
-            <label class="sr-only" for="id_time_0">Start</label>
-            <input class="form-control" id="id_time_0" name="time_0">
-            <input class="form-control" id="id_time_1" name="time_1">
-          </span>
-          <button class="btn btn-warning">Filter</button>
-          <a class="btn btn-default" href="{% url 'mnchw:report_list' campaign_id=campaign.pk location_id=location.pk %}">Clear</a>
+          <div class="form-group mr-1">
+            <button class="btn btn-warning mr-1">Filter</button>
+            <a class="btn btn-default" href="{% url 'mnchw:report_list' campaign_id=campaign.pk location_id=location.pk %}">Clear</a>
+          </div>
         </form>
       </div>
     </div>
