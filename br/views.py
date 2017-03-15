@@ -35,9 +35,11 @@ def dashboardview(request, state=None, year=now().year, month=None):
     # validation
     if state:
         location = get_object_or_404(Location, name__iregex=state.replace('-', '.'), type__name="State")
+        location_codes = dict(location.children.all().values_list('name', 'code'))
         group_list = ['lga', 'rc']
     else:
         location = Location.objects.get(code='ng')
+        location_codes = dict(Location.objects.filter(type__name="State").values_list('name', 'code'))
         group_list = ['state']
 
     if month and (month > 12):
@@ -75,7 +77,9 @@ def dashboardview(request, state=None, year=now().year, month=None):
     year_range = range(br_time_span['time_min'].year, br_time_span['time_max'].year + 1)
 
     context = {
+        'page_title': 'Birth Registration Statistics',
         'location': location,
+        'location_codes': location_codes,
         'year': year,
         'year_range': year_range,
         'month_range': range(1, 13),
@@ -87,7 +91,7 @@ def dashboardview(request, state=None, year=now().year, month=None):
         'states': Location.objects.filter(type__name='State').order_by('name').values_list('name', flat=True),
     }
 
-    return render(request, 'br/br_dashboard.html', context)
+    return render(request, 'br/dashboard.html', context)
 
 
 class ReportListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):

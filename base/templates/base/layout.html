@@ -1,0 +1,103 @@
+{% load staticfiles %}<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}RapidSMS{% endblock %}</title>
+    <link href="{% static "base/css/application.min.css" %}" rel="stylesheet">
+    <!-- as of IE9 cannot parse css files with more that 4K classes separating in two files -->
+    <!--[if IE 9]>
+        <link href="css/application-ie9-part2.css" rel="stylesheet">
+    <![endif]-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <script>
+        /* yeah we need this empty stylesheet here. It's cool chrome & chromium fix
+         chrome fix https://code.google.com/p/chromium/issues/detail?id=167083
+         https://code.google.com/p/chromium/issues/detail?id=332189
+         */
+    </script>
+    {% block stylesheets %}{% endblock %}
+    <style type="text/css">
+        .map-container {
+            min-height: 25em;
+        }
+        .content {
+            padding-top: 25px;
+        }
+        .title {
+            margin-bottom: 10px;
+        }
+        .jvectormap-zoomin, .jvectormap-zoomout {
+            display: none;
+        }
+        .gen-stats {
+            padding-top: 2em;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-dashboard">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <ul class="nav navbar-nav">
+                <li class="nav-item"><a href="#" class="nav-link"><h4>Rapid<strong>SMS</strong></h4></a></li>
+            </ul>
+        </div>
+        <div class="navbar-collapse">
+            <ul class="nav navbar-nav pull-xs-right" style="margin-top:5.5px">
+                <li class="dropdown nav-item">
+                    <a href="#" class="dropdown-toggle nav-link" data-toggle="dropdown">
+                        <i class="fa fa-cog fa-lg"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-right">
+                        <li><a class="dropdown-item" href="profile.html"><i class="glyphicon glyphicon-user"></i> &nbsp; My Account</a></li>
+                        <li class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="calendar.html">Calendar</a></li>
+                        <li><a class="dropdown-item" href="inbox.html">Inbox &nbsp;&nbsp;<span class="label label-pill label-danger animated bounceIn">9</span></a></li>
+                        <li class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="login.html"><i class="fa fa-sign-out"></i> &nbsp; Log Out</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<div class="">
+    <main id="content" class="content" role="main">
+        {% block masthead %}{% endblock %}
+        {% block content %}{% endblock %}
+    </main>
+</div>
+<div class="loader-wrap hiding hide">
+    <i class="fa fa-circle-o-notch fa-spin-fast"></i>
+</div>
+{% block scripts %}
+<!-- common libraries. required for every page-->
+<script src="{% static "base/vendor/jquery/dist/jquery.min.js" %}"></script>
+<script src="{% static "base/vendor/jquery-pjax/jquery.pjax.js" %}"></script>
+<script src="{% static "base/vendor/tether/dist/js/tether.js" %}"></script>
+<script src="{% static "base/vendor/bootstrap/js/dist/util.js" %}"></script>
+<script src="{% static "base/vendor/bootstrap/js/dist/collapse.js" %}"></script>
+<script src="{% static "base/vendor/bootstrap/js/dist/dropdown.js" %}"></script>
+<script src="{% static "base/vendor/bootstrap/js/dist/button.js" %}"></script>
+<script src="{% static "base/vendor/bootstrap/js/dist/tooltip.js" %}"></script>
+<script src="{% static "base/vendor/bootstrap/js/dist/alert.js" %}"></script>
+<script src="{% static "base/vendor/slimScroll/jquery.slimscroll.min.js" %}"></script>
+<script src="{% static "base/vendor/widgster/widgster.js" %}"></script>
+<script src="{% static "base/vendor/pace.js/pace.js" %}" data-pace-options='{ "target": ".content-wrap", "ghostTime": 1000 }'></script>
+<script src="{% static "base/js/bootstrap-fix/button.js" %}"></script>
+
+<!-- common app js -->
+<script src="{% static "base/js/settings.js" %}"></script>
+<script src="{% static "base/js/app.js" %}"></script>
+
+<!-- page specific libs -->
+<script type="text/javascript">
+    $('.widget').widgster();
+</script>
+{% endblock %}
+</body>
+</html>
