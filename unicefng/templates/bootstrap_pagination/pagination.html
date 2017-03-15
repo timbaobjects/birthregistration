@@ -17,7 +17,7 @@
         <span class="page-link" title="Previous Page">{{ previous_label }}</span>
       </li>
     {% else %}
-      <li>
+      <li class="page-item">
         <a class="page-link" title="Previous Page" href="{{ previous_page_url|default:"#"|escape }}">{{ previous_label }}</a>
       </li>
     {% endif %}
@@ -28,7 +28,7 @@
             <span class="page-link" title="Current Page">{% if show_index_range %} {{ index_range }} {% else %} {{ pagenum }} {%endif %}</span>
         </li>
     {% else %}
-        <li>
+        <li class="page-item">
             <a class="page-link" title="Page {{ pagenum }} of {{ page.paginator.num_pages }}" href="{{ url|escape }}">{% if show_index_range %} {{ index_range }} {% else %} {{ pagenum }} {%endif %}</a>
         </li>
     {% endif %}
@@ -39,7 +39,7 @@
         <span class="page-link" title="Next Page">{{ next_label }}</span>
       </li>
     {% else %}
-      <li>
+      <li class="page-item">
         <a class="page-link" title="Next Page" href="{{ next_page_url|default:"#"|escape }}">{{ next_label }}</a>
       </li>
     {% endif %}
@@ -50,7 +50,7 @@
         <span class="page-link" title="Last Page" >{{ last_label }}</span>
       </li>
     {% else %}
-      <li>
+      <li class="page-item">
         <a class="page-link" title="Last Page" href="{{ last_page_url|default:"#"|escape }}">{{last_label}}</a>
       </li>
     {% endif %}
