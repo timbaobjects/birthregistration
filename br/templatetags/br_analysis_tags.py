@@ -28,6 +28,11 @@ def ix(dataframe, index):
 
 
 @register.filter
+def get_item(dictionary, key):
+    return dictionary.get(key)
+
+
+@register.filter
 def br_default(value):
     val = str(value)
     if val.isdigit():
@@ -122,11 +127,11 @@ def performance_pct(*args, **kwargs):
 def performance_class(*args, **kwargs):
     p = performance(*args, **kwargs)
     if p >= 0.7:
-        return 'badge-success'
+        return 'label-success'
     elif 0.3 <= p < 0.7:
-        return 'badge-warning'
+        return 'label-warning'
     else:
-        return 'badge-danger'
+        return 'label-danger'
 
 
 @register.simple_tag
@@ -209,8 +214,8 @@ def location_performance_pct(*args, **kwargs):
 def location_performance_class(*args, **kwargs):
     p = location_performance(*args, **kwargs)
     if p >= 0.7:
-        return 'badge-success'
+        return 'label-success'
     elif 0.3 <= p < 0.7:
-        return 'badge-warning'
+        return 'label-warning'
     else:
-        return 'badge-danger'
+        return 'label-danger'
