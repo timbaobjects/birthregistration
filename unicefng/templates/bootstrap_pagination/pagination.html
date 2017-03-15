@@ -6,7 +6,7 @@
         <span class="page-link" >{{ first_label }}</span>
       </li>
     {% else %}
-      <li>
+      <li class="page-item">
         <a class="page-link" title="First Page" href="{{ first_page_url|default:"#"|escape }}">{{first_label}}</a>
       </li>
     {% endif %}
