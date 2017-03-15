@@ -201,6 +201,7 @@ INSTALLED_APPS = (
     'django.contrib.sitemaps',
     'django.contrib.sites',
     # External apps
+    "base",
     "django_mysql",
     "django_tables2",
     "selectable",
