@@ -2,6 +2,7 @@
 from datetime import date
 
 from braces.views import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.urlresolvers import reverse
 from django.http import (HttpResponse, HttpResponseForbidden,
@@ -100,6 +101,11 @@ def delete_death_reports(request):
 
         if reports.exists():
             reports.delete()
+
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            '<strong>Success!</strong> The reports were successfully deleted.')
 
     return HttpResponseRedirect(redirect_path)
 
