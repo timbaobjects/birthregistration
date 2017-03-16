@@ -1,36 +1,377 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit-no">
-  <title>{{ page_title }}</title>
-  <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
-  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/gridforms/1.0.10/gridforms.min.css">
-</head>
-<body>
-  <div class="container">
-    <div class="card">
-      <div class="card-block">
-        <form action="" class="grid-form" method="POST">
-          <fieldset>
-            <legend>{{ page_title }}</legend>
-            {% csrf_token %}
-            {% for field in form %}
-            <div data-row-span="1">
-              <div data-field-span="1">
-                <label for="{{ field.id_for_label }}">{{ field.help_text }}</label>
-                <input type="number" name="{{ field.name }}" value="{{ field.value }}" id="{{ field.id_for_label }}" placeholder="{{ field.name }}">
-              </div>
-            </div>
-            {% endfor %}
-          </fieldset>
-          <div class="card-footer pull-right">
-            <a class="btn btn-default" href="{% url 'dr:dr_report_list' %}">Cancel</a>
-            <button class="btn btn-primary">Save</button>
-          </div>
-        </form>
-      </div>
+{% extends 'base/layout.html' %}
+{% block title %}Death Registration Statistics · Edit Report{% endblock %}
+{% block usermenu %}
+{% if user.is_authenticated %}<li><a class="dropdown-item" href="{% url "dr:dr_report_list" %}">Reports</a></li>
+<li class="dropdown-divider"></li>{% endif %}
+{% endblock %}
+{% block stylesheets %}
+{{ block.super }}
+<style type="text/css">
+    .select2-container.form-control {
+        display: inline-block;
+    }
+</style>
+{% endblock %}
+{% block masthead %}
+<div class="row">
+    <div class="col-lg-12 title">
+        <ol class="breadcrumb">
+            <li><a href="{% url "dr:dashboard" %}">Death Registration</a></li>
+            <li><a href="{% url "dr:dr_report_list" %}">Death Registration Reports</a></li>
+            <li class="active">Edit Report</li>
+        </ol>
+        <h1 class="page-title">Edit Report</h1>
     </div>
-  </div>
-</body>
-</html>
+</div>
+{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <section class="widget">
+            <div class="row">
+                <div class="col-sm-3"><span class="fw-semi-bold">State</span></div>
+                <div class="col-sm-9">{{ report.location.parent.name }}</div>
+            </div>
+            <div class="row mt-sm">
+                <div class="col-sm-3"><span class="fw-semi-bold">LGA</span></div>
+                <div class="col-sm-9">{{ report.location.name }}</div>
+            </div>
+            <div class="row mt-sm">
+                <div class="col-sm-3"><span class="fw-semi-bold">Reporter</span></div>
+                <div class="col-sm-9">{{ report.reporter.full_name }}</div>
+            </div>
+            <div class="row mt-sm">
+                <div class="col-sm-3"><span class="fw-semi-bold">Phone</span></div>
+                <div class="col-sm-9">{{ report.connection.identity }}</div>
+            </div>
+        </section>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <section class="widget">
+            <div class="widget-body">
+                <form class="form-horizontal" role="form" method="post">{% csrf_token %}
+                    <fieldset>
+                        <legend>Deaths due to childbirth &amp; complications</legend>
+                        <div class="form-group row">
+                            <label for="{{ form.AA.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.AA.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.AA.id_for_label }}" class="form-control" name="{{ form.AA.name }}" value="{{ form.AA.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.AB.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.AB.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.AB.id_for_label }}" class="form-control" name="{{ form.AB.name }}" value="{{ form.AB.value }}">
+                            </div>
+                        </div>
+                        <legend>Deaths due to fevers/typhoid</legend>
+                        <div class="form-group row">
+                            <label for="{{ form.BA.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.BA.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.BA.id_for_label }}" class="form-control" name="{{ form.BA.name }}" value="{{ form.BA.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.BB.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.BB.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.BB.id_for_label }}" class="form-control" name="{{ form.BB.name }}" value="{{ form.BB.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.BC.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.BC.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.BC.id_for_label }}" class="form-control" name="{{ form.BC.name }}" value="{{ form.BC.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.BD.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.BD.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.BD.id_for_label }}" class="form-control" name="{{ form.BD.name }}" value="{{ form.BD.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.BE.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.BE.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.BE.id_for_label }}" class="form-control" name="{{ form.BE.name }}" value="{{ form.BE.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.BF.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.BF.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.BF.id_for_label }}" class="form-control" name="{{ form.BF.name }}" value="{{ form.BF.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.BG.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.BG.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.BG.id_for_label }}" class="form-control" name="{{ form.BG.name }}" value="{{ form.BG.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.BH.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.BH.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.BH.id_for_label }}" class="form-control" name="{{ form.BH.name }}" value="{{ form.BH.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.BJ.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.BJ.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.BJ.id_for_label }}" class="form-control" name="{{ form.BJ.name }}" value="{{ form.BJ.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.BK.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.BK.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.BK.id_for_label }}" class="form-control" name="{{ form.BK.name }}" value="{{ form.BK.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.BM.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.BM.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.BM.id_for_label }}" class="form-control" name="{{ form.BM.name }}" value="{{ form.BM.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.BN.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.BN.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.BN.id_for_label }}" class="form-control" name="{{ form.BN.name }}" value="{{ form.BN.value }}">
+                            </div>
+                        </div>
+                        <legend>Deaths due to accidents &amp; injuries</legend>
+                        <div class="form-group row">
+                            <label for="{{ form.CA.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.CA.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.CA.id_for_label }}" class="form-control" name="{{ form.CA.name }}" value="{{ form.CA.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.CB.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.CB.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.CB.id_for_label }}" class="form-control" name="{{ form.CB.name }}" value="{{ form.CB.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.CC.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.CC.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.CC.id_for_label }}" class="form-control" name="{{ form.CC.name }}" value="{{ form.CC.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.CD.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.CD.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.CD.id_for_label }}" class="form-control" name="{{ form.CD.name }}" value="{{ form.CD.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.CE.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.CE.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.CE.id_for_label }}" class="form-control" name="{{ form.CE.name }}" value="{{ form.CE.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.CF.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.CF.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.CF.id_for_label }}" class="form-control" name="{{ form.CF.name }}" value="{{ form.CF.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.CG.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.CG.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.CG.id_for_label }}" class="form-control" name="{{ form.CG.name }}" value="{{ form.CG.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.CH.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.CH.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.CH.id_for_label }}" class="form-control" name="{{ form.CH.name }}" value="{{ form.CH.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.CJ.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.CJ.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.CJ.id_for_label }}" class="form-control" name="{{ form.CJ.name }}" value="{{ form.CJ.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.CK.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.CK.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.CK.id_for_label }}" class="form-control" name="{{ form.CK.name }}" value="{{ form.CK.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.CM.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.CM.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.CM.id_for_label }}" class="form-control" name="{{ form.CM.name }}" value="{{ form.CM.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.CN.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.CN.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.CN.id_for_label }}" class="form-control" name="{{ form.CN.name }}" value="{{ form.CN.value }}">
+                            </div>
+                        </div>
+                        <legend>Deaths due to HIV/AIDS</legend>
+                        <div class="form-group row">
+                            <label for="{{ form.DA.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.DA.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.DA.id_for_label }}" class="form-control" name="{{ form.DA.name }}" value="{{ form.DA.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.DB.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.DB.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.DB.id_for_label }}" class="form-control" name="{{ form.DB.name }}" value="{{ form.DB.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.DC.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.DC.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.DC.id_for_label }}" class="form-control" name="{{ form.DC.name }}" value="{{ form.DC.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.DD.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.DD.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.DD.id_for_label }}" class="form-control" name="{{ form.DD.name }}" value="{{ form.DD.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.DE.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.DE.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.DE.id_for_label }}" class="form-control" name="{{ form.DE.name }}" value="{{ form.DE.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.DF.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.DF.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.DF.id_for_label }}" class="form-control" name="{{ form.DF.name }}" value="{{ form.DF.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.DG.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.DG.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.DG.id_for_label }}" class="form-control" name="{{ form.DG.name }}" value="{{ form.DG.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.DH.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.DH.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.DH.id_for_label }}" class="form-control" name="{{ form.DH.name }}" value="{{ form.DH.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.DJ.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.DJ.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.DJ.id_for_label }}" class="form-control" name="{{ form.DJ.name }}" value="{{ form.DJ.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.DK.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.DK.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.DK.id_for_label }}" class="form-control" name="{{ form.DK.name }}" value="{{ form.DK.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.DM.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.DM.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.DM.id_for_label }}" class="form-control" name="{{ form.DM.name }}" value="{{ form.DM.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.DN.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.DN.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.DN.id_for_label }}" class="form-control" name="{{ form.DN.name }}" value="{{ form.DN.value }}">
+                            </div>
+                        </div>
+                        <legend>Deaths due to other ailments</legend>
+                        <div class="form-group row">
+                            <label for="{{ form.EA.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.EA.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.EA.id_for_label }}" class="form-control" name="{{ form.EA.name }}" value="{{ form.EA.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.EB.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.EB.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.EB.id_for_label }}" class="form-control" name="{{ form.EB.name }}" value="{{ form.EB.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.EC.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.EC.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.EC.id_for_label }}" class="form-control" name="{{ form.EC.name }}" value="{{ form.EC.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.ED.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.ED.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.ED.id_for_label }}" class="form-control" name="{{ form.ED.name }}" value="{{ form.ED.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.EE.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.EE.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.EE.id_for_label }}" class="form-control" name="{{ form.EE.name }}" value="{{ form.EE.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.EF.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.EF.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.EF.id_for_label }}" class="form-control" name="{{ form.EF.name }}" value="{{ form.EF.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.EG.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.EG.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.EG.id_for_label }}" class="form-control" name="{{ form.EG.name }}" value="{{ form.EG.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.EH.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.EH.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.EH.id_for_label }}" class="form-control" name="{{ form.EH.name }}" value="{{ form.EH.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.EJ.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.EJ.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.EJ.id_for_label }}" class="form-control" name="{{ form.EJ.name }}" value="{{ form.EJ.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.EK.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.EK.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.EK.id_for_label }}" class="form-control" name="{{ form.EK.name }}" value="{{ form.EK.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.EM.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.EM.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.EM.id_for_label }}" class="form-control" name="{{ form.EM.name }}" value="{{ form.EM.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.EN.id_for_label }}" class="col-md-3 form-control-label text-md-right">{{ form.EN.help_text }}</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.EN.id_for_label }}" class="form-control" name="{{ form.EN.name }}" value="{{ form.EN.value }}">
+                            </div>
+                        </div>
+                    </fieldset>
+                    <div class="form-actions">
+                        <div class="row">
+                            <div class="col-md-offset-3 col-md-7">
+                                <button type="submit" class="btn btn-primary form-control-lg">Save Changes</button>
+                                <a href="javascript:history.go(-1);" class="btn btn-inverse form-control-lg">Cancel</a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <form class="form-horizontal form-inline" role="form" id="filter_form">
+            </form>
+        </section>
+    </div>
+</div>
+{% endblock content %}
