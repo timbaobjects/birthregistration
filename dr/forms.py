@@ -14,12 +14,13 @@ class BaseDeathReportForm(forms.ModelForm):
 attributes = OrderedDict()
 
 for key, value in sorted(FIELD_MAP.iteritems()):
-    attributes[key] = forms.IntegerField(key, help_text=value, required=False)
+    label = u'({}) {}'.format(key, value)
+    attributes[key] = forms.IntegerField(key, help_text=label, required=False)
 
 
 DeathReportForm = type('DeathReportForm', (BaseDeathReportForm,), attributes)
 
 
 class DeathReportDeleteForm(forms.Form):
-	reports = forms.ModelMultipleChoiceField(queryset=DeathReport.objects.all(),
-		required=False, widget=forms.CheckboxSelectMultiple)
+    reports = forms.ModelMultipleChoiceField(queryset=DeathReport.objects.all(),
+        required=False, widget=forms.CheckboxSelectMultiple)
