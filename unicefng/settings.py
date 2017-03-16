@@ -1,7 +1,7 @@
 # Django settings for unicefng project.
 import dj_database_url
 import os
-
+from django.contrib.messages import constants as messages
 from prettyconf import config
 
 # The top directory for this project. Contains requirements/, manage.py,
@@ -26,7 +26,7 @@ MANAGERS = ADMINS
 
 DATABASES = {
     'default': dj_database_url.parse(
-        config('DATABASE_URL',default='sqlite://unicefng.db')),
+        config('DATABASE_URL', default='sqlite://unicefng.db')),
 }
 
 # Local time zone for this installation. Choices can be found here:
@@ -83,7 +83,9 @@ STATICFILES_FINDERS = (
 )
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = config('SECRET_KEY', default='+*x2)pdq%r9rcz*=eb216t0o1+vw5#vx&(8ss$k6mbko!p!+p1')
+SECRET_KEY = config(
+    'SECRET_KEY',
+    default='+*x2)pdq%r9rcz*=eb216t0o1+vw5#vx&(8ss$k6mbko!p!+p1')
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -329,15 +331,23 @@ POPULATION_RATIOS = {
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=config.list, default=[])
 BROKER_URL = config('BROKER_URL', default='redis://localhost:6379/0')
-DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='webmaster@localhost')
+DEFAULT_FROM_EMAIL = config(
+    'DEFAULT_FROM_EMAIL', default='webmaster@localhost')
 
 EMAIL_HOST = config('EMAIL_HOST', default='localhost')
 EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
-EMAIL_PORT = config('EMAIL_PORT', default=25) 
+EMAIL_PORT = config('EMAIL_PORT', default=25)
 EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=config.boolean, default=False)
 
 REST_FRAMEWORK = {
     u'PAGE_SIZE': PAGE_SIZE,
     u'DEFAULT_PAGINATION_CLASS': u'rest_framework.pagination.LimitOffsetPagination',
+}
+
+MESSAGE_TAGS = {
+    messages.SUCCESS: 'alert-success',
+    messages.WARNING: 'alert-warning',
+    messages.ERROR: 'alert-danger',
+    messages.INFO: 'alert-info',
 }
