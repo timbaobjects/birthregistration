@@ -1,88 +1,130 @@
-{% extends 'common/base.html' %}
-{% load static %}
+{% extends 'base/layout.html' %}{% load static %}
+{% block title %}MNCHW · Create campaign{% endblock %}
+{% block usermenu %}
+{% if user.is_authenticated %}<li><a class="dropdown-item" href="{% url "mnchw:campaign_list" %}">Reports</a></li>
+<li class="dropdown-divider"></li>{% endif %}
+{% endblock %}
 {% block stylesheets %}
-<link rel="stylesheet" type="text/css" href="{% static 'css/navbar.css' %}">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker3.standalone.min.css" integrity="sha256-RMGrTGgTqr/RK4mbfJ/9dLy8Dz0oetp7mREUfq7o3IA=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" integrity="sha256-xJOZHfpxLR/uhh1BwYFS5fhmOAdIRQaiOul5F/b7v3s=" crossorigin="anonymous" />
+{{ block.super }}
+<style type="text/css">
+    .select2-container.form-control {
+        display: inline-block;
+    }
+</style>
 {% endblock %}
-{% block navbar %}
-{% include 'campaigns/navbar.html' %}
-{% endblock %}
-{% block page_content %}
-<div class="row justify-content-center">
-  <h3 class="display-4">New campaign</h3>
-</div>
-<div class="row justify-content-center">
-  <div class="col col-auto">
-    <form action="" method="POST">
-      {% csrf_token %}
-      <div class="form-group">
-        <label for="{{ form.name.id_for_label }}">Name</label>
-        <input class="form-control" type="text" name="{{ form.name.name }}" id="{{ form.name.id_for_label }}" placeholder="Name">
-      </div>
-      <div class="form-group">
-        <label for="{{ form.locations.id_for_label }}">Locations</label>
-        <select class="form-control" id="{{ form.locations.id_for_label }}" name="{{ form.locations.name }}" multiple="true"></select>
-      </div>
-      <div class="form-group">
-        <label for="{{ form.start_date.id_for_label }}">Start date</label>
-        <input class="form-control date-picker" type="text" name="{{ form.start_date.name }}" id="{{ form.start_date.id_for_label }}" placeholder="Start date">
-      </div>
-      <div class="form-group">
-        <label for="{{ form.end_date.id_for_label }}">End date</label>
-        <input class="form-control date-picker" type="text" name="{{ form.end_date.name }}" id="{{ form.end_date.id_for_label }}" placeholder="End date">
-      </div>
-      <div class="form-group">
-        <button class="btn btn-primary">Save</button>
-        <a class="btn btn-default" href="{% url 'mnchw:campaign_list' %}">Cancel</a>
-      </div>
-    </form>
-  </div>
+{% block masthead %}
+<div class="row">
+    <div class="col-lg-12 title">
+        <ol class="breadcrumb">
+            <li><a href="{% url "mnchw:dashboard" %}">MNCHW Dashboard</a></li>
+            <li class="active">Create campaign</li>
+        </ol>
+        <h1 class="page-title">Create campaign</h1>
+    </div>
 </div>
 {% endblock %}
-{% block javascripts %}
-<script src="http://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.min.js" integrity="sha256-urCxMaTtyuE8UK5XeVYuQbm/MhnXflqZ/B9AOkyTguo=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js" integrity="sha256-+mWd/G69S4qtgPowSELIeVAv7+FuL871WXaolgXnrwQ=" crossorigin="anonymous"></script>
-<script>
-  (function() {
-    document.addEventListener('DOMContentLoaded', function() {
-      var endpoint = '{% url "api:location_list_typed" %}?type=state,lga';
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <section class="widget">
+            <div class="widget-body">
+                <form class="form-horizontal" role="form" method="post">{% csrf_token %}
+                    <fieldset>
+                        <legend><strong>Create campaign</strong></legend>
+                        <div class="form-group row">
+                            <label for="{{ form.name.id_for_label }}" class="col-md-3 form-control-label text-md-right">Name</label>
+                            <div class="col-md-4">
+                              <input class="form-control" type="text" name="{{ form.name.name }}" id="{{ form.name.id_for_label }}" placeholder="Name">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.locations.id_for_label }}" class="col-md-3 form-control-label text-md-right">Locations</label>
+                            <div class="col-md-4">
+                              <input type="hidden" id="{{ form.locations.id_for_label }}" name="{{ form.locations.name }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.start_date.id_for_label }}" class="col-md-3 form-control-label text-md-right">Start date</label>
+                            <div class="col-md-4">
+                              <input class="form-control datepicker" type="text" name="{{ form.start_date.name }}" id="{{ form.start_date.id_for_label }}" placeholder="Start date">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ form.end_date.id_for_label }}" class="col-md-3 form-control-label text-md-right">End date</label>
+                            <div class="col-md-4">
+                              <input class="form-control datepicker" type="text" name="{{ form.end_date.name }}" id="{{ form.end_date.id_for_label }}" placeholder="End date">
+                            </div>
+                        </div>
 
-      $('.date-picker').datepicker({
-        autoclose: true,
-        orientation: 'bottom auto'
-      });
+                    </fieldset>
+                    <div class="form-actions">
+                        <div class="row">
+                            <div class="col-md-offset-3 col-md-7">
+                                <button type="submit" class="btn btn-primary form-control-lg">Save Changes</button>
+                                <a href="javascript:history.go(-1);" class="btn btn-inverse form-control-lg">Cancel</a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <form class="form-horizontal form-inline" role="form" id="filter_form">
+            </form>
+        </section>
+    </div>
+</div>
+{% endblock content %}
+{% block scripts %}
+{{ block.super }}
+<script src="{% static "base/vendor/underscore/underscore-min.js" %}"></script>
+<script src="{% static "base/vendor/select2/select2.min.js" %}"></script>
+<script src="{% static "base/vendor/moment/min/moment.min.js" %}"></script>
+<script src="{% static "base/vendor/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js" %}"></script>
+<script type="text/javascript">
+(function() {
+  document.addEventListener('DOMContentLoaded', function() {
+    var endpoint = '{% url "api:location_list_typed" %}?type=state,lga';
 
-      $('#{{ form.locations.id_for_label }}').select2({
-        ajax: {
-          data: function(params) {
-            return {q: params.term};
+    $('.datepicker').datetimepicker({
+      format: 'MM/DD/YYYY'
+    });
+
+    $('#{{ form.locations.id_for_label }}').select2({
+      ajax: {
+          url: endpoint,
+          data: function(term, page) {
+            return {q: term};
           },
           dataType: 'json',
-          delay: 250,
-          processResults: function(data, params) {
+          quietMillis: 250,
+          results: function(data, page) {
             return {results: data.results};
-          },
-          url: endpoint
-        },
-        width: '100%',
-        allowClear: true,
-        minimumInputLength: 2,
-        placeholder: 'Location',
-        templateResult: function(item) {
+          }
+      },
+      width: '100%',
+      formatResult: function(item) {
           return item.name + ' (' + item.type + ')';
-        },
-        templateSelection: function(item) {
+      },
+      formatSelection: function(item) {
           if (item.text)
-            return item.text;
+              return item.text;
           else
-            return item.name + ' (' + item.type + ')';
-        }
-      });
+              return item.name + ' (' + item.type + ')';
+      },
+      allowClear: true,
+      minimumInputLength: 2,
+      multiple: true,
+      placeholder: 'Locations',
+      templateResult: function(item) {
+        return item.name + ' (' + item.type + ')';
+      },
+      templateSelection: function(item) {
+        if (item.text)
+          return item.text;
+        else
+          return item.name + ' (' + item.type + ')';
+      }
     });
-  })();
+  });
+})();
 </script>
-{% endblock %}
+{% endblock scripts %}

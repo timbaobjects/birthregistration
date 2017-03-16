@@ -29,14 +29,17 @@
         <section class="widget">
             <form class="form-horizontal form-inline" role="form">
                 <fieldset>
-                    <div class="form-group row">
+                    <div class="row">
                         <div class="col-md-12">
-                            <label>Select campaign:</label>
-                            <select class="form-control" id="campaign_selector">
-                              {% for campaign in campaigns %}
-                              <option data-url="{% url 'mnchw:dashboard_detail' campaign_id=campaign.pk location_id=campaign.loc_pk %}" {% if selected_campaign.pk == campaign.pk and selected_location.pk == campaign.loc_pk %}selected="true"{% endif %}>{{ campaign.name }} ({{ campaign.loc_name }} {{ campaign.loc_type }})</option>
-                              {% endfor %}
-                            </select>
+                            <div class="form-group">
+                              <label>Select campaign:</label>
+                              <select class="form-control" id="campaign_selector">
+                                {% for campaign in campaigns %}
+                                <option data-url="{% url 'mnchw:dashboard_detail' campaign_id=campaign.pk location_id=campaign.loc_pk %}" {% if selected_campaign.pk == campaign.pk and selected_location.pk == campaign.loc_pk %}selected="true"{% endif %}>{{ campaign.name }} ({{ campaign.loc_name }} {{ campaign.loc_type }})</option>
+                                {% endfor %}
+                              </select>
+                            </div>
+                            {% if perms.ipd.change_report %}<div class="form-group"><a class="btn btn-success" href="{% url 'mnchw:campaign_new' %}">Add campaign</a></div>{% endif %}
                         </div>
                     </div>
                 </fieldset>
