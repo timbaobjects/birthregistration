@@ -1,94 +1,133 @@
-{% extends 'common/base.html' %}
-{% load bootstrap_pagination static %}
+{% extends 'base/layout.html' %}{% load bootstrap_pagination static %}
+{% block title %}MNCHW Statistics · Reports · {{ page_title }}{% endblock %}
+{% block usermenu %}
+{% if user.is_authenticated %}<li><a class="dropdown-item" href="{% url "mnchw:campaign_list" %}">Campaigns</a></li>
+<li class="dropdown-divider"></li>{% endif %}
+{% endblock %}
 {% block stylesheets %}
-<link rel="stylesheet" type="text/css" href="{% static 'css/navbar.css' %}">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker3.standalone.min.css" integrity="sha256-RMGrTGgTqr/RK4mbfJ/9dLy8Dz0oetp7mREUfq7o3IA=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" integrity="sha256-xJOZHfpxLR/uhh1BwYFS5fhmOAdIRQaiOul5F/b7v3s=" crossorigin="anonymous" />
+{{ block.super }}
+<style type="text/css">
+    .select2-container.form-control {
+        display: inline-block;
+    }
+</style>
 {% endblock %}
-{% block navbar %}
-{% include 'campaigns/navbar.html' %}
-{% endblock %}
-{% block page_content %}
-<div class="row justify-content-center">
-  <h3 class="display-4">{{ page_title }}</h3>
-</div>
-<div class="row justify-content-center">
-  <div class="col col-auto">
-    <div class="card">
-      <div class="card-block">
-        <form class="form-inline">
-          <label class="sr-only" for="{{ filter_form.location.id_for_label }}">Location</label>
-          <select class="form-control mr-1" id="{{ filter_form.location.id_for_label }}"></select>
-          <div class="form-group mr-1">
-            <span id="date_range_picker" class="input-daterange">
-              <label class="sr-only" for="id_time_0">Start</label>
-              <input class="form-control" id="id_time_0" name="time_0">
-              <input class="form-control" id="id_time_1" name="time_1">
-            </span>
-          </div>
-          <div class="form-group mr-1">
-            <button class="btn btn-warning mr-1">Filter</button>
-            <a class="btn btn-default" href="{% url 'mnchw:report_list' campaign_id=campaign.pk location_id=location.pk %}">Clear</a>
-          </div>
-        </form>
-      </div>
+{% block masthead %}
+<div class="row">
+    <div class="col-lg-12 title">
+        <ol class="breadcrumb">
+            <li><a href="{% url "mnchw:dashboard" %}">MNCHW</a></li>
+            <li><a href="{% url "mnchw:campaign_list" %}">Campaigns</a></li>
+            <li class="active">Reports &middot; {{ page_title }}</li>
+        </ol>
+        <h1 class="page-title">Reports &middot; {{ page_title }}</h1>
     </div>
-  </div>
 </div>
-<div class="row justify-content-center">
-  <div class="col col-auto">
-    <table class="table table-bordered table-hover table-responsive table-sm table-striped">
-      <thead>
-        <tr>
-          <th>Location</th>
-          <th>Date</th>
-          <th>Reporter</th>
-          <th>Commodity</th>
-          <th>No. immunized</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for report in object_list %}
-        <tr>
-          <td>{{ report.location }}</td>
-          <td>{{ report.time|date:'SHORT_DATE_FORMAT' }}</td>
-          <td>{{ report.reporter|date:'SHORT_DATE_FORMAT' }}</td>
-          <td>{{ report.get_commodity_display }}</td>
-          <td>{{ report.immunized }}</td>
-          <td><a href="{% url 'mnchw:report_update' pk=report.pk %}">Edit</a></td>
-        </tr>
-        {% empty %}
-        <tr>
-          <td class="table-warning text-center" colspan="6">No reports found</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</div>
-{% if is_paginated %}
-<div class="row m-2 justify-content-center">
-  {% bootstrap_paginate page_obj range=10 show_first_last="true" %}
-</div>
-{% endif %}
 {% endblock %}
-{% block javascripts %}
-<script
-  src="https://code.jquery.com/jquery-3.1.1.min.js"
-  integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
-  crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.min.js" integrity="sha256-urCxMaTtyuE8UK5XeVYuQbm/MhnXflqZ/B9AOkyTguo=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js" integrity="sha256-+mWd/G69S4qtgPowSELIeVAv7+FuL871WXaolgXnrwQ=" crossorigin="anonymous"></script>
-<script>
-(function() {
-  document.addEventListener('DOMContentLoaded', function() {
-    $('.input-daterange').datepicker({
-      autoclose: true
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <section class="widget">
+            <form class="form-horizontal form-inline" role="form" id="filter_form">
+                <fieldset>
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <input type="hidden" id="{{ filter_form.location.id_for_label }}" name="{{ filter_form.location.name }}" data-placeholder="Location" class="select2 form-control" tabindex="-1">
+                            <input id="{{ filter_form.start_date.id_for_label }}" type="text" placeholder="Start Date" name="{{ filter_form.start_date.name }}" class="form-control datepicker" value="{{ filter_form.start_date.value }}" />
+                            <input id="{{ filter_form.end_date.id_for_label }}" type="text" placeholder="End Date" name="{{ filter_form.end_date.name }}" class="form-control datepicker" value="{{ filter_form.end_date.value }}" />
+                            <button type="submit" class="btn btn-primary" id="filter_button">Filter</button>
+                            <a class="btn btn-inverse" href="{% url 'mnchw:report_list' campaign_id=campaign.pk location_id=location.pk %}">Clear</a>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+        </section>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <section class="widget">
+            <div class="widget-table">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Ward</th>
+                            <th>LGA</th>
+                            <th>State</th>
+                            <th>Date</th>
+                            <th>Phone number</th>
+                            <th>Commodity</th>
+                            <th>No. immunized</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for report in object_list %}
+                      <tr>
+                        <td>{{ report.location.name }}</td>
+                        <td>{{ report.location.parent.name }}</td>
+                        <td>{{ report.location.parent.parent.name }}</td>
+                        <td>{{ report.time|date:'SHORT_DATE_FORMAT' }}</td>
+                        <td>{{ report.connection.identity }}</td>
+                        <td>{{ report.get_commodity_display }}</td>
+                        <td>{{ report.immunized }}</td>
+                        <td><a href="{% url 'mnchw:report_update' pk=report.pk %}">Edit</a></td>
+                      </tr>
+                    {% empty %}
+                      <tr><td colspan="8" class="table-warning">No reports found</td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="text-xs-center">
+            {% bootstrap_paginate page_obj range=10 show_first_last="true" %}
+        </div>
+    </div>
+</div>
+{% endblock content %}
+{% block scripts %}
+{{ block.super }}
+<script src="{% static "base/vendor/underscore/underscore-min.js" %}"></script>
+<script src="{% static "base/vendor/select2/select2.min.js" %}"></script>
+<script src="{% static "base/vendor/moment/min/moment.min.js" %}"></script>
+<script src="{% static "base/vendor/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js" %}"></script>
+<script type="text/javascript">
+    $(function () {
+        $('.datepicker').datetimepicker({
+            format: 'MM/DD/YYYY'
+        });
+        var endpoint = '{% url "api:location_list_typed" %}?type=state,lga';
+        $('#{{ filter_form.location.id_for_label }}').select2({
+            ajax: {
+                url: endpoint,
+                data: function(term, page) {
+                  return {q: term};
+                },
+                dataType: 'json',
+                quietMillis: 250,
+                results: function(data, page) {
+                  return {results: data.results};
+                }
+            },
+            width: '30em',
+            // allowClear: true,
+            minimumInputLength: 2,
+            cache: true,
+            formatResult: function(item) {
+                return item.name + ' (' + item.type + ')';
+            },
+            formatSelection: function(item) {
+                if (item.text)
+                    return item.text;
+                else
+                    return item.name + ' (' + item.type + ')';
+            }
+        });
     });
-  });
-})();
 </script>
 {% endblock %}
