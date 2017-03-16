@@ -1,200 +1,155 @@
-{% load bootstrap_pagination %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>{{ page_title }}</title>
-  <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker3.standalone.min.css" integrity="sha256-RMGrTGgTqr/RK4mbfJ/9dLy8Dz0oetp7mREUfq7o3IA=" crossorigin="anonymous" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" integrity="sha256-xJOZHfpxLR/uhh1BwYFS5fhmOAdIRQaiOul5F/b7v3s=" crossorigin="anonymous" />
-</head>
-<body>
-  <div class="container">
-    <div class="row justify-content-center">
-      <h3 class="display-4">Death reports</h3>
+{% extends 'base/layout.html' %}{% load bootstrap_pagination static %}
+{% block title %}Death Registration Statistics &middot; {{ page_title }}{% endblock %}
+{% block usermenu %}
+{% if user.is_authenticated %}<li><a class="dropdown-item" href="{% url "dr:dr_report_list" %}">Reports</a></li>
+<li class="dropdown-divider"></li>{% endif %}
+{% endblock %}
+{% block stylesheets %}
+{{ block.super }}
+<style type="text/css">
+    .select2-container.form-control {
+        display: inline-block;
+    }
+</style>
+{% endblock %}
+{% block masthead %}
+<div class="row">
+    <div class="col-lg-12 title">
+        <ol class="breadcrumb">
+            <li><a href="{% url "dr:dashboard" %}">Death Registration</a></li>
+            <li class="active">Death Registration Reports</li>
+        </ol>
+        <h1 class="page-title">Death Registration Reports</h1>
     </div>
-    <div class="row justify-content-center">
-      <div class="col col-auto">
-        <div class="card m-2">
-          <div class="card-block">
-            <form class="form-inline">
-              <label class="sr-only" for="{{ filter_form.location.id_for_label }}">Location</label>
-              <select class="form-control mr-1" id="{{ filter_form.location.id_for_label }}" name="{{ filter_form.location.name }}">
-                {% if filter_form.cleaned_data.location %}
-                <option selected="true" value="{{ filter_form.cleaned_data.location.pk }}">{{ filter_form.cleaned_data.location.name }} ({{ filter_form.cleaned_data.location.type.name }})</option>
-                {% endif %}
-              </select>
-              <div class="form-group ml-1">
-                <span id="date_range_picker" class="input-daterange">
-                  <label class="sr-only" for="{{ filter_form.date_start.id_for_label }}">Start date</label>
-                  <input type="text" name="{{ filter_form.date_start.name }}" id="{{ filter_form.date_start.id_for_label }}" class="form-control mr-1" placeholder="start date">
-                  <label class="sr-only" for="{{ filter_form.date_end.id_for_label }}">End date</label>
-                  <input type="text" name="{{ filter_form.date_end.name }}" id="{{ filter_form.date_end.id_for_label }}" class="form-control mr-1" placeholder="end date">
-                </span>
-              </div>
-              <button class="btn btn-warning mr-1"><span class="glyphicon glyphicon-search"></span> Filter</button>
-              <a class="btn btn-secondary" href="{% url 'dr:dr_report_list' %}">Cancel</a>
+</div>
+{% endblock %}
+{% block content %}
+{% if messages %}{% for message in messages %}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="alert{% if message.tags %} {{ message.tags}}{% endif %} alert-dismissable" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            {{ message|safe }}
+        </div>
+    </div>
+</div>{% endfor %}
+{% endif %}
+<div class="row">
+    <div class="col-lg-12">
+        <section class="widget">
+            <form class="form-horizontal form-inline" role="form" id="filter_form">
+                <fieldset>
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <input type="hidden" id="{{ filter_form.location.id_for_label }}" name="{{ filter_form.location.name }}" data-placeholder="Location" class="select2 form-control" tabindex="-1">
+                            <input id="{{ filter_form.start_time.id_for_label }}" type="text" placeholder="Start Date" name="{{ filter_form.start_time.name }}" class="form-control datepicker" value="{{ filter_form.start_time.value }}" />
+                            <input id="{{ filter_form.end_time.id_for_label }}" type="text" placeholder="End Date" name="{{ filter_form.end_time.name }}" class="form-control datepicker" value="{{ filter_form.end_time.value }}" />
+                            <button type="submit" class="btn btn-primary" id="filter_button">Filter</button>
+                            <a class="btn btn-inverse" href="{% url 'dr:dr_report_list' %}">Clear</a>
+                            <button type="button" class="btn btn-danger hidden-xs-up" id="delete_btn">Delete Selected</button>
+                        </div>
+                    </div>
+                </fieldset>
             </form>
-          </div>
-        </div>
-      </div>
+        </section>
     </div>
-    <form action="{% url 'dr:dr_report_delete' %}" method="POST">
-      {% csrf_token %}
-      <div class="row justify-content-center">
-        <div class="col col-auto m-3">
-          <table class="table table-bordered table-hover table-responsive table-striped">
-            <thead>
-              <tr>
-                <th><input type="checkbox" name="checkall" id="checkall"></th>
-                <th>Location</th>
-                <th>Date</th>
-                <th>Male deaths</th>
-                <th>Female deaths</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for record in object_list %}
-              <tr>
-                <td><input type="checkbox" name="reports" value="{{ record.pk }}" class="reports"></td>
-                <td>{{ record.location.name }}</td>
-                <td>{{ record.date | date:'SHORT_DATE_FORMAT' }}</td>
-                <td class="text-center">{{ record.male }}</td>
-                <td class="text-center">{{ record.female }}</td>
-                <td><a href="{% url 'dr:dr_report_edit' pk=record.pk %}">Edit</a></td>
-              </tr>
-              {% empty %}
-              <tr class="table-warning">
-                <td colspan="5">No records</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col-6 offset-3">
-          <button class="btn btn-danger" id="deleteBtn" disabled="true">Delete selected</button>
-        </div>
-      </div>
-    </form>
-    {% if is_paginated %}
-    <div class="row m-2 justify-content-center">
-      {% bootstrap_paginate page_obj range=10 show_first_last="true" %}
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <section class="widget">
+            <div class="widget-table">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>&nbsp;</th>
+                            <th>Date</th>
+                            <th>State</th>
+                            <th>LGA</th>
+                            <th>Phone</th>
+                            <th>Male deaths</th>
+                            <th>Female deaths</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <form id="delete_form" action="{% url "dr:dr_report_delete" %}" method="post">{% csrf_token %}
+                        <tbody>{% for report in object_list %}
+                            <tr>
+                                <td><input type="checkbox" name="reports" value="{{ report.pk }}" class="reports"></td>
+                                <td>{{ report.date|date:'SHORT_DATE_FORMAT' }}</td>
+                                <td>{{ report.location.parent.name }}</td>
+                                <td>{{ report.location.name }}</td>
+                                <td>{{ report.connection.identity }}</td>
+                                <td>{{ report.male }}</td>
+                                <td>{{ report.female }}</td>
+                                <td><a href="{% url 'dr:dr_report_edit' report.pk %}">Edit</a></td>
+                            </tr>{% empty %}
+                            <tr>
+                                <td class="table-warning text-xs-center" colspan="8">No records found</td>
+                            </tr>{% endfor %}
+                        </tbody>
+                    </form>
+                </table>
+            </div>
+        </section>
     </div>
-    {% endif %}
-  </div>
-  <script
-  src="https://code.jquery.com/jquery-3.1.1.min.js"
-  integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8="
-  crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.min.js" integrity="sha256-urCxMaTtyuE8UK5XeVYuQbm/MhnXflqZ/B9AOkyTguo=" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js" integrity="sha256-+mWd/G69S4qtgPowSELIeVAv7+FuL871WXaolgXnrwQ=" crossorigin="anonymous"></script>
-  <script>
-    (function () {
-      document.addEventListener('DOMContentLoaded', function() {
-        var toggleAllCheckbox = document.getElementById('checkall');
-        var checkboxes = document.getElementsByClassName('reports');
-        var deleteBtn = document.getElementById('deleteBtn');
-
-        toggleAllCheckbox.addEventListener('click', function(event) {
-          var status = event.target.checked;
-
-          for (var i = 0; i < checkboxes.length; i++) {
-            setCheckStatus(checkboxes[i], status);
-          }
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="text-xs-center">
+            {% bootstrap_paginate page_obj range=10 show_first_last="true" %}
+        </div>
+    </div>
+</div>
+{% endblock content %}
+{% block scripts %}
+{{ block.super }}
+<script src="{% static "base/vendor/underscore/underscore-min.js" %}"></script>
+<script src="{% static "base/vendor/select2/select2.min.js" %}"></script>
+<script src="{% static "base/vendor/moment/min/moment.min.js" %}"></script>
+<script src="{% static "base/vendor/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js" %}"></script>
+<script type="text/javascript">
+    $(function () {
+        $('.datepicker').datetimepicker({
+            format: 'MM/DD/YYYY'
         });
-
-        var setCheckStatus = function(checkbox, status) {
-          if (status === true) {
-            if ('indeterminate' in checkbox) {
-              checkbox.indeterminate = false;
-            }
-            checkbox.checked = true;
-          }
-          else if (status === false) {
-            if ('indeterminate' in checkbox) {
-              checkbox.indeterminate = false;
-            }
-            checkbox.checked = false;
-          }
-          else {
-            checkbox.checked = false;
-            if ('indeterminate' in checkbox) {
-              checkbox.indeterminate = true;
-            }
-          }
-        }
-
-        var setDeleteButtonStatus = function (btn, status) {
-          btn.disabled = !status;
-        }
-
-        var toggleAnchor = function () {
-          var all_checked = true;
-          var all_unchecked = true;
-
-          for (var i = 0; i < checkboxes.length; i++) {
-            all_checked = all_checked && checkboxes[i].checked;
-            all_unchecked = all_unchecked && !checkboxes[i].checked;
-          }
-
-          if (all_checked) {
-            setCheckStatus(toggleAllCheckbox, true);
-            setDeleteButtonStatus(deleteBtn, false);
-          }
-          else if (all_unchecked) {
-            setCheckStatus(toggleAllCheckbox, false);
-            setDeleteButtonStatus(deleteBtn, false);
-          }
-          else {
-            setCheckStatus(toggleAllCheckbox, null);
-            setDeleteButtonStatus(deleteBtn, true);
-          }
-        }
-
-        for (var i = 0; i < checkboxes.length; i++) {
-          checkboxes[i].addEventListener('click', toggleAnchor);
-        }
-
-        var endpoint = '{% url "api:location_list" %}';
-
-        $('.input-daterange').datepicker({
-          autoclose: true
-        });
-
+        var endpoint = '{% url "api:location_list_typed" %}?type=state,lga';
         $('#{{ filter_form.location.id_for_label }}').select2({
-          ajax: {
-            data: function(params) {
-              return {q: params.term};
+            ajax: {
+                url: endpoint,
+                data: function(term, page) {
+                  return {q: term};
+                },
+                dataType: 'json',
+                quietMillis: 250,
+                results: function(data, page) {
+                  return {results: data.results};
+                }
             },
-            dataType: 'json',
-            delay: 250,
-            processResults: function(data, params) {
-              return {results: data.results};
+            width: '30em',
+            // allowClear: true,
+            minimumInputLength: 2,
+            cache: true,
+            formatResult: function(item) {
+                return item.name + ' (' + item.type + ')';
             },
-            url: endpoint
-          },
-          width: '150px',
-          allowClear: true,
-          minimumInputLength: 2,
-          placeholder: 'Location',
-          templateResult: function(item) {
-            return item.name + ' (' + item.type + ')';
-          },
-          templateSelection: function(item) {
-            if (item.text)
-              return item.text;
-            else
-              return item.name + ' (' + item.type + ')';
-          }
+            formatSelection: function(item) {
+                if (item.text)
+                    return item.text;
+                else
+                    return item.name + ' (' + item.type + ')';
+            }
         });
-      });
-    })();
-  </script>
-</body>
-</html>
+        $('.reports').change(function () {
+            if ($('.reports:checked').length > 0)
+                $('#delete_btn').removeClass('hidden-xs-up');
+            else
+                $('#delete_btn').addClass('hidden-xs-up');
+        });
+        $('#delete_btn').click(function () {
+            $('#delete_form').submit();
+        });
+    });
+</script>
+{% endblock %}
