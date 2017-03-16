@@ -6,6 +6,7 @@ from django.views.generic import CreateView, ListView
 
 from django.conf import settings
 
+from campaigns.filters import CampaignFilterSet
 from campaigns.forms import CampaignCreateForm
 from campaigns.models import Campaign
 
@@ -38,11 +39,20 @@ class CampaignListView(BaseCampaignViewMixin, ListView):
     page_title = u'Campaigns'
     paginate_by = settings.PAGE_SIZE
     template_name = u'campaigns/campaign_list.html'
+    filter_class = CampaignFilterSet
+
+    def get_context_data(self, **kwargs):
+        context = super(CampaignListView, self).get_context_data(**kwargs)
+        context[u'filter_form'] = self.filter.form
+
+        return context
 
     def get_queryset(self):
         queryset = super(CampaignListView, self).get_queryset()
 
-        queryset = queryset.prefetch_related(u'locations').annotate(
+        self.filter = self.filter_class(self.request.GET, queryset=queryset)
+
+        queryset = self.filter.qs.prefetch_related(u'locations').annotate(
             loc_pk=F(u'locations__pk'), loc_name=F(u'locations__name'),
             loc_type=F(u'locations__type__name')).values(u'pk', u'loc_pk',
             u'name', u'start_date', u'end_date', u'loc_name', u'loc_type')
