@@ -1,26 +1,83 @@
-{% extends 'common/base.html' %}
-{% load bootstrap_pagination static %}
+{% extends 'base/layout.html' %}
+{% block title %}MNCHW Statistics · Edit Report{% endblock %}
+{% block usermenu %}
+{% if user.is_authenticated %}<li><a class="dropdown-item" href="{% url "mnchw:campaign_list" %}">Campaigns</a></li>
+<li class="dropdown-divider"></li>{% endif %}
+{% endblock %}
 {% block stylesheets %}
-<link rel="stylesheet" type="text/css" href="{% static 'css/navbar.css' %}">
+{{ block.super }}
+<style type="text/css">
+    .select2-container.form-control {
+        display: inline-block;
+    }
+</style>
 {% endblock %}
-{% block navbar %}
-{% include 'campaigns/navbar.html' %}
-{% endblock %}
-{% block page_content %}
-<div class="row justify-content-center">
-  <div class="col col-auto">
-    <div class="card">
-      <div class="card-block">
-        <h4 class="card-title">{{ page_title }}</h4>
-        <form method="POST">
-          <div class="form-group">
-            <label for="{{ form.immunized.id_for_label }}">Number immunized</label>
-            <input class="form-control" type="text" id="{{ form.immunized.id_for_label }}" name="{{ form.immunized.name }}" value="{{ form.immunized.value }}">
-          </div>
-          <button class="btn btn-primary" type="submit">Save</button>
-        </form>
-      </div>
+{% block masthead %}
+<div class="row">
+    <div class="col-lg-12 title">
+        <ol class="breadcrumb">
+            <li><a href="{% url "mnchw:dashboard" %}">MNCHW</a></li>
+            <li><a href="{% url "mnchw:campaign_list" %}">MNCHW Campaigns</a></li>
+            <li class="active">Edit Report</li>
+        </ol>
+        <h1 class="page-title">Edit Report</h1>
     </div>
-  </div>
 </div>
 {% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <section class="widget">
+            <div class="row">
+                <div class="col-sm-3"><span class="fw-semi-bold">State</span></div>
+                <div class="col-sm-9">{{ report.location.parent.parent.name }}</div>
+            </div>
+            <div class="row mt-sm">
+                <div class="col-sm-3"><span class="fw-semi-bold">LGA</span></div>
+                <div class="col-sm-9">{{ report.location.parent.name }}</div>
+            </div>
+            <div class="row mt-sm">
+                <div class="col-sm-3"><span class="fw-semi-bold">Ward</span></div>
+                <div class="col-sm-9">{{ report.location.name }}</div>
+            </div>
+            <div class="row mt-sm">
+                <div class="col-sm-3"><span class="fw-semi-bold">Reporter</span></div>
+                <div class="col-sm-9">{{ report.reporter.full_name }}</div>
+            </div>
+            <div class="row mt-sm">
+                <div class="col-sm-3"><span class="fw-semi-bold">Phone</span></div>
+                <div class="col-sm-9">{{ report.connection.identity }}</div>
+            </div>
+        </section>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <section class="widget">
+            <div class="widget-body">
+                <form class="form-horizontal" role="form" method="post">{% csrf_token %}
+                    <fieldset>
+                        <legend>Edit report</legend>
+                        <div class="form-group row">
+                            <label for="{{ form.immunized.id_for_label }}" class="col-md-3 form-control-label text-md-right">No. immunized</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ form.immunized.id_for_label }}" class="form-control" name="{{ form.immunized.name }}" value="{{ form.immunized.value }}">
+                            </div>
+                        </div>
+                    </fieldset>
+                    <div class="form-actions">
+                        <div class="row">
+                            <div class="col-md-offset-3 col-md-7">
+                                <button type="submit" class="btn btn-primary form-control-lg">Save Changes</button>
+                                <a href="javascript:history.go(-1);" class="btn btn-inverse form-control-lg">Cancel</a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <form class="form-horizontal form-inline" role="form" id="filter_form">
+            </form>
+        </section>
+    </div>
+</div>
+{% endblock content %}
