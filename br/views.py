@@ -12,6 +12,7 @@ from locations.forms import generate_edit_form
 from locations.filters import CenterFilterSet
 from locations.models import Location, LocationType
 from django.conf import settings
+from django.contrib import messages
 from django.core.urlresolvers import reverse
 from django.db import IntegrityError
 from django.db.models import Max, Min
@@ -133,7 +134,7 @@ class ReportEditView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
         return context
 
     def get_success_url(self):
-        return reverse('reports_list')
+        return reverse('br:reports_list')
 
 
 class ReportDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
@@ -141,7 +142,7 @@ class ReportDeleteView(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     permission_required = PROTECTED_VIEW_PERMISSION
 
     def get_success_url(self):
-        return reverse('reports_list')
+        return reverse('br:reports_list')
 
 
 class FAQView(TemplateView):
@@ -165,6 +166,11 @@ def br_report_delete(request):
     if form.is_valid():
         reports = form.cleaned_data.get(u'reports')
         reports.delete()
+
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            '<strong>Success!</strong> The reports were successfully deleted.')
 
         if not is_safe_url(url=redirect_path, host=request.get_host()):
             redirect_path = reverse(u'br:reports_list')
