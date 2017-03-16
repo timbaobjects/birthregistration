@@ -137,6 +137,7 @@ class DeathReportListView(LoginRequiredMixin, PermissionRequiredMixin,
 
 class DeathReportUpdateView(LoginRequiredMixin, PermissionRequiredMixin,
         UpdateView):
+    context_object_name = u'report'
     form_class = DeathReportForm
     model = DeathReport
     permission_required = PROTECTED_VIEW_PERMISSION
