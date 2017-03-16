@@ -1,51 +1,125 @@
-{% extends 'common/base.html' %}
-{% load bootstrap_pagination static %}
+{% extends 'base/layout.html' %}{% load bootstrap_pagination static %}
+{% block title %}MNCHW Statistics · Campaign List{% endblock %}
+{% block usermenu %}
+{% if user.is_authenticated %}<li><a class="dropdown-item" href="{% url "mnchw:campaign_list" %}">Campaigns</a></li>
+<li class="dropdown-divider"></li>{% endif %}
+{% endblock %}
 {% block stylesheets %}
-<link rel="stylesheet" type="text/css" href="{% static 'css/navbar.css' %}">
+{{ block.super }}
+<style type="text/css">
+    .select2-container.form-control {
+        display: inline-block;
+    }
+</style>
 {% endblock %}
-{% block navbar %}
-{% include 'campaigns/navbar.html' %}
+{% block masthead %}
+<div class="row">
+    <div class="col-lg-12 title">
+        <ol class="breadcrumb">
+            <li><a href="{% url "mnchw:dashboard" %}">MNCHW</a></li>
+            <li class="active">MNCHW Campaigns</li>
+        </ol>
+        <h1 class="page-title">MNCHW Campaigns</h1>
+    </div>
+</div>
 {% endblock %}
-{% block page_content %}
-<div class="row justify-content-center">
-  <h3 class="display-4">MNCHW campaigns</h3>
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <section class="widget">
+            <form class="form-horizontal form-inline" role="form" id="filter_form">
+                <fieldset>
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <input type="hidden" id="{{ filter_form.location.id_for_label }}" name="{{ filter_form.location.name }}" data-placeholder="Location" class="select2 form-control" tabindex="-1">
+                            <input id="{{ filter_form.start_date.id_for_label }}" type="text" placeholder="Start Date" name="{{ filter_form.start_date.name }}" class="form-control datepicker" value="{{ filter_form.start_date.value }}" />
+                            <input id="{{ filter_form.end_date.id_for_label }}" type="text" placeholder="End Date" name="{{ filter_form.end_date.name }}" class="form-control datepicker" value="{{ filter_form.end_date.value }}" />
+                            <button type="submit" class="btn btn-primary" id="filter_button">Filter</button>
+                            <a class="btn btn-inverse" href="{% url 'mnchw:campaign_list' %}">Clear</a>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+        </section>
+    </div>
 </div>
-<div class="row justify-content-center">
-  <div class="col col-auto"></div>
+<div class="row">
+    <div class="col-lg-12">
+        <section class="widget">
+            <div class="widget-table">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Start date</th>
+                            <th>End date</th>
+                            <th>Location</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>{% for campaign in object_list %}
+                        <tr>
+                            <td>{{ campaign.name }}</td>
+                            <td>{{ campaign.start_date|date:'SHORT_DATE_FORMAT' }}</td>
+                            <td>{{ campaign.end_date|date:'SHORT_DATE_FORMAT' }}</td>
+                            <td>{{ campaign.loc_name }} ({{ campaign.loc_type }})</td>
+                            <td><a href="{% url 'mnchw:report_list' campaign_id=campaign.pk location_id=campaign.loc_pk %}">View reports</a></td>
+                        </tr>{% empty %}
+                        <tr>
+                            <td class="table-warning text-xs-center" colspan="5">No campaigns found</td>
+                        </tr>{% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
 </div>
-<div class="row justify-content-center">
-  <div class="col col-auto">
-    <table class="table table-bordered table-hover table-responsive table-sm table-striped">
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Start date</th>
-          <th>End date</th>
-          <th>Locations</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for campaign in object_list %}
-        <tr>
-          <td>{{ campaign.name }}</td>
-          <td>{{ campaign.start_date|date:'SHORT_DATE_FORMAT' }}</td>
-          <td>{{ campaign.end_date|date:'SHORT_DATE_FORMAT' }}</td>
-          <td>{{ campaign.loc_name }} ({{ campaign.loc_type }})</td>
-          <td><a href="{% url 'mnchw:report_list' campaign_id=campaign.pk location_id=campaign.loc_pk %}">View reports</a></td>
-        </tr>
-        {% empty %}
-        <tr>
-          <td class="table-warning text-center" colspan="5">No campaigns found</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="text-xs-center">
+            {% bootstrap_paginate page_obj range=10 show_first_last="true" %}
+        </div>
+    </div>
 </div>
-{% if is_paginated %}
-<div class="row m-2 justify-content-center">
-  {% bootstrap_paginate page_obj range=10 show_first_last="true" %}
-</div>
-{% endif %}
+{% endblock content %}
+{% block scripts %}
+{{ block.super }}
+<script src="{% static "base/vendor/underscore/underscore-min.js" %}"></script>
+<script src="{% static "base/vendor/select2/select2.min.js" %}"></script>
+<script src="{% static "base/vendor/moment/min/moment.min.js" %}"></script>
+<script src="{% static "base/vendor/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js" %}"></script>
+<script type="text/javascript">
+    $(function () {
+        $('.datepicker').datetimepicker({
+            format: 'MM/DD/YYYY'
+        });
+        var endpoint = '{% url "api:location_list_typed" %}?type=state,lga';
+        $('#{{ filter_form.location.id_for_label }}').select2({
+            ajax: {
+                url: endpoint,
+                data: function(term, page) {
+                  return {q: term};
+                },
+                dataType: 'json',
+                quietMillis: 250,
+                results: function(data, page) {
+                  return {results: data.results};
+                }
+            },
+            width: '30em',
+            // allowClear: true,
+            minimumInputLength: 2,
+            cache: true,
+            formatResult: function(item) {
+                return item.name + ' (' + item.type + ')';
+            },
+            formatSelection: function(item) {
+                if (item.text)
+                    return item.text;
+                else
+                    return item.name + ' (' + item.type + ')';
+            }
+        });
+    });
+</script>
 {% endblock %}
