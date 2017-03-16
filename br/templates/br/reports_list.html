@@ -1,218 +1,174 @@
-{% extends "common/base.html" %}
-{% load bootstrap_pagination static %}
+{% extends 'base/layout.html' %}{% load bootstrap_pagination static %}
+{% block title %}Birth Registration Statistics · Report List{% endblock %}
+{% block usermenu %}
+{% if user.is_authenticated %}<li><a class="dropdown-item" href="{% url "br:reports_list" %}">Reports</a></li>
+<li class="dropdown-divider"></li>{% endif %}
+{% endblock %}
 {% block stylesheets %}
-<link rel="stylesheet" type="text/css" href="{% static 'css/navbar.css' %}">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/css/bootstrap-datepicker3.standalone.min.css" integrity="sha256-RMGrTGgTqr/RK4mbfJ/9dLy8Dz0oetp7mREUfq7o3IA=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" integrity="sha256-xJOZHfpxLR/uhh1BwYFS5fhmOAdIRQaiOul5F/b7v3s=" crossorigin="anonymous" />
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+{{ block.super }}
+<style type="text/css">
+    .select2-container.form-control {
+        display: inline-block;
+    }
+</style>
 {% endblock %}
-{% block navbar %}
-{% include 'br/navbar.html' %}
-{% endblock %}
-{% block page_content %}
-<div class="row justify-content-center">
-  <h3 class="display-4">Birth reports</h3>
-</div>
-<div class="row justify-content-center">
-  <div class="col col-auto">
-    <div class="card m-3">
-      <div class="card-block">
-        <form class="form-inline">
-          <label class="sr-only" for="{{ filter_form.location.id_for_label }}">Location</label>
-          <select class="form-control" id="{{ filter_form.location.id_for_label }}" name="{{ filter_form.location.name }}">
-            {% if filter_form.cleaned_data.location %}
-            <option selected="true" value="{{ filter_form.cleaned_data.location.pk }}">{{ filter_form.cleaned_data.location.name }} ({{ filter_form.cleaned_data.location.type.name }})</option>
-            {% endif %}
-          </select>
-          <div class="form-group ml-1">
-            <span class="input-daterange">
-              <label class="sr-only" for="{{ filter_form.start_time.id_for_label }}">Start date</label>
-                <input type="text" name="{{ filter_form.start_time.name }}" id="{{ filter_form.start_time.id_for_label }}" class="form-control mr-1" placeholder="start date">
-                <label class="sr-only" for="{{ filter_form.end_time.id_for_label }}">End date</label>
-                <input type="text" name="{{ filter_form.end_time.name }}" id="{{ filter_form.end_time.id_for_label }}" class="form-control mr-1" placeholder="end date">
-            </span>
-          </div>
-          <button class="btn btn-warning mr-1"><span class="fa fa-search" aria-hidden="true"></span> Filter</button>
-          <a class="btn btn-secondary" href="{% url 'br:reports_list' %}">Cancel</a>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
-<form action="" method="POST">
-  {% csrf_token %}
-  <div class="row justify-content-center">
-    <div class="col col-auto m-2">
-      <table class="table table-bordered table-hover table-responsive table-striped table-sm">
-        <thead>
-          <tr>
-            <th rowspan="2"><input type="checkbox" name="checkall" id="checkall"></th>
-            <th rowspan="2">Date</th>
-            <th rowspan="2">State</th>
-            <th rowspan="2">LGA</th>
-            <th rowspan="2">RC</th>
-            <th rowspan="2">Phone</th>
-            <th colspan="4" class="text-center">Boys</th>
-            <th colspan="4" class="text-center">Girls</th>
-            <th rowspan="2"></th>
-          </tr>
-          <tr>
-            <th class="text-center">&lt; 1</th>
-            <th class="text-center">1 &ndash; 4</th>
-            <th class="text-center">5 &ndash; 9</th>
-            <th class="text-center">10 &ndash; 17</th>
-            <th class="text-center">&lt; 1</th>
-            <th class="text-center">1 &ndash; 4</th>
-            <th class="text-center">5 &ndash; 9</th>
-            <th class="text-center">10 &ndash; 17</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for report in reports %}
-          <tr>
-            <td><input type="checkbox" name="reports" value="{{ record.pk }}" class="reports"></td>
-            <td>{{ report.time|date:'SHORT_DATE_FORMAT' }}</td>
-            <td>{{ report.location.parent.parent.name }}</td>
-            <td>{{ report.location.parent.name }}</td>
-            <td>{{ report.location.name }}</td>
-            <td>{{ report.connection.identity }}</td>
-            <td class="text-center">{{ report.boys_below1 }}</td>
-            <td class="text-center">{{ report.boys_1to4 }}</td>
-            <td class="text-center">{{ report.boys_5to9 }}</td>
-            <td class="text-center">{{ report.boys_10to18 }}</td>
-            <td class="text-center">{{ report.girls_below1 }}</td>
-            <td class="text-center">{{ report.girls_1to4 }}</td>
-            <td class="text-center">{{ report.girls_5to9 }}</td>
-            <td class="text-center">{{ report.girls_10to18 }}</td>
-            <td class="text-center"><a href="{% url 'br:report_edit' report.pk %}">Edit</a></td>
-          </tr>
-          {% empty %}
-          <tr>
-            <td class="table-warning text-center" colspan="15">No records found</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-    </div>
-  </div>
-</form>
+{% block masthead %}
 <div class="row">
-  <div class="col-6 offset-3">
-    <button class="btn btn-danger" id="deleteBtn" disabled="true">Delete selected</button>
-  </div>
+    <div class="col-lg-12 title">
+        <ol class="breadcrumb">
+            <li><a href="{% url "br:dashboard" %}">Birth Registration</a></li>
+            <li class="active">Birth Registration Reports</li>
+        </ol>
+        <h1 class="page-title">Birth Registration Reports</h1>
+    </div>
 </div>
-{% if is_paginated %}
-<div class="row m-2 justify-content-center">
-  {% bootstrap_paginate page_obj range=10 show_first_last="true" %}
-</div>
-{% endif %}
 {% endblock %}
-{% block javascripts %}
-<script src="http://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js" integrity="sha256-+mWd/G69S4qtgPowSELIeVAv7+FuL871WXaolgXnrwQ=" crossorigin="anonymous"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.6.4/js/bootstrap-datepicker.min.js" integrity="sha256-urCxMaTtyuE8UK5XeVYuQbm/MhnXflqZ/B9AOkyTguo=" crossorigin="anonymous"></script>
-<script>
-(function () {
-  document.addEventListener('DOMContentLoaded', function() {
-    var toggleAllCheckbox = document.getElementById('checkall');
-    var checkboxes = document.getElementsByClassName('reports');
-    var deleteBtn = document.getElementById('deleteBtn');
-
-    toggleAllCheckbox.addEventListener('click', function(event) {
-      var status = event.target.checked;
-
-      for (var i = 0; i < checkboxes.length; i++) {
-        setCheckStatus(checkboxes[i], status);
-      }
+{% block content %}
+{% if messages %}{% for message in messages %}
+<div class="row">
+    <div class="col-lg-12">
+        <div class="alert{% if message.tags %} {{ message.tags}}{% endif %} alert-dismissable" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            {{ message|safe }}
+        </div>
+    </div>
+</div>{% endfor %}
+{% endif %}
+<div class="row">
+    <div class="col-lg-12">
+        <section class="widget">
+            <form class="form-horizontal form-inline" role="form" id="filter_form">
+                <fieldset>
+                    <div class="form-group row">
+                        <div class="col-md-12">
+                            <input type="hidden" id="{{ filter_form.location.id_for_label }}" name="{{ filter_form.location.name }}" data-placeholder="Location" class="select2 form-control" tabindex="-1">
+                            <input id="{{ filter_form.start_time.id_for_label }}" type="text" placeholder="Start Date" name="{{ filter_form.start_time.name }}" class="form-control datepicker" value="{{ filter_form.start_time.value }}" />
+                            <input id="{{ filter_form.end_time.id_for_label }}" type="text" placeholder="End Date" name="{{ filter_form.end_time.name }}" class="form-control datepicker" value="{{ filter_form.end_time.value }}" />
+                            <button type="submit" class="btn btn-primary" id="filter_button">Filter</button>
+                            <a class="btn btn-inverse" href="{% url 'br:reports_list' %}">Clear</a>
+                            <button type="button" class="btn btn-danger hidden-xs-up" id="delete_btn">Delete Selected</button>
+                        </div>
+                    </div>
+                </fieldset>
+            </form>
+        </section>
+    </div>
+</div>
+{% csrf_token %}
+<div class="row">
+    <div class="col-lg-12">
+        <section class="widget">
+            <div class="widget-table">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th rowspan="2">&nbsp;</th>
+                            <th rowspan="2">Date</th>
+                            <th rowspan="2">State</th>
+                            <th rowspan="2">LGA</th>
+                            <th rowspan="2">RC</th>
+                            <th rowspan="2">Phone</th>
+                            <th colspan="4">Boys</th>
+                            <th colspan="4">Girls</th>
+                            <th rowspan="2"></th>
+                        </tr>
+                        <tr>
+                            <th>&lt; 1</th>
+                            <th>1 - 4</th>
+                            <th>5 - 9</th>
+                            <th>10 - 17</th>
+                            <th>&lt; 1</th>
+                            <th>1 - 4</th>
+                            <th>5 - 9</th>
+                            <th>10 - 17</th>
+                        </tr>
+                    </thead>
+                    <form id="delete_form" action="{% url "br:rep_delete" %}" method="post">{% csrf_token %}
+                        <tbody>{% for report in reports %}
+                            <tr>
+                                <td><input type="checkbox" name="reports" value="{{ report.pk }}" class="reports"></td>
+                                <td>{{ report.time|date:'SHORT_DATE_FORMAT' }}</td>
+                                <td>{{ report.location.parent.parent.name }}</td>
+                                <td>{{ report.location.parent.name }}</td>
+                                <td>{{ report.location.name }}</td>
+                                <td>{{ report.connection.identity }}</td>
+                                <td>{{ report.boys_below1 }}</td>
+                                <td>{{ report.boys_1to4 }}</td>
+                                <td>{{ report.boys_5to9 }}</td>
+                                <td>{{ report.boys_10to18 }}</td>
+                                <td>{{ report.girls_below1 }}</td>
+                                <td>{{ report.girls_1to4 }}</td>
+                                <td>{{ report.girls_5to9 }}</td>
+                                <td>{{ report.girls_10to18 }}</td>
+                                <td><a href="{% url 'br:report_edit' report.pk %}">Edit</a></td>
+                            </tr>{% empty %}
+                            <tr>
+                                <td class="table-warning text-xs-center" colspan="15">No records found</td>
+                            </tr>{% endfor %}
+                        </tbody>
+                    </form>
+                </table>
+            </div>
+        </section>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="text-xs-center">
+            {% bootstrap_paginate page_obj range=10 show_first_last="true" %}
+        </div>
+    </div>
+</div>
+{% endblock content %}
+{% block scripts %}
+{{ block.super }}
+<script src="{% static "base/vendor/underscore/underscore-min.js" %}"></script>
+<script src="{% static "base/vendor/select2/select2.min.js" %}"></script>
+<script src="{% static "base/vendor/moment/min/moment.min.js" %}"></script>
+<script src="{% static "base/vendor/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js" %}"></script>
+<script type="text/javascript">
+    $(function () {
+        $('.datepicker').datetimepicker({
+            format: 'MM/DD/YYYY'
+        });
+        var endpoint = '{% url "api:location_list_typed" %}?type=state,lga';
+        $('#{{ filter_form.location.id_for_label }}').select2({
+            ajax: {
+                url: endpoint,
+                data: function(term, page) {
+                  return {q: term};
+                },
+                dataType: 'json',
+                quietMillis: 250,
+                results: function(data, page) {
+                  return {results: data.results};
+                }
+            },
+            width: '30em',
+            // allowClear: true,
+            minimumInputLength: 2,
+            cache: true,
+            formatResult: function(item) {
+                return item.name + ' (' + item.type + ')';
+            },
+            formatSelection: function(item) {
+                if (item.text)
+                    return item.text;
+                else
+                    return item.name + ' (' + item.type + ')';
+            }
+        });
+        $('.reports').change(function () {
+            if ($('.reports:checked').length > 0)
+                $('#delete_btn').removeClass('hidden-xs-up');
+            else
+                $('#delete_btn').addClass('hidden-xs-up');
+        });
+        $('#delete_btn').click(function () {
+            $('#delete_form').submit();
+        });
     });
-
-    var setCheckStatus = function(checkbox, status) {
-      if (status === true) {
-        if ('indeterminate' in checkbox) {
-          checkbox.indeterminate = false;
-        }
-        checkbox.checked = true;
-      }
-      else if (status === false) {
-        if ('indeterminate' in checkbox) {
-          checkbox.indeterminate = false;
-        }
-        checkbox.checked = false;
-      }
-      else {
-        checkbox.checked = false;
-        if ('indeterminate' in checkbox) {
-          checkbox.indeterminate = true;
-        }
-      }
-    }
-
-    var setDeleteButtonStatus = function (btn, status) {
-      btn.disabled = !status;
-    }
-
-    var toggleAnchor = function () {
-      var all_checked = true;
-      var all_unchecked = true;
-
-      for (var i = 0; i < checkboxes.length; i++) {
-        all_checked = all_checked && checkboxes[i].checked;
-        all_unchecked = all_unchecked && !checkboxes[i].checked;
-      }
-
-      if (all_checked) {
-        setCheckStatus(toggleAllCheckbox, true);
-        setDeleteButtonStatus(deleteBtn, false);
-      }
-      else if (all_unchecked) {
-        setCheckStatus(toggleAllCheckbox, false);
-        setDeleteButtonStatus(deleteBtn, false);
-      }
-      else {
-        setCheckStatus(toggleAllCheckbox, null);
-        setDeleteButtonStatus(deleteBtn, true);
-      }
-    }
-
-    for (var i = 0; i < checkboxes.length; i++) {
-      checkboxes[i].addEventListener('click', toggleAnchor);
-    }
-
-    var endpoint = '{% url "api:location_list_typed" %}?type=state,lga';
-
-    $('.input-daterange').datepicker({
-      autoclose: true
-    });
-
-    $('#{{ filter_form.location.id_for_label }}').select2({
-      ajax: {
-        data: function(params) {
-          return {q: params.term};
-        },
-        dataType: 'json',
-        delay: 250,
-        processResults: function(data, params) {
-          return {results: data.results};
-        },
-        url: endpoint
-      },
-      width: '150px',
-      allowClear: true,
-      minimumInputLength: 2,
-      placeholder: 'Location',
-      templateResult: function(item) {
-        return item.name + ' (' + item.type + ')';
-      },
-      templateSelection: function(item) {
-        if (item.text)
-          return item.text;
-        else
-          return item.name + ' (' + item.type + ')';
-      }
-    });
-  });
-})();
-</script>  
+</script>
 {% endblock %}

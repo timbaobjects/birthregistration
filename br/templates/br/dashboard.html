@@ -1,5 +1,9 @@
 {% extends 'base/layout.html' %}{% load br_analysis_tags static humanize %}
 {% block title %}Birth Registration Statistics · {{ location.name|lower|title }}{% endblock %}
+{% block usermenu %}
+{% if user.is_authenticated %}<li><a class="dropdown-item" href="{% url "br:reports_list" %}">Reports</a></li>
+<li class="dropdown-divider"></li>{% endif %}
+{% endblock %}
 {% block masthead %}
 <div class="row">
     <div class="col-lg-4 title">
@@ -36,7 +40,7 @@
                 </div>
             </li>
             <li class="nav-item">
-                <a href="javascript:;" id="export_button" class="nav-link">Export</a>
+                <form action="" method="GET" id="export"><input type="hidden" name="export" value="✓" /><a href="javascript:;" id="export_button" class="nav-link">Export</a></form>
             </li>
         </ul>
     </div>
@@ -122,7 +126,7 @@
         <section class="widget widget-chart-stats-simple">
             <header>
                 <h5>
-                    <span class="fw-semi-bold">{{ dataframe_location|lower|title }}</span> Performance
+                    <span class="fw-semi-bold">{{ dataframe_location|lower|title }}</span> Coverage
                 </h5>
                 <div class="widget-controls">
                     <a data-widgster="expand" title="Expand" href="#"><i class="glyphicon glyphicon-chevron-up"></i></a>
@@ -354,6 +358,10 @@ var under5_data = {
     "{{ location_codes|get_item:lga_node.name }}": {% performance_pct dataframe_summary lga_node.name location lga_node.id year month "1to4" %},{% endfor %}{% endif %}{% endwith %}
 }
 $(function () {
+    $('#export_button').click(function () {
+        $('#export').submit();
+    });
+
     function initMap() {
         $('#under1_map').vectorMap({
             map: '{% if location.type.name == "Country" %}states_merc{% else %}lgas_merc{% endif %}',

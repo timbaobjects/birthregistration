@@ -1,76 +1,126 @@
-{% extends "br/layout.html" %}
-{% block content %}
-	<div class="container-fluid">
-		<form method="POST" action="">
-		{% csrf_token %}
-		<div class="span10 offset1">
-			<table class="table table-bordered" style="font-size:14px;">
-				<tr>
-					<th width="20%">State</th>
-					<td>{{ report.location.parent.parent.name }}</td>
-				</tr>
-				<tr>
-					<th>LGA</th>
-					<td>{{ report.location.parent.name }}</td>
-				</tr>
-				<tr>
-					<th>Facility</th>
-					<td>{{ report.location.name }}</td>
-				</tr>
-				<tr>
-					<th>Reporter</th>
-					<td>{{ report.reporter.full_name }}</td>
-				</tr>
-				<tr>
-					<th>Phone</th>
-					<td>{{ report.connection.identity }}</td>
-				</tr>
-			</table>
-			<table class="table table-bordered table-striped" style="font-size:14px;">
-				<tr>
-					<th colspan="2">Reported Data</th>
-				</tr>
-				<tr>
-					<th width="20%">Boys &lt; 1</th>
-					<td><input class="span2" name="{{ report_form.boys_below1.name }}" value="{{ report_form.boys_below1.value }}" type="text" style="height:30;"></td>
-				</tr>
-				<tr>
-					<th>Boys 1 - 4</th>
-					<td><input class="span2" name="{{ report_form.boys_1to4.name }}" value="{{ report_form.boys_1to4.value }}" type="text" style="height:30;"></td>
-				</tr>
-				<tr>
-					<th>Boys 5 - 9</th>
-					<td><input class="span2" name="{{ report_form.boys_5to9.name }}" value="{{ report_form.boys_5to9.value }}" type="text" style="height:30;"></td>
-				</tr>
-				<tr>
-					<th>Boys 10 - 17</th>
-					<td><input class="span2" name="{{ report_form.boys_10to18.name }}" value="{{ report_form.boys_10to18.value }}" type="text" style="height:30;"></td>
-				</tr>
-				<tr>
-					<th width="20%">Girls &lt; 1</th>
-					<td><input class="span2" name="{{ report_form.girls_below1.name }}" value="{{ report_form.girls_below1.value }}" type="text" style="height:30;"></td>
-				</tr>
-				<tr>
-					<th>Girls 1 - 4</th>
-					<td><input class="span2" name="{{ report_form.girls_1to4.name }}" value="{{ report_form.girls_1to4.value }}" type="text" style="height:30;"></td>
-				</tr>
-				<tr>
-					<th>Girls 5 - 9</th>
-					<td><input class="span2" name="{{ report_form.girls_5to9.name }}" value="{{ report_form.girls_5to9.value }}" type="text" style="height:30;"></td>
-				</tr>
-				<tr>
-					<th>Girls 10 - 17</th>
-					<td><input class="span2" name="{{ report_form.girls_10to18.name }}" value="{{ report_form.girls_10to18.value }}" type="text" style="height:30;"></td>
-				</tr>
-				<tr>
-					<th>&nbsp;</th>
-					<th>
-						<button class="btn btn-style btn-large btn-info" type="submit" style="font-weight:normal;">Save</button>
-						<a class="btn btn-style btn-large btn-default" style="font-weight:normal" href="{% url 'br:reports_list' %}">Cancel</a>
-					</th>
-				</tr>
-			</table>
-		</div>
-		</form>
-	</div>
+{% extends 'base/layout.html' %}{% load bootstrap_pagination static %}
+{% block title %}Birth Registration Statistics · Edit Report{% endblock %}
+{% block usermenu %}
+{% if user.is_authenticated %}<li><a class="dropdown-item" href="{% url "br:reports_list" %}">Reports</a></li>
+<li class="dropdown-divider"></li>{% endif %}
 {% endblock %}
+{% block stylesheets %}
+{{ block.super }}
+<style type="text/css">
+    .select2-container.form-control {
+        display: inline-block;
+    }
+</style>
+{% endblock %}
+{% block masthead %}
+<div class="row">
+    <div class="col-lg-12 title">
+        <ol class="breadcrumb">
+            <li><a href="{% url "br:dashboard" %}">Birth Registration</a></li>
+            <li><a href="{% url "br:reports_list" %}">Birth Registration Reports</a></li>
+            <li class="active">Edit Report</li>
+        </ol>
+        <h1 class="page-title">Edit Report</h1>
+    </div>
+</div>
+{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <section class="widget">
+            <div class="row">
+                <div class="col-sm-3"><span class="fw-semi-bold">State</span></div>
+                <div class="col-sm-9">{{ report.location.parent.parent.name }}</div>
+            </div>
+            <div class="row mt-sm">
+                <div class="col-sm-3"><span class="fw-semi-bold">LGA</span></div>
+                <div class="col-sm-9">{{ report.location.parent.name }}</div>
+            </div>
+            <div class="row mt-sm">
+                <div class="col-sm-3"><span class="fw-semi-bold">Facility</span></div>
+                <div class="col-sm-9">{{ report.location.name }}</div>
+            </div>
+            <div class="row mt-sm">
+                <div class="col-sm-3"><span class="fw-semi-bold">Reporter</span></div>
+                <div class="col-sm-9">{{ report.reporter.full_name }}</div>
+            </div>
+            <div class="row mt-sm">
+                <div class="col-sm-3"><span class="fw-semi-bold">Phone</span></div>
+                <div class="col-sm-9">{{ report.connection.identity }}</div>
+            </div>
+        </section>
+    </div>
+</div>
+<div class="row">
+    <div class="col-lg-12">
+        <section class="widget">
+            <div class="widget-body">
+                <form class="form-horizontal" role="form" method="post">{% csrf_token %}
+                    <fieldset>
+                        <legend><strong>Male</strong></legend>
+                        <div class="form-group row">
+                            <label for="{{ report_form.boys_below1.id_for_label }}" class="col-md-3 form-control-label text-md-right">Boys &lt; 1</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ report_form.boys_below1.id_for_label }}" class="form-control" name="{{ report_form.boys_below1.name }}" value="{{ report_form.boys_below1.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ report_form.boys_1to4.id_for_label }}" class="col-md-3 form-control-label text-md-right">Boys 1 - 4</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ report_form.boys_1to4.id_for_label }}" class="form-control" name="{{ report_form.boys_1to4.name }}" value="{{ report_form.boys_1to4.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ report_form.boys_5to9.id_for_label }}" class="col-md-3 form-control-label text-md-right">Boys 5 - 9</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ report_form.boys_5to9.id_for_label }}" class="form-control" name="{{ report_form.boys_5to9.name }}" value="{{ report_form.boys_5to9.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ report_form.boys_10to18.id_for_label }}" class="col-md-3 form-control-label text-md-right">Boys 10 - 17</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ report_form.boys_10to18.id_for_label }}" class="form-control" name="{{ report_form.boys_10to18.name }}" value="{{ report_form.boys_10to18.value }}">
+                            </div>
+                        </div>
+                        <legend><strong>Female</strong></legend>
+                        <div class="form-group row">
+                            <label for="{{ report_form.girls_below1.id_for_label }}" class="col-md-3 form-control-label text-md-right">Girls &lt; 1</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ report_form.girls_below1.id_for_label }}" class="form-control" name="{{ report_form.girls_below1.name }}" value="{{ report_form.girls_below1.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ report_form.girls_1to4.id_for_label }}" class="col-md-3 form-control-label text-md-right">Girls 1 - 4</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ report_form.girls_1to4.id_for_label }}" class="form-control" name="{{ report_form.girls_1to4.name }}" value="{{ report_form.girls_1to4.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ report_form.girls_5to9.id_for_label }}" class="col-md-3 form-control-label text-md-right">Girls 5 - 9</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ report_form.girls_5to9.id_for_label }}" class="form-control" name="{{ report_form.girls_5to9.name }}" value="{{ report_form.girls_5to9.value }}">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label for="{{ report_form.girls_10to18.id_for_label }}" class="col-md-3 form-control-label text-md-right">Girls 10 - 17</label>
+                            <div class="col-md-4">
+                                <input type="text" id="{{ report_form.girls_10to18.id_for_label }}" class="form-control" name="{{ report_form.girls_10to18.name }}" value="{{ report_form.girls_10to18.value }}">
+                            </div>
+                        </div>
+                    </fieldset>
+                    <div class="form-actions">
+                        <div class="row">
+                            <div class="col-md-offset-3 col-md-7">
+                                <button type="submit" class="btn btn-primary form-control-lg">Save Changes</button>
+                                <a href="javascript:history.go(-1);" class="btn btn-inverse form-control-lg">Cancel</a>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <form class="form-horizontal form-inline" role="form" id="filter_form">
+            </form>
+        </section>
+    </div>
+</div>
+{% endblock content %}
