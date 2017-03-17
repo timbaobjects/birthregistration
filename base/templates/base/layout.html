@@ -55,7 +55,7 @@
                         <li><a class="dropdown-item" href="javascript:;"><i class="glyphicon glyphicon-user"></i> &nbsp; {{ user.username }}</a></li>
                         <li class="dropdown-divider"></li>{% endif %}
                         {% block usermenu %}{% endblock %}
-                        {% if user.is_authenticated %}<li><a class="dropdown-item" href="{% url 'user-logout' %}"><i class="fa fa-sign-out"></i> &nbsp; Log Out</a></li>{% else %}<li><a class="dropdown-item" href="{% url 'user-login' %}"><i class="fa fa-sign-in"></i> &nbsp; Log In</a></li>{% endif %}
+                        {% if user.is_authenticated %}<li><a class="dropdown-item" href="{% url 'user-logout' %}"><i class="fa fa-sign-out"></i> &nbsp; Log Out</a></li>{% else %}{% block loginblock %}<li><a class="dropdown-item" href="{% url 'user-login' %}"><i class="fa fa-sign-in"></i> &nbsp; Log In</a></li>{% endblock %}{% endif %}
                     </ul>
                 </li>
             </ul>
