@@ -137,6 +137,7 @@ class ShortageReportListView(CampaignLocationRelatedObjectMixin, ListView):
 
 
 class ReportUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
+    context_object_name = u'report'
     form_class = forms.ReportForm
     model = Report
     permission_required = PROTECTED_VIEW_PERMISSION
