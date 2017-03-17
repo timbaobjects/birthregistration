@@ -1,5 +1,6 @@
 {% extends 'base/layout.html' %}{% load br_analysis_tags static humanize %}
 {% block title %}Birth Registration Statistics · {{ location.name|lower|title }}{% endblock %}
+{% block loginblock %}<li><a class="dropdown-item" href="{% url 'user-login' %}?next={% url 'br:dashboard' %}"><i class="fa fa-sign-in"></i> &nbsp; Log In</a></li>{% endblock %}
 {% block usermenu %}
 {% if user.is_authenticated %}<li><a class="dropdown-item" href="{% url "br:reports_list" %}">Reports</a></li>
 <li class="dropdown-divider"></li>{% endif %}
