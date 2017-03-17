@@ -1,8 +1,8 @@
 {% extends 'base/layout.html' %}{% load static %}
 {% block title %}MNCHW Statistics · Campaign List{% endblock %}
+{% block loginblock %}<li><a class="dropdown-item" href="{% url 'user-login' %}?next={% url 'mnchw:dashboard' %}"><i class="fa fa-sign-in"></i> &nbsp; Log In</a></li>{% endblock %}
 {% block usermenu %}
-{% if user.is_authenticated %}<li><a class="dropdown-item" href="{% url "mnchw:campaign_list" %}">Campaigns</a></li>
-<li class="dropdown-divider"></li>{% endif %}
+{% include 'common/usermenu.html' %}
 {% endblock %}
 {% block stylesheets %}
 {{ block.super }}

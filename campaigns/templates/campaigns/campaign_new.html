@@ -1,8 +1,7 @@
 {% extends 'base/layout.html' %}{% load static %}
 {% block title %}MNCHW · Create campaign{% endblock %}
 {% block usermenu %}
-{% if user.is_authenticated %}<li><a class="dropdown-item" href="{% url "mnchw:campaign_list" %}">Reports</a></li>
-<li class="dropdown-divider"></li>{% endif %}
+{% include 'common/usermenu.html' %}
 {% endblock %}
 {% block stylesheets %}
 {{ block.super }}
