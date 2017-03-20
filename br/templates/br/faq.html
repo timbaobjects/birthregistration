@@ -1,14 +1,11 @@
-{% extends "br/base.html" %}
+{% extends "base/layout.html" %}
 {% block title %}FAQ{% endblock %}
+{% block usermenu %}
+{% include 'common/usermenu.html' %}
+{% endblock %}
 {% block stylesheets %}
 <style type="text/css">
 	footer{margin-top: 13.5em;}
-	.panel-default>.panel-heading{color: #333; background-color: #f5f5f5; border-color: #ddd;}
-	.panel-default{border:1px solid #f5f5f5; margin-bottom: 8px;}
-	.panel-title > a:hover,.panel-title > a:focus{text-decoration: none;}
-	.panel-title i{color: #198FA0;}
-	h4.panel-title{font-size: 13.5px; text-align: left; color:#198FA0;}
-	.panel-body{color: #333;}
 </style>
 {% endblock %}
 {% block content %}
@@ -25,7 +22,7 @@
 		        <div class="panel-heading">
 		          <h4 class="panel-title">
 		            <a data-toggle="collapse" data-parent="#accordion" href="#collapseOne" class="">
-		              1. How do I register
+		              1. How do I register?
 		              <i class="indicator glyphicon glyphicon-plus pull-right"></i>
 		            </a>
 		          </h4>
@@ -194,6 +191,7 @@
 </div>
 {% endblock %}
 {% block scripts %}
+{{ block.super }}
 <script type="text/javascript">
 function toggleChevron(e) {
     $(e.target)
