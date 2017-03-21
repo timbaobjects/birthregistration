@@ -9,6 +9,11 @@ import pandas as pd
 from locations.models import Location
 from .models import BirthRegistration, CensusResult
 
+BR_DATA_COLUMNS = [
+    'boys_below1', 'boys_1to4', 'boys_5to9', 'boys_10to18',
+    'girls_below1', 'girls_1to4', 'girls_5to9', 'girls_10to18',
+]
+
 
 class ExtractMonth(Func):
     template = "EXTRACT(MONTH FROM %(expressions)s)"
@@ -79,7 +84,7 @@ def get_population_growth(year, month=None):
     return current_estimate - prev_estimate
 
 
-def get_data_records(location, year, month=None):
+def get_br_records(location, year, month=None):
     if month:
         start_date = datetime(year, month, 1)
         end_date = datetime(year, month, 1) + relativedelta(months=1) - relativedelta(seconds=1)
@@ -89,11 +94,6 @@ def get_data_records(location, year, month=None):
 
     descendant_nodes = location.nx_descendants()
 
-    columns = [
-        'boys_below1', 'boys_1to4', 'boys_5to9', 'boys_10to18',
-        'girls_below1', 'girls_1to4', 'girls_5to9', 'girls_10to18',
-    ]
-
     center_nodes = [
         node['id'] for node in descendant_nodes
         if node['type'] == 'RC' and node['active']]
@@ -101,6 +101,14 @@ def get_data_records(location, year, month=None):
         time__range=(start_date, end_date),
         location__pk__in=center_nodes
     )
+
+    return records, descendant_nodes
+
+
+def get_data_records(location, year, month=None):
+    records, descendant_nodes = get_br_records(location, year, month)
+
+    columns = BR_DATA_COLUMNS
 
     if location.type.name == u'Country':
         subnodes = [node for node in descendant_nodes
