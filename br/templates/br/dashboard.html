@@ -206,22 +206,43 @@
                         {% for lga_node in parent_node|subnodes:'LGA'|dictsort:'name' %}
                         {% with lga_data=dataframe_summary|ix:lga_node.name %}
                         <tr>
-                            <td>{{ lga_node.name|title }}</td>
-                            <td>{{ lga_data.boys_below1.sum|br_default|intcomma }}</td>
-                            <td>{{ lga_data.girls_below1.sum|br_default|intcomma }}</td>
-                            <td>{{ lga_data.below1.sum|br_default|intcomma }}</td>
-                            <td>&nbsp;</td>
-                            <td>{{ lga_data.boys_1to4.sum|br_default|intcomma }}</td>
-                            <td>{{ lga_data.girls_1to4.sum|br_default|intcomma }}</td>
-                            <td>{{ lga_data.1to4.sum|br_default|intcomma }}</td>
-                            <td>&nbsp;</td>
-                            <td>{{ lga_data.boys_above5.sum|br_default|intcomma }}</td>
-                            <td>{{ lga_data.girls_above5.sum|br_default|intcomma }}</td>
-                            <td>{{ lga_data.above5.sum|br_default|intcomma }}</td>
-                            <td>&nbsp;</td>
-                            <td><span class="label {% performance_class dataframe_summary lga_node.name location lga_node.id year month 'below1' %}">{% performance_pct dataframe_summary lga_node.name location lga_node.id year month "below1" %}%</span></td>
-                            <td><span class="label {% performance_class dataframe_summary lga_node.name location lga_node.id year month '1to4' %}">{% performance_pct dataframe_summary lga_node.name location lga_node.id year month '1to4' %}%</span></td>
+                            <th>{{ lga_node.name|title }}</th>
+                            <th>{{ lga_data.boys_below1.sum|br_default|intcomma }}</th>
+                            <th>{{ lga_data.girls_below1.sum|br_default|intcomma }}</th>
+                            <th>{{ lga_data.below1.sum|br_default|intcomma }}</th>
+                            <th>&nbsp;</th>
+                            <th>{{ lga_data.boys_1to4.sum|br_default|intcomma }}</th>
+                            <th>{{ lga_data.girls_1to4.sum|br_default|intcomma }}</th>
+                            <th>{{ lga_data.1to4.sum|br_default|intcomma }}</th>
+                            <th>&nbsp;</th>
+                            <th>{{ lga_data.boys_above5.sum|br_default|intcomma }}</th>
+                            <th>{{ lga_data.girls_above5.sum|br_default|intcomma }}</th>
+                            <th>{{ lga_data.above5.sum|br_default|intcomma }}</th>
+                            <th>&nbsp;</th>
+                            <th><span class="label {% performance_class dataframe_summary lga_node.name location lga_node.id year month 'below1' %}">{% performance_pct dataframe_summary lga_node.name location lga_node.id year month "below1" %}%</span></th>
+                            <th><span class="label {% performance_class dataframe_summary lga_node.name location lga_node.id year month '1to4' %}">{% performance_pct dataframe_summary lga_node.name location lga_node.id year month '1to4' %}%</span></th>
                         </tr>
+                        {% for center_node in lga_node|subnodes:'RC'|dictsort:'name' %}
+                        <tr>
+                            <th>{{ center_node.name|title }}</th>
+                            {% with center_data=lga_data|ix:center_node.name %}
+                            <td>{{ center_data.boys_below1|br_default|intcomma }}</td>
+                            <td>{{ center_data.girls_below1|br_default|intcomma }}</td>
+                            <td>{{ center_data.below1|br_default|intcomma }}</td>
+                            <td></td>
+                            <td>{{ center_data.boys_1to4|br_default|intcomma }}</td>
+                            <td>{{ center_data.girls_1to4|br_default|intcomma }}</td>
+                            <td>{{ center_data.1to4|br_default|intcomma }}</td>
+                            <td></td>
+                            <td>{{ center_data.boys_above5|br_default|intcomma }}</td>
+                            <td>{{ center_data.girls_above5|br_default|intcomma }}</td>
+                            <td>{{ center_data.above5|br_default|intcomma }}</td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            {% endwith %}
+                        </tr>
+                        {% endfor %}
                         {% endwith %}
                         {% endfor %}
                         {% endif %}
