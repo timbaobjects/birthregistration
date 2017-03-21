@@ -1,6 +1,6 @@
 {% if user.is_authenticated %}
 {% if perms.br.change_birthregistration %}<li><a class="dropdown-item" href="{% url 'br:reports_list' %}">BR reports</a></li>{% endif %}
-{% if perms.dr.change_report %}<li><a class="dropdown-item" href="{% url 'dr:dr_report_list' %}">DR reports</a></li>{% endif %}
+{% if perms.dr.change_deathreport %}<li><a class="dropdown-item" href="{% url 'dr:dr_report_list' %}">DR reports</a></li>{% endif %}
 {% if perms.ipd.change_report %}<li><a class="dropdown-item" href="{% url 'mnchw:campaign_list' %}">MNCHW campaigns</a></li>{% endif %}
 <div class="dropdown-divider"></div>
 {% endif %}
