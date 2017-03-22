@@ -1,4 +1,4 @@
-{% extends 'br/base.html' %}
+{% extends 'base/layout.html' %}
 {% load pipeline staticfiles %}
 {% block stylesheets %}
 {% stylesheet 'centers' %}
@@ -38,7 +38,7 @@
                 </div>
                 <div class="form-group">
                     <button type="submit" class="btn btn-primary">Save</button>
-                    <a class="btn btn-default" href="{% url 'center_list' %}">Cancel</a>
+                    <a class="btn btn-default" href="{% url 'locations:center_list' %}">Cancel</a>
                 </div>
             </form>
         </div>
