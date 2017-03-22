@@ -33,8 +33,17 @@ class LocationFilter(django_filters.ChoiceFilter):
             return qs
 
 
+class LocationFilter2(django_filters.ModelChoiceFilter):
+    def filter(self, qs, value):
+        if value:
+            return qs.is_within(value)
+
+        return qs
+
+
 class BirthRegistrationFilter(django_filters.FilterSet):
-    location = LocationFilter()
+    location = LocationFilter2(queryset=Location.objects.filter(
+        type__name__in=[u'State', u'LGA']))
     start_time = django_filters.DateFilter(name='time', lookup_type='gte')
     end_time = django_filters.DateFilter(name='time', lookup_type='lte')
 
