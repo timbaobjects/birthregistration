@@ -148,7 +148,8 @@ class DeathRegistrationApp(FuzzySubKeywordAppBase):
 
         location = message.persistant_connection.reporter.location
 
-        report_data = dict(entries)
+        report_data = {k: 0 for k in FIELD_MAP}
+        report_data.update(dict(entries))
 
         report_date = classify_date(date.today())
         try:
