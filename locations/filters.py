@@ -2,20 +2,10 @@ import django_filters
 from .models import Location
 
 
-class LGAFilter(django_filters.ChoiceFilter):
-    def __init__(self, *args, **kwargs):
-        kwargs['choices'] = [['', '']] + list(Location.objects.filter(
-            type__name='LGA').values_list('pk', 'name'))
-        super(LGAFilter, self).__init__(*args, **kwargs)
-
+class LGAFilter(django_filters.ModelChoiceFilter):
     def filter(self, qs, value):
         if value:
-            try:
-                lga = Location.objects.get(pk=value)
-            except Location.DoesNotExist:
-                return qs.none()
-
-            descendant_centers_pks = lga.get_descendants().filter(
+            descendant_centers_pks = value.get_descendants().filter(
                 type__name='RC').values_list('pk', flat=True)
             return qs.filter(pk__in=descendant_centers_pks)
 
@@ -23,4 +13,4 @@ class LGAFilter(django_filters.ChoiceFilter):
 
 
 class CenterFilterSet(django_filters.FilterSet):
-    lga = LGAFilter('LGA')
+    lga = LGAFilter(queryset=Location.objects.filter(type__name=u'LGA'))
