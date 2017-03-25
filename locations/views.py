@@ -101,25 +101,22 @@ class CenterUpdateView(FormView):
 
 
 class CenterCreationView(TemplateView):
+    page_title = u'Create registration centers'
+    template_name = u'locations/center_new.html'
+
     @method_decorator(login_required)
     def dispatch(self, request, *args, **kwargs):
         return super(CenterCreationView, self).dispatch(request, *args, **kwargs)
 
-    def get(self, request, *args, **kwargs):
-        group_form = CenterGroupCreationForm()
-        location_data = {
-            s.name: list(s.get_children().values_list('name', flat=True))
-            for s in Location.objects.filter(type__name='State')
-        }
+    def get_context_data(self, **kwargs):
 
-        context = self.get_context_data(**kwargs)
-        context['group_form'] = group_form
-        context['location_data'] = json.dumps(location_data)
-        context['page_title'] = 'Create centers'
+        states = Location.objects.filter(type__name=u'State').order_by(u'name')
 
-        self.template_name = 'locations/center_create_get.html'
+        context = super(CenterCreationView, self).get_context_data(**kwargs)
+        context['page_title'] = self.page_title
+        context[u'states'] = states
 
-        return self.render_to_response(context)
+        return context
 
     def post(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)

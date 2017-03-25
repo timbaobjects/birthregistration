@@ -1,0 +1,147 @@
+{% extends 'base/layout.html' %}{% load static %}
+{% block title %}Birth Registration Statistics · Create registration centers (RC){% endblock %}
+{% block usermenu %}{% include 'common/usermenu.html' %}{% endblock %}
+{% block masthead %}
+<div class="row">
+    <div class="col-lg-12 title">
+        <ol class="breadcrumb">
+            <li><a href="{% url "br:dashboard" %}">Birth Registration</a></li>
+            <li class="active">Create registration centers</li>
+        </ol>
+        <h1 class="page-title">Create registration centers</h1>
+    </div>
+</div>
+{% endblock %}
+{% block content %}
+<div class="row">
+    <div class="col-lg-12">
+        <section class="widget">
+            <div class="widget-body">
+                <form class="form-horizontal" role="form" method="post" id="app">{% csrf_token %}
+                    <fieldset>
+                        <div class="alert alert-info">Creating <strong>{% verbatim %}{{ forms.length }}{% endverbatim %}</strong> centers</div>
+                        <center-form v-for="form in forms" :key="form.id" :form="form" v-on:delete="deleteForm"></center-form>
+                    </fieldset>
+                    <div class="form-actions">
+                        <div class="row">
+                            <div class="col-md-offset-3 col-md-7">
+                                <button type="submit" class="btn btn-primary form-control-lg">Save Changes</button>
+                                <a href="javascript:history.go(-1);" class="btn btn-inverse form-control-lg">Cancel</a>
+                                <button class="btn btn-success form-control-lg" @click.prevent="addNewForm">Add another center</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="alert alert-info">Creating <strong>{% verbatim %}{{ forms.length }}{% endverbatim %}</strong> centers</div>
+                </form>
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock content %}
+{% block scripts %}
+{{ block.super }}
+<script src="{% static "js/vendor/vue.min.js" %}"></script>
+<script type="text/x-template" id="center-form-template">
+    <div>
+        <div class="form-group row">
+            <label class="col-4 col-form-label" :for="form.name_id">Name:</label>
+            <div class="col-8"><input class="form-control" name="name" :id="form.name_id"></input></div>
+        </div>
+        <div class="form-group row">
+            <label class="col-4 col-form-label" :for="form.state_id">State:</label>
+            <div class="col-8">
+                <select class="form-control" name="state" :id="form.state_id" @change="onStateChoiceChange">
+                    <option value="">--- Select a state ---</option>
+                    {% for state in states %}<option value="{{ state.pk }}">{{ state.name }}</option>{% endfor %}
+                </select>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-4 col-form-label" :for="form.lga_id">LGA:</label>
+            <div class="col-8">
+                <select class="form-control">
+                    <option v-for="lga in lgas" :value="lga.id">{% verbatim %}{{ lga.name }}{% endverbatim %}</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group row">
+            <button class="btn btn-sm btn-danger" @click.prevent="onFormDelete">Delete</button>
+        </div>
+    </div>
+</script>
+<script type="text/javascript">
+(function() {
+  document.addEventListener('DOMContentLoaded', function() {
+    var endpoint = '{% url "api:location_list_typed" %}?type=lga';
+    var defaultLGAdata = [{id: '', name: '--- Select a LGA ---'}];
+
+    var CenterForm = function (newId) {
+        this.id = newId;
+        this.name_id = 'id_' + this.id + '_name';
+        this.state_id = 'id_' + this.id + '_state';
+        this.lga_id = 'id_' + this.id + '_lga';
+    };
+
+    Vue.component('center-form', {
+        data: function() {
+            return {
+                lgas: []
+            }
+        },
+        props: ['form'],
+        methods: {
+            getLGAChoices: function(dropdown) {
+                var selectedIndex = dropdown.selectedIndex;
+                var stateName = dropdown.options[selectedIndex].label;
+                var stateId = dropdown.value;
+
+                if (stateId) {
+                    var url = endpoint + '&parent=' + stateId;
+
+                    var centerForm = this;
+
+                    $.get(url, function(data) {
+                        centerForm.lgas = defaultLGAdata.concat(data.results);
+                    });
+                }
+                else {
+                    this.lgas = defaultLGAdata;
+                }
+            },
+            onStateChoiceChange: function(event) {
+                this.getLGAChoices(event.target);
+            },
+            onFormDelete: function() {
+                this.$emit('delete', this.form);
+            }
+        },
+        mounted: function() {
+            this.$nextTick(function() {
+                var stateDropdown = document.getElementById(this.form.state_id);
+                this.getLGAChoices(stateDropdown);
+            });
+        },
+        template: '#center-form-template'
+    });
+
+    new Vue({
+        el: '#app',
+        data: {
+            forms: [],
+            idCounter: 0
+        },
+        methods: {
+            addNewForm: function () {
+                this.forms.push(new CenterForm(++this.idCounter));
+            },
+            deleteForm: function(form) {
+                var index = this.forms.indexOf(form);
+                if (index != -1)
+                    this.forms.splice(index, 1);
+            }
+        }
+    });
+  });
+})();
+</script>
+{% endblock scripts %}
