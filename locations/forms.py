@@ -58,3 +58,9 @@ def generate_edit_form(location, data=None):
 
 class CenterGroupCreationForm(forms.Form):
     center_data = forms.CharField(widget=forms.HiddenInput())
+
+
+class CenterCreationForm(forms.Form):
+    name = forms.CharField()
+    lga = forms.ModelChoiceField(queryset=Location.objects.filter(
+        type__name=u'LGA'))
