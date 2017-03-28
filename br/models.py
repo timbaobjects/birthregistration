@@ -1,14 +1,13 @@
 from django.contrib.auth.models import User
 from django.core.cache import cache, get_cache, InvalidCacheBackendError
 from django.db import models
-from django_mysql.models import QuerySetMixin
 import pandas as pd
 from locations.models import Location
 from reporters.models import Reporter, PersistantConnection
-from br.querysets import SearchableLocationQuerySet
+from unicefng.querysets import SearchableLocationQuerySet
 
 
-class BirthRegistrationQuerySet(QuerySetMixin, SearchableLocationQuerySet):
+class BirthRegistrationQuerySet(SearchableLocationQuerySet):
     pass
 
 
