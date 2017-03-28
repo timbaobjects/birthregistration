@@ -246,10 +246,10 @@ class BirthRegistrationApp(AppBase):
         return True
 
     def _classify_date(self, message_date):
+        prev_month_date = message_date  + relativedelta(months=-1)
+        month_end = calendar.monthrange(prev_month_date.year, 
+            prev_month_date.month)[1]
         if message_date.day < 15:
-            prev_month_date = message_date  + relativedelta(months=-1)
-            month_end = calendar.monthrange(prev_month_date.year,
-                prev_month_date.month)[1]
             return date(
                 prev_month_date.year,
                 prev_month_date.month,
