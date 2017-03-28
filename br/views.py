@@ -113,6 +113,7 @@ class ReportListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 
     def get_queryset(self):
         queryset = super(ReportListView, self).get_queryset()
+        queryset = queryset.filter_supervised_locations(self.request.user)
         self.filter_set = self.report_filter(self.request.GET,
             queryset=queryset)
 

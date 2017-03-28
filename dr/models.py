@@ -6,6 +6,7 @@ from django_mysql.models import JSONField
 from dr.utils import pick, values
 from locations.models import Location
 from reporters.models import Reporter, PersistantConnection
+from unicefng.querysets import SearchableLocationQuerySet
 
 FIELD_MAP = {
     u'AA': u'The number of medically certified female deaths due to childbirth and complications',
@@ -95,6 +96,9 @@ class DeathReport(models.Model):
         related_name=u'death_reports')
     date = models.DateField(default=date.today)
     data = JSONField()
+
+    # manager
+    objects = SearchableLocationQuerySet.as_manager()
 
     def male(self):
         return sum(values(pick(Groups.male, self.data)))

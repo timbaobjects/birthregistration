@@ -1,6 +1,8 @@
 import django_filters
 from django import forms
+
 from br.models import BirthRegistration
+from common.filters import LocationFilter as LocationFilter2
 from locations.models import LocationType, Location
 
 class LocationFilter(django_filters.ChoiceFilter):
@@ -31,14 +33,6 @@ class LocationFilter(django_filters.ChoiceFilter):
                 return qs.none()
         else:
             return qs
-
-
-class LocationFilter2(django_filters.ModelChoiceFilter):
-    def filter(self, qs, value):
-        if value:
-            return qs.is_within(value)
-
-        return qs
 
 
 class BirthRegistrationFilter(django_filters.FilterSet):

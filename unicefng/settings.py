@@ -215,6 +215,7 @@ INSTALLED_APPS = (
     "reporters",
     "br",
     "dr",
+    "profiles",
     "campaigns",
     "ipd",
     "rest_framework",

@@ -130,6 +130,7 @@ class DeathReportListView(LoginRequiredMixin, PermissionRequiredMixin,
 
     def get_queryset(self):
         qs = super(DeathReportListView, self).get_queryset()
+        qs = qs.filter_supervised_locations(self.request.user)
         self.filterset = DeathReportFilter(self.request.GET, queryset=qs)
 
         return self.filterset.qs
