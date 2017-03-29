@@ -11,5 +11,5 @@ urlpatterns = [
         name=u'dr_report_list'),
     url(r'reports/delete/?$', views.delete_death_reports,
     	name=u'dr_report_delete'),
-    url(r'manual/download/?$', views.download_manual, name=u'download_manual'),
+    url(r'documents/manual/?$', views.download_manual, name=u'download_manual'),
 ]
