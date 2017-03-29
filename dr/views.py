@@ -171,6 +171,6 @@ class DeathReportUpdateView(LoginRequiredMixin, PermissionRequiredMixin,
 def download_manual(request):
     manual_filename = u'DRFORM.pdf'
 
-    path = os.path.join(settings.SENDFILE_DOCUMENT_ROOT, manual_filename)
+    path = os.path.join(settings.SENDFILE_ROOT, manual_filename)
 
-    return sendfile(request, path)
+    return sendfile(request, path, attachment=True)
