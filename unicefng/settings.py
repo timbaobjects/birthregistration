@@ -356,5 +356,7 @@ MESSAGE_TAGS = {
 SENDFILE_BACKEND = config(u'SENDFILE_BACKEND',
     default=u'sendfile.backends.development')
 
-SENDFILE_DOCUMENT_ROOT = config(u'SENDFILE_DOCUMENT_ROOT',
+SENDFILE_ROOT = config(u'SENDFILE_DOCUMENT_ROOT',
     default=os.path.join(PROJECT_PATH, u'documents'))
+
+SENDFILE_URL = u'/protected'
