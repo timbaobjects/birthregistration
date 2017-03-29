@@ -25,7 +25,7 @@ FORMULAS = {
 
     'female_1': 'BC + BD + CC + CD + DC + DD + EC + ED',
     'female_4': 'BG + BH + CG + CH + DG + DH + EG + EH',
-    'female_5': 'BM + BN + CM + CN + DM + DN + EM + EN',
+    'female_5': 'AA + AB + BM + BN + CM + CN + DM + DN + EM + EN',
     'female_childbirth': 'AA + AB',
     'female_fevers': 'BC + BD + BG + BH + BM + BN',
     'female_accidents': 'CC + CD + CG + CH + CM + CN',
