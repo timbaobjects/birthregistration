@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from datetime import date
+import os
 
 from braces.views import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib import messages
@@ -11,6 +12,7 @@ from django.utils.http import is_safe_url
 from django.shortcuts import render
 from django.views.generic import ListView, UpdateView
 from django.views.generic.edit import FormMixin
+from sendfile import sendfile
 
 from django.conf import settings
 
@@ -163,3 +165,12 @@ class DeathReportUpdateView(LoginRequiredMixin, PermissionRequiredMixin,
 
     def get_success_url(self):
         return reverse(u'dr:dr_report_list')
+
+
+@login_required
+def download_manual(request):
+    manual_filename = u'DRFORM.pdf'
+
+    path = os.path.join(settings.SENDFILE_DOCUMENT_ROOT, manual_filename)
+
+    return sendfile(request, path)

@@ -352,3 +352,9 @@ MESSAGE_TAGS = {
     messages.ERROR: 'alert-danger',
     messages.INFO: 'alert-info',
 }
+
+SENDFILE_BACKEND = config(u'SENDFILE_BACKEND',
+    default=u'sendfile.backends.development')
+
+SENDFILE_DOCUMENT_ROOT = config(u'SENDFILE_DOCUMENT_ROOT',
+    default=os.path.join(PROJECT_PATH, u'documents'))
