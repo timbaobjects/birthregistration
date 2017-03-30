@@ -246,18 +246,23 @@ class BirthRegistrationApp(AppBase):
         return True
 
     def _classify_date(self, message_date):
-        prev_month_date = message_date  + relativedelta(months=-1)
-        month_end = calendar.monthrange(prev_month_date.year, 
-            prev_month_date.month)[1]
         if message_date.day < 15:
-            return date(
-                prev_month_date.year,
-                prev_month_date.month,
-                month_end)
-        elif month_end > message_date.day >= 15:
-            return date(
-                message_date.year,
-                message_date.month,
-                15)
+            # for days less than the 15th, return the last day of the
+            # previous month
+            prev_month_date = message_date + relativedelta(months=-1)
+            prev_month_last_day = calendar.monthrange(prev_month_date.year,
+                prev_month_date.month)[1]
+            return date(prev_month_date.year, prev_month_date.month,
+                prev_month_last_day)
         else:
-            return message_date.date()
+            month_last_day = calendar.monthrange(message_date.year,
+                message_date.month)[1]
+            if month_last_day > message_date.day >= 15:
+                # if the day is greater than or equal to the 15th,
+                # but not equal to the last day of the current month,
+                # set it to the 15th of the current month
+                return date(message_date.year, message_date.month, 15)
+            else:
+                # else, it's the last day of the month, so return the
+                # same date
+                return message_date
