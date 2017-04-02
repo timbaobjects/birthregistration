@@ -10,7 +10,7 @@ urlpatterns = [
 
     #url(r'^(?P<prefix>(monthly)?)/?(?P<state>\d*)/?(?P<year>\d*)/?(?P<month>\d*)/?$', 'unicefng.br.views.dashboard'),
     #url(r'^data/?(?P<prefix>(monthly)?)/?(?P<state>\d*)/?(?P<year>\d*)/?(?P<month>\d*)/?$', 'unicefng.br.views.csv_download'),
-    url(r'^faq/?$', FAQView.as_view(), name='faq'),
+    url(r'^help/?$', FAQView.as_view(), name='help'),
     url(r'^reports/?$', ReportListView.as_view(), name='reports_list'),
     url(r'^report/(?P<pk>\d+)/?$', ReportEditView.as_view(),
         name='report_edit'),

@@ -4,7 +4,6 @@ from django.conf.urls.static import static
 from django.contrib import admin
 
 from unicefng.backend import HttpBackendView
-from unicefng.views import serve_download
 
 urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
@@ -24,7 +23,6 @@ urlpatterns = [
     url(r'^api/', include('api.urls', namespace=u'api')),
     url(r'^mnchw/', include('campaigns.urls', namespace=u'mnchw')),
     url(r'incoming/', HttpBackendView.as_view(backend_name='polling')),
-    url(r'^protected/(?P<filename>.*)', serve_download, name=u'serve_download'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # authentication urls
