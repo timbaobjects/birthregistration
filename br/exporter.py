@@ -203,8 +203,15 @@ def export_records_3(location, year, month=None, format=None):
 
     dataset = tablib.Dataset(headers=headers)
     for record in dataframe.to_dict(orient=u'records'):
-        record[u'U1 Performance'] = round(record[u'U1 Performance'], 2)
-        record[u'U5 Performance'] = round(record[u'U5 Performance'], 2)
+        try:
+            record[u'U1 Performance'] = round(record[u'U1 Performance'], 2)
+        except TypeError:
+            pass
+        try:
+            record[u'U5 Performance'] = round(record[u'U5 Performance'], 2)
+        except TypeError:
+            pass
+
         dataset.append([record[col] for col in headers])
 
     if format:

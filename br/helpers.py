@@ -179,6 +179,15 @@ def get_performance_dataframe(location, year, month=None):
         axis=1)
 
     for node in subnodes:
+        if node[u'id'] not in dataframe.index:
+            if location.type.name == u'Country':
+                name_col = u'state'
+            elif location.type.name == u'State':
+                name_col = u'lga'
+            dataframe.loc[node[u'id']] = u'-'
+            dataframe.loc[node[u'id'], name_col] = node[u'name']
+            continue
+
         row = dataframe.loc[node[u'id']]
         u1_numerator = row[u'under_1']
         u5_numerator = row[[u'under_1', u'1to4']].sum()
@@ -191,7 +200,7 @@ def get_performance_dataframe(location, year, month=None):
         dataframe.loc[node[u'id'], u'U1 Performance'] = (u1_numerator / u1_denominator) * 100
         dataframe.loc[node[u'id'], u'U5 Performance'] = (u5_numerator / u5_denominator) * 100
 
-    return dataframe, subnodes
+    return dataframe.fillna(u'-'), subnodes
 
 
 def get_nonperforming_locations(location, start_date, end_date):
