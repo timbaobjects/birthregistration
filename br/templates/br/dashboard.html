@@ -48,7 +48,7 @@
 {% endblock %}
 {% block content %}
 <div class="row">
-    <div class="col-lg-4">
+    <div class="col-lg-3">
         <section class="widget no-padding text-xs-center">
             <div class="row no-margin display-flex">
                 <div class="col-xs-6 bg-primary btlr bblr">
@@ -66,7 +66,7 @@
             </div>
         </section>
     </div>
-    <div class="col-lg-4">
+    <div class="col-lg-3">
         <section class="widget no-padding text-xs-center">
             <div class="row no-margin display-flex">
                 <div class="col-xs-6 bg-primary btlr bblr">
@@ -83,7 +83,7 @@
             </div>
         </section>
     </div>
-    <div class="col-lg-4">
+    <div class="col-lg-3">
         <section class="widget no-padding text-xs-center">
             <div class="row no-margin display-flex">
                 <div class="col-xs-6 bg-primary btlr bblr">
@@ -100,24 +100,40 @@
             </div>
         </section>
     </div>
+    <div class="col-lg-3">
+        <section class="widget no-padding text-xs-center">
+            <div class="row no-margin display-flex">
+                <div class="col-xs-12 bg-primary btlr bblr">
+                    <div class="row windget-padding-md">
+                        <div class="col-xs-12 text-xs-center gen-stats">
+                            <h6 class="text-white display-inline-block fw-normal">Centers</h6>
+                            <p class="h2 fw-normal text-white">{{ location.center_count|intcomma }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
 </div>
 <div class="row">
     <div class="col-lg-6">
-        <section class="widget map-container">
-            <div id="under1_map" class="content-map"></div>
-            <header class="page-title">
-                <h3 class="no-margin mb-sm"><span class="fw-semi-bold">Under 1</span> Performance</h3>
-                <h4 class="no-margin mb-sm">({% location_performance_pct location dataframe_summary year month 'below1' %}%)</h4>
-            </header>
+        <section class="widget bg-body">
+            <div class="card bg-body">
+                <h3 class="card-title"><span class="fw-semi-bold">Under 1</span> Performance ({% location_performance_pct location dataframe_summary year month 'below1' %}%)</h3>
+            </div>
+            <div class="card map-container bg-body-light">
+                <div id="under1_map" class="content-map"></div>
+            </div>
         </section>
     </div>
     <div class="col-lg-6">
-        <section class="widget map-container">
-            <div id="under5_map" class="content-map"></div>
-            <header class="page-title">
-                <h3 class="no-margin mb-sm"><span class="fw-semi-bold">Under 5</span> Performance</h3>
-                <h4 class="no-margin mb-sm">({% location_performance_pct location dataframe_summary year month '1to4' %}%)</h4>
-            </header>
+        <section class="widget bg-body">
+            <div class="card bg-body">
+                <h3 class="card-title"><span class="fw-semi-bold">Under 5</span> Performance ({% location_performance_pct location dataframe_summary year month '1to4' %}%)</h3>
+            </div>
+            <div class="card map-container bg-body-light">
+                <div id="under5_map" class="content-map"></div>
+            </div>
         </section>
     </div>
 </div>
