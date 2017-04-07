@@ -178,10 +178,16 @@
                             <th>&nbsp;</th>
                             <th colspan="3" class="text-xs-center">Above 5</th>
                             <th>&nbsp;</th>
+                            <th colspan="3" class="text-xs-center">Total</th>
+                            <th>&nbsp;</th>
                             <th colspan="2">Performance</th>
                         </tr>
                         <tr>
                             <th>{% if parent_node.type == 'Country' %}State{% else %}LGA{% endif %}</th>
+                            <th>Boys</th>
+                            <th>Girls</th>
+                            <th>Total</th>
+                            <th>&nbsp;</th>
                             <th>Boys</th>
                             <th>Girls</th>
                             <th>Total</th>
@@ -215,6 +221,10 @@
                             <td>{{ dataframe_summary|ix:state_node.name|ix:"boys_above5"|br_default|intcomma }}</td>
                             <td>{{ dataframe_summary|ix:state_node.name|ix:"girls_above5"|br_default|intcomma }}</td>
                             <td>{{ dataframe_summary|ix:state_node.name|ix:"above5"|br_default|intcomma }}</td>
+                            <td>&nbsp;</td>
+                            <td>{{ dataframe_summary|ix:state_node.name|ix:"boys"|br_default|intcomma }}</td>
+                            <td>{{ dataframe_summary|ix:state_node.name|ix:"girls"|br_default|intcomma }}</td>
+                            <td>{{ dataframe_summary|ix:state_node.name|ix:"total"|br_default|intcomma }}</td>
                             <td>&nbsp;</td>
                             <td><span class="label {% performance_class dataframe_summary state_node.name location state_node.id year month 'below1' %}">{% performance_pct dataframe_summary state_node.name location state_node.id year month "below1" %}%</span></td>
                             <td><span class="label {% performance_class dataframe_summary state_node.name location state_node.id year month '1to4' %}">{% performance_pct dataframe_summary state_node.name location state_node.id year month '1to4' %}%</span></td>

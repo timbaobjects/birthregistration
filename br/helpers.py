@@ -269,6 +269,10 @@ def get_record_dataset(location, year, month=None, cumulative=False):
     dataset['10to18'] = dataset['boys_10to18'] + dataset['girls_10to18']
     dataset['above5'] = dataset['5to9'] + dataset['10to18']
     dataset['boys_above5'] = dataset['boys_5to9'] + dataset['boys_10to18']
+    dataset['boys'] = dataset['boys_below1'] + dataset['boys_1to4'] + \
+        dataset['boys_5to9'] + dataset['boys_10to18']
+    dataset['girls'] = dataset['girls_below1'] + dataset['girls_1to4'] + \
+        dataset['girls_5to9'] + dataset['girls_10to18']
     dataset['girls_above5'] = dataset['girls_5to9'] + dataset['girls_10to18']
     dataset['total'] = dataset['below1'] + dataset['1to4'] + dataset['above5']
 
