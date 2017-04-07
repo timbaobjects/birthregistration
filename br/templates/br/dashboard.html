@@ -247,6 +247,10 @@
                             <th>{{ lga_data.girls_above5.sum|br_default|intcomma }}</th>
                             <th>{{ lga_data.above5.sum|br_default|intcomma }}</th>
                             <th>&nbsp;</th>
+                            <td>{{ dataframe_summary|ix:state_node.name|ix:"boys"|br_default|intcomma }}</td>
+                            <td>{{ dataframe_summary|ix:state_node.name|ix:"girls"|br_default|intcomma }}</td>
+                            <td>{{ dataframe_summary|ix:state_node.name|ix:"total"|br_default|intcomma }}</td>
+                            <td>&nbsp;</td>
                             <th><span class="label {% performance_class dataframe_summary lga_node.name location lga_node.id year month 'below1' %}">{% performance_pct dataframe_summary lga_node.name location lga_node.id year month "below1" %}%</span></th>
                             <th><span class="label {% performance_class dataframe_summary lga_node.name location lga_node.id year month '1to4' %}">{% performance_pct dataframe_summary lga_node.name location lga_node.id year month '1to4' %}%</span></th>
                         </tr>
