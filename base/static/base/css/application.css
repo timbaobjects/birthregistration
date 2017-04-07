@@ -14599,6 +14599,7 @@ svg {
   right: 0; }
 
 .jvectormap-legend {
+  background-color: #fff;
   border-radius: 3px; }
 
 .jvectormap-legend-cnt-h .jvectormap-legend {
