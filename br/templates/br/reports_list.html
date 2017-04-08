@@ -46,8 +46,8 @@
                             <select class="select2 form-control" id="{{ filter_form.location.id_for_label }}" name="{{ filter_form.location.name }}" data-placeholder="Location">
                                 {% if filter_form.cleaned_data.location %}<option value="{{ filter_form.cleaned_data.location.pk }}">{{ filter_form.cleaned_data.location.name }}</option>{% endif %}
                             </select>
-                            <input id="{{ filter_form.start_time.id_for_label }}" type="text" placeholder="Start Date" name="{{ filter_form.start_time.name }}" class="form-control datepicker" value="{{ filter_form.start_time.value }}" />
-                            <input id="{{ filter_form.end_time.id_for_label }}" type="text" placeholder="End Date" name="{{ filter_form.end_time.name }}" class="form-control datepicker" value="{{ filter_form.end_time.value }}" />
+                            <input id="{{ filter_form.start_time.id_for_label }}" type="text" placeholder="Start Date" name="{{ filter_form.start_time.name }}" class="form-control datepicker" value="{{ filter_form.start_time.value|default:'' }}" />
+                            <input id="{{ filter_form.end_time.id_for_label }}" type="text" placeholder="End Date" name="{{ filter_form.end_time.name }}" class="form-control datepicker" value="{{ filter_form.end_time.value|default:'' }}" />
                             <button type="submit" class="btn btn-primary" id="filter_button">Filter</button>
                             <a class="btn btn-inverse" href="{% url 'br:reports_list' %}">Clear</a>
                             <button type="button" class="btn btn-danger hidden-xs-up" id="delete_btn">Delete Selected</button>
