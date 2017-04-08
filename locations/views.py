@@ -7,6 +7,7 @@ from locations.filters import CenterFilterSet
 from locations.helpers import stringify
 from locations.models import Location, LocationType
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
@@ -31,9 +32,17 @@ class CenterListView(ListView):
         return super(CenterListView, self).dispatch(*args, **kwargs)
 
     def get(self, request, *args, **kwargs):
+        queryset = Location.objects.filter(type__name=u'RC')
+
+        try:
+            profile = request.user.profile
+            queryset = profile.filter_locations(queryset)
+        except ObjectDoesNotExist:
+            pass
+
         self.filter_set = CenterFilterSet(
             request.GET,
-            queryset=Location.objects.filter(type__name='RC').order_by('code'))
+            queryset=queryset.order_by('code'))
 
         return super(CenterListView, self).get(request, *args, **kwargs)
 
