@@ -5,6 +5,7 @@
 {% endblock %}
 {% block stylesheets %}
 {{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static 'css/select2/select2.min.css' %}">
 <style type="text/css">
     .select2-container.form-control {
         display: inline-block;
@@ -42,9 +43,11 @@
                 <fieldset>
                     <div class="form-group row">
                         <div class="col-md-12">
-                            <input type="hidden" id="{{ filter_form.location.id_for_label }}" name="{{ filter_form.location.name }}" data-placeholder="Location" class="select2 form-control" tabindex="-1">
-                            <input id="{{ filter_form.date_start.id_for_label }}" type="text" placeholder="Start Date" name="{{ filter_form.date_start.name }}" class="form-control datepicker" value="{{ filter_form.date_start.value }}" />
-                            <input id="{{ filter_form.date_end.id_for_label }}" type="text" placeholder="End Date" name="{{ filter_form.date_end.name }}" class="form-control datepicker" value="{{ filter_form.date_end.value }}" />
+                            <select class="select2 form-control" id="{{ filter_form.location.id_for_label }}" name="{{ filter_form.location.name }}" data-placeholder="Location">
+                                {% if filter_form.cleaned_data.location %}<option value="{{ filter_form.cleaned_data.location.pk }}">{{ filter_form.cleaned_data.location.name }}</option>{% endif %}
+                            </select>
+                            <input id="{{ filter_form.date_start.id_for_label }}" type="text" placeholder="Start Date" name="{{ filter_form.date_start.name }}" class="form-control datepicker" value="{{ filter_form.date_start.value|default:'' }}" />
+                            <input id="{{ filter_form.date_end.id_for_label }}" type="text" placeholder="End Date" name="{{ filter_form.date_end.name }}" class="form-control datepicker" value="{{ filter_form.date_end.value|default:'' }}" />
                             <button type="submit" class="btn btn-primary" id="filter_button">Filter</button>
                             <a class="btn btn-inverse" href="{% url 'dr:dr_report_list' %}">Clear</a>
                             <button type="button" class="btn btn-danger hidden-xs-up" id="delete_btn">Delete Selected</button>
@@ -105,9 +108,9 @@
 {% block scripts %}
 {{ block.super }}
 <script src="{% static "base/vendor/underscore/underscore-min.js" %}"></script>
-<script src="{% static "base/vendor/select2/select2.min.js" %}"></script>
 <script src="{% static "base/vendor/moment/min/moment.min.js" %}"></script>
 <script src="{% static "base/vendor/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js" %}"></script>
+<script src="{% static "js/select2/select2.min.js" %}"></script>
 <script type="text/javascript">
     $(function () {
         $('.datepicker').datetimepicker({
@@ -117,23 +120,23 @@
         $('#{{ filter_form.location.id_for_label }}').select2({
             ajax: {
                 url: endpoint,
-                data: function(term, page) {
-                  return {q: term};
+                data: function(params) {
+                  return {q: params.term};
                 },
                 dataType: 'json',
                 quietMillis: 250,
-                results: function(data, page) {
+                processResults: function(data, params) {
                   return {results: data.results};
                 }
             },
             width: '30em',
-            // allowClear: true,
+            allowClear: true,
             minimumInputLength: 2,
             cache: true,
-            formatResult: function(item) {
+            templateResult: function(item) {
                 return item.name + ' (' + item.type + ')';
             },
-            formatSelection: function(item) {
+            templateSelection: function(item) {
                 if (item.text)
                     return item.text;
                 else
