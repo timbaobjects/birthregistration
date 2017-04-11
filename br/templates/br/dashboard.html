@@ -40,6 +40,17 @@
                 </div>
             </li>
             <li class="nav-item">
+                <ul class="nav nav-pills">
+                    {% if cumulative %}
+                    <li class="nav-item"><a class="nav-link active" id="cumulative" href="#">Cumulative</a></li>
+                    <li class="nav-item"><a class="nav-link" id="monthly" href="#">Monthly</a></li>
+                    {% else %}
+                    <li class="nav-item"><a class="nav-link" id="cumulative" href="#">Cumulative</a></li>
+                    <li class="nav-item"><a class="nav-link active" id="monthly" href="#">Monthly</a></li>
+                    {% endif %}
+                </ul>
+            </li>
+            <li class="nav-item">
                 <form action="" method="GET" id="export"><input type="hidden" name="export" value="✓" /><a href="javascript:;" id="export_button" class="nav-link">Export</a></form>
             </li>
         </ul>
@@ -117,6 +128,7 @@
         </section>
     </div>
 </div>
+{% if not cumulative %}
 <div class="row">
     <div class="col-lg-6">
         <section class="widget bg-body">
@@ -139,6 +151,7 @@
         </section>
     </div>
 </div>
+{% endif %}
 <div class="row">
 {% for dataframe_location in dataframe_coverage|dataframe_coverage_locations %}
 {% if dataframe_location %}
@@ -169,11 +182,11 @@
 <div class="row">
     <div class="col-lg-12">
         <section class="widget">
-            <div class="widget-table-overflow">
+            <div class="widget-body">
                 <table class="table table-striped table-responsive">
                     <thead>
                         <tr>
-                            <th width="20%">&nbsp;</th>
+                            <th width="15%">&nbsp;</th>
                             <th colspan="3" class="text-xs-center">Under 1</th>
                             <th>&nbsp;</th>
                             <th colspan="3" class="text-xs-center">1 to 4</th>
@@ -181,11 +194,13 @@
                             <th colspan="3" class="text-xs-center">Above 5</th>
                             <th>&nbsp;</th>
                             <th colspan="3" class="text-xs-center">Total</th>
+                            {% if not cumulative %}
                             <th>&nbsp;</th>
                             <th colspan="2">Performance</th>
+                            {% endif %}
                         </tr>
                         <tr>
-                            <th>{% if parent_node.type == 'Country' %}State{% else %}LGA{% endif %}</th>
+                            <th>{% if location.node.type == 'Country' %}State{% else %}LGA{% endif %}</th>
                             <th>Boys</th>
                             <th>Girls</th>
                             <th>Total</th>
@@ -201,9 +216,11 @@
                             <th>Boys</th>
                             <th>Girls</th>
                             <th>Total</th>
+                            {% if not cumulative %}
                             <th>&nbsp;</th>
                             <th>Under 1</th>
                             <th>Under 5</th>
+                            {% endif %}
                         </tr>
                     </thead>
                     <tbody>
@@ -227,9 +244,11 @@
                             <td>{{ dataframe_summary|ix:state_node.name|ix:"boys"|br_default|intcomma }}</td>
                             <td>{{ dataframe_summary|ix:state_node.name|ix:"girls"|br_default|intcomma }}</td>
                             <td>{{ dataframe_summary|ix:state_node.name|ix:"total"|br_default|intcomma }}</td>
+                            {% if not cumulative %}
                             <td>&nbsp;</td>
                             <td><span class="label {% performance_class dataframe_summary state_node.name location state_node.id year month 'below1' %}">{% performance_pct dataframe_summary state_node.name location state_node.id year month "below1" %}%</span></td>
                             <td><span class="label {% performance_class dataframe_summary state_node.name location state_node.id year month '1to4' %}">{% performance_pct dataframe_summary state_node.name location state_node.id year month '1to4' %}%</span></td>
+                            {% endif %}
                         </tr>
                         {% endfor %}
                         {% else %}
@@ -252,9 +271,11 @@
                             <th>{{ lga_data.boys.sum|br_default|intcomma }}</th>
                             <th>{{ lga_data.girls.sum|br_default|intcomma }}</th>
                             <th>{{ lga_data.total.sum|br_default|intcomma }}</th>
+                            {% if not cumulative %}
                             <td>&nbsp;</td>
                             <th><span class="label {% performance_class dataframe_summary lga_node.name location lga_node.id year month 'below1' %}">{% performance_pct dataframe_summary lga_node.name location lga_node.id year month "below1" %}%</span></th>
                             <th><span class="label {% performance_class dataframe_summary lga_node.name location lga_node.id year month '1to4' %}">{% performance_pct dataframe_summary lga_node.name location lga_node.id year month '1to4' %}%</span></th>
+                            {% endif %}
                         </tr>
                         {% for center_node in lga_node|subnodes:'RC'|dictsort:'name' %}
                         <tr>
@@ -275,9 +296,11 @@
                             <td>{{ center_data.boys|br_default|intcomma }}</td>
                             <td>{{ center_data.girls|br_default|intcomma }}</td>
                             <td>{{ center_data.total|br_default|intcomma }}</td>
+                            {% if not cumulative %}
                             <td></td>
                             <td></td>
                             <td></td>
+                            {% endif %}
                             {% endwith %}
                         </tr>
                         {% endfor %}
@@ -299,6 +322,7 @@
 <script src="{% static "base/vendor/jvectormap/jquery-jvectormap-2.0.3.min.js" %}"></script>
 <script src="{% static "base/js/ng-states.js" %}"></script>
 <script src="{% static "base/js/ng-lgas.js" %}"></script>
+<script src="{% static "js/Uri.js" %}"></script>
 <script type="text/javascript">
     var pieColors = ['#5d8fc2', '#ddd'];
 
@@ -421,6 +445,22 @@ $(function () {
         $('#export').submit();
     });
 
+    $('#cumulative').click(function() {
+        var uri = new Uri(window.location.href);
+        if (!(uri.getQueryParamValue('cumulative')))
+            uri.addQueryParam('cumulative', '1');
+
+        window.location.href = uri.toString();
+    });
+
+    $('#monthly').click(function() {
+        var uri = new Uri(window.location.href);
+        if ((uri.getQueryParamValue('cumulative')))
+            uri.deleteQueryParam('cumulative');
+
+        window.location.href = uri.toString();
+    });
+
     var normalizePerformance = function (performance) {
         if (performance < 30)
             return 1;
@@ -430,6 +470,7 @@ $(function () {
             return 3;
     }
 
+{% if not cumulative %}
     function initMap() {
         $('#under1_map').vectorMap({
             map: '{% if location.type.name == "Country" %}states_merc{% else %}lgas_merc{% endif %}',
@@ -488,6 +529,7 @@ $(function () {
 
     initMap();
     SingApp.onPageLoad(initMap);
+{% endif %}
 });
 </script>
 {% endblock %}
