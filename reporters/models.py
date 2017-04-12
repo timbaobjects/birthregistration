@@ -73,6 +73,7 @@ class Reporter(models.Model):
     # here are some fields that don't belong here
     location = models.ForeignKey(Location, related_name="reporters", null=True, blank=True)
     role = models.ForeignKey(Role, related_name="reporters", null=True, blank=True)
+    roles = models.ManyToManyField(Role, related_name=u'+', blank=True)
 
     # the language that this reporter prefers to
     # receive their messages in, as a w3c language tag
