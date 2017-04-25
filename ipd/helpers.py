@@ -33,8 +33,9 @@ def get_vaccination_summary(reports, lgas):
 		for ward in lga.children.filter(type__name=u'Ward'):
 			ward_data = {u'name': ward.name}
 			ward_subset = reports.filter(ward=ward.name)
+			ward_data[u'summary'] = []
 			ward_data[u'summary'] = [
-				ward_subset.filter(commodity=code).aggregate(total=Sum(u'immunized')).get(u'total', 0)
+				ward_subset.filter(commodity=code).aggregate(total=Sum(u'immunized')).get(u'total', 0) or 0
 				for code, description in models.Report.IM_COMMODITIES
 			]
 
