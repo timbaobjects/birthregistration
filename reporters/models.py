@@ -141,9 +141,9 @@ class Reporter(models.Model):
                        "location": reporter.location,
                        "role": reporter.role}
             existing_reps = Reporter.objects.filter(**filters)
-            for existing_rep in existing_reps:
-                if existing_rep == existing_conn.reporter:
-                    return True
+            if existing_conn.reporters.filter(pk__in=existing_reps).exists():
+                return True
+
             return False
         except PersistantConnection.DoesNotExist:
             # if we couldn't find a connection then they
