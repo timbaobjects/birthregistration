@@ -8,6 +8,7 @@ from fuzzywuzzy import process
 import parsley
 
 from common.fuzzyapp.base import FuzzySubKeywordAppBase
+from common.utilities import getConnectionAndReporter
 from dr.models import FIELD_MAP, DeathReport
 from locations.models import Location
 from reporters.models import PersistantConnection, Reporter, Role
@@ -30,6 +31,7 @@ ERROR_MESSAGES = {
     u'invalid_location': _(u'You sent an incorrect location code: %(location_code)s. You sent: %(text)s'),
     u'invalid_role': _(u'You sent an incorrect role code: %(role_code)s. You sent: %(text)s'),
     u'invalid_message': _(u'Your message is incorrect. Please send DR HELP for help. You sent: %(text)s'),
+    u'unauthorized_role': _(u'You are not authorized to send this report.'),
 }
 
 HELP_MESSAGES = {
@@ -40,7 +42,8 @@ HELP_MESSAGES = {
 
 RESPONSE_MESSAGES = {
     u'register': _(u'Hello %(name)s! You are now registered as %(role)s at %(location)s %(location_type)s'),
-    u'report': _(u'Thank you %(name)s. Received DR report for %(location)s %(location_type)s for %(date)s')
+    u'report': _(u'Thank you %(name)s. Received DR report for %(location)s %(location_type)s for %(date)s'),
+    u'already_registered': _(u'Hello again %(name)s. You are already registered as a %(role)s at %(location)s %(location_type)s.'),
 }
 
 
@@ -69,6 +72,8 @@ class DeathRegistrationApp(FuzzySubKeywordAppBase):
     subkeywords = [u'help', u'register', u'report']
     min_ratio = 70
 
+    ALLOWED_ROLE_CODES = [u'dr']
+
     def handle_help(self, message, message_text):
         text = message_text.strip()
 
@@ -84,6 +89,8 @@ class DeathRegistrationApp(FuzzySubKeywordAppBase):
         message.respond(HELP_MESSAGES[key[0]])
 
     def handle_register(self, message, message_text):
+        connection, unused = getConnectionAndReporter(message,
+            self.ALLOWED_ROLE_CODES)
         text = message_text.strip()
 
         if text == u'':
@@ -109,11 +116,16 @@ class DeathRegistrationApp(FuzzySubKeywordAppBase):
                 u'role_code': role_code, u'text': message.text})
             return
 
+        if role.code.lower() not in self.ALLOWED_ROLE_CODES:
+            message.respond(ERROR_MESSAGES[u'invalid_role'] % {
+                u'role_code': role_code, u'text': message.text})
+            return
+
         kwargs = {u'location': location, u'role': role}
         kwargs[u'alias'], kwargs[u'first_name'], kwargs[u'last_name'] = Reporter.parse_name(full_name)
         rep = Reporter(**kwargs)
 
-        if message.persistant_connection.reporter and Reporter.exists(rep, message.persistant_connection):
+        if Reporter.exists(rep, connection):
             message.respond(RESPONSE_MESSAGES[u'already_registered'] % {
                 u'name': rep.first_name, u'role': rep.role.name,
                 u'location': rep.location.name,
@@ -121,21 +133,22 @@ class DeathRegistrationApp(FuzzySubKeywordAppBase):
             return
 
         rep.save()
-        message.persistant_connection.reporter = rep
-        message.persistant_connection.save()
+        connection.reporters.add(rep)
 
         message.respond(RESPONSE_MESSAGES[u'register'] % {u'name': rep.first_name,
             u'role': rep.role.code, u'location': rep.location.name,
             u'location_type': rep.location.type.name})
 
     def handle_report(self, message, message_text):
+        connection, reporter = getConnectionAndReporter(message,
+            self.ALLOWED_ROLE_CODES)
         text = message_text.strip().upper()
 
         if text == u'':
             message.respond(HELP_MESSAGES[u'report'])
             return
 
-        if message.persistant_connection.reporter is None:
+        if reporter is None:
             message.respond(ERROR_MESSAGES[u'not_registered'])
             return
 
@@ -146,7 +159,7 @@ class DeathRegistrationApp(FuzzySubKeywordAppBase):
                 u'text': message.text})
             return
 
-        location = message.persistant_connection.reporter.location
+        location = reporter.location
 
         report_data = {k: 0 for k in FIELD_MAP}
         report_data.update(dict(entries))
@@ -156,15 +169,15 @@ class DeathRegistrationApp(FuzzySubKeywordAppBase):
             report = DeathReport.objects.get(date=report_date, location=location)
         except DeathReport.DoesNotExist:
             report = DeathReport(location=location, date=report_date,
-            connection=message.persistant_connection,
-            reporter=message.persistant_connection.reporter)
+            connection=connection,
+            reporter=reporter)
 
         report.data.update(report_data)
         report.save()
 
         message.respond(RESPONSE_MESSAGES[u'report'] % {
             u'location': location.name, u'location_type': location.type.name,
-            u'name': message.persistant_connection.reporter.first_name,
+            u'name': reporter.first_name,
             u'date': report.date.strftime(u'%d-%m-%Y')})
 
     def help(self, message):
