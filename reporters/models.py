@@ -73,7 +73,6 @@ class Reporter(models.Model):
     # here are some fields that don't belong here
     location = models.ForeignKey(Location, related_name="reporters", null=True, blank=True)
     role = models.ForeignKey(Role, related_name="reporters", null=True, blank=True)
-    roles = models.ManyToManyField(Role, related_name=u'+', blank=True)
 
     # the language that this reporter prefers to
     # receive their messages in, as a w3c language tag
@@ -142,9 +141,9 @@ class Reporter(models.Model):
                        "location": reporter.location,
                        "role": reporter.role}
             existing_reps = Reporter.objects.filter(**filters)
-            for existing_rep in existing_reps:
-                if existing_rep == existing_conn.reporter:
-                    return True
+            if existing_conn.reporters.filter(pk__in=existing_reps).exists():
+                return True
+
             return False
         except PersistantConnection.DoesNotExist:
             # if we couldn't find a connection then they
@@ -283,6 +282,8 @@ class PersistantConnection(models.Model):
     backend = models.ForeignKey(PersistantBackend, related_name="connections")
     identity = models.CharField(max_length=30)
     reporter = models.ForeignKey(Reporter, related_name="connections", blank=True, null=True)
+    reporters = models.ManyToManyField(Reporter,
+        related_name='connections_many', blank=True)
     last_seen = models.DateTimeField(blank=True, null=True)
 
     class Meta:
