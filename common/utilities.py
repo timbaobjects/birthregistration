@@ -7,4 +7,7 @@ def getConnectionAndReporter(message, permitted_role_codes):
 	reporter = connection.reporters.filter(
 		role__code__in=permitted_role_codes).order_by(u'-pk').first()
 
+	# mark connection as seen
+	connection.seen()
+
 	return connection, reporter
