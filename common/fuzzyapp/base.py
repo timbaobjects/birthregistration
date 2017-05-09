@@ -32,18 +32,6 @@ class FuzzySubKeywordAppBase(AppBase):
     - help: a method taking the original RapidSMS Message instance
       (so the method can respond to the message) for providing generic help
     '''
-    def parse(self, message):
-        connection = PersistantConnection.from_message(message)
-        message.persistant_connection = connection
-        message.reporter = connection.reporter
-
-        if message.reporter:
-            message.persistance_dict = {u'reporter': message.reporter}
-        else:
-            message.persistance_dict = {u'connection': message.connection}
-
-        # mark connection as seen
-        connection.seen()
 
     def handle(self, message):
         text = message.text.lower().strip()
