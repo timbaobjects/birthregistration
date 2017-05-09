@@ -8,6 +8,7 @@ from fuzzywuzzy import process
 import parsley
 from rapidsms.apps.base import AppBase
 
+from common.utilities import getConnectionAndReporter
 from ipd.models import NonCompliance, Report, Shortage
 from locations.models import Location
 from reporters.models import PersistantConnection, Reporter, Role
@@ -34,12 +35,15 @@ class MNCHWApp(AppBase):
     subkeywords = [u'help', u'nc', u'register', u'report', u'shortage']
     min_ratio = 70
 
+    ALLOWED_ROLE_CODES = [u'ws']
+
     ERROR_MESSAGES = {
         u'not_registered': _(u'Please register your number with RapidSMS before sending this report'),
         u'invalid_location': _(u'You sent an incorrect location code: %(location_code)s. You sent: %(text)s'),
         u'invalid_role': _(u'You sent an incorrect role code: %(role_code)s. You sent: %(text)s'),
         u'invalid_reason': _(u'You sent an incorrect reason: %(reason_code)s. You sent: %(text)s'),
         u'invalid_message': _(u'Your message is incorrect. Please send MNCHW HELP for help. You sent: %(text)s'),
+        u'unauthorized_role': _(u'You are not allowed to send this report'),
     }
 
     HELP_MESSAGES = {
@@ -57,18 +61,6 @@ class MNCHWApp(AppBase):
         u'report': _(u'Thank you %(name)s. Received MNCHW report for %(location)s %(location_type)s: %(pairs)s'),
         u'shortage': _(u'Thank you for your MNCHW shortage report. Location=%(location)s %(location_type)s, commodity=%(commodity)s'),
     }
-
-    def parse(self, msg):
-        conn = PersistantConnection.from_message(msg)
-        msg.persistant_connection = conn
-        msg.reporter = conn.reporter
-
-        if msg.reporter:
-            msg.persistance_dict = {"reporter": msg.reporter}
-        else:
-            msg.persistance_dict = {"connection": msg.persistant_connection}
-
-        conn.seen()
 
     def handle(self, message):
         text = message.text.lower().strip()
@@ -117,13 +109,16 @@ class MNCHWApp(AppBase):
         message.respond(self.HELP_MESSAGES[key[0]])
 
     def handle_nc(self, message, msg_text):
+        connection, reporter = getConnectionAndReporter(message,
+            self.ALLOWED_ROLE_CODES)
+
         text = msg_text.strip()
 
         if text == u'':
             message.respond(self.HELP_MESSAGES[u'nc'])
             return
 
-        if message.persistant_connection.reporter is None:
+        if reporter is None:
             message.respond(self.ERROR_MESSAGES[u'not_registered'])
             return
 
@@ -145,15 +140,18 @@ class MNCHWApp(AppBase):
                 u'reason_code': reason_code, u'text': message.text})
 
         report = NonCompliance.objects.create(
-            reporter=message.persistant_connection.reporter,
+            reporter=reporter,
             location=location, reason=reason_code, cases=cases, time=now(),
-            connection=message.persistant_connection)
+            connection=connection)
 
         message.respond(self.RESPONSE_MESSAGES[u'nc'] % {
             u'location': location.name, u'reason': report.get_reason_display(),
             u'cases': cases, u'location_type': location.type.name})
 
     def handle_register(self, message, msg_text):
+        connection, unused = getConnectionAndReporter(message,
+            self.ALLOWED_ROLE_CODES)
+
         text = msg_text.strip()
 
         if text == u'':
@@ -174,7 +172,7 @@ class MNCHWApp(AppBase):
             return
 
         role = Role.get_by_code(role_code)
-        if role is None:
+        if role is None or role.code.lower() not in self.ALLOWED_ROLE_CODES:
             message.respond(self.ERROR_MESSAGES[u'invalid_role'] % {
                 u'role_code': role_code, u'text': message.text})
             return
@@ -183,7 +181,7 @@ class MNCHWApp(AppBase):
         kwargs[u'alias'], kwargs[u'first_name'], kwargs[u'last_name'] = Reporter.parse_name(full_name)
         rep = Reporter(**kwargs)
 
-        if message.persistant_connection.reporter and Reporter.exists(rep, message.persistant_connection):
+        if Reporter.exists(rep, connection):
             message.respond(self.RESPONSE_MESSAGES[u'already_registered'] % {
                 u'name': rep.first_name, u'role': rep.role.name,
                 u'location': rep.location.name,
@@ -191,21 +189,22 @@ class MNCHWApp(AppBase):
             return
 
         rep.save()
-        message.persistant_connection.reporter = rep
-        message.persistant_connection.save()
+        connection.reporters.add(rep)
 
         message.respond(self.RESPONSE_MESSAGES[u'register'] % {u'name': rep.first_name,
             u'role': rep.role.code, u'location': rep.location.name,
             u'location_type': rep.location.type.name})
 
     def handle_report(self, message, msg_text):
+        connection, reporter = getConnectionAndReporter(message,
+            self.ALLOWED_ROLE_CODES)
         text = msg_text.strip()
 
         if text == u'':
             message.respond(self.HELP_MESSAGES[u'report'])
             return
 
-        if message.persistant_connection.reporter is None:
+        if reporter is None:
             message.respond(self.ERROR_MESSAGES[u'not_registered'])
             return
 
@@ -235,23 +234,25 @@ class MNCHWApp(AppBase):
             amounts.append(amount)
             commodities.append(comm.upper())
 
-            Report.objects.create(reporter=message.persistant_connection.reporter,
-                time=now(), connection=message.persistant_connection,
+            Report.objects.create(reporter=reporter,
+                time=now(), connection=connection,
                 location=location, commodity=comm, immunized=amount)
 
         response_pairs = u', '.join(u'{}={}'.format(a, b) for a, b in zip(commodities, amounts))
         message.respond(self.RESPONSE_MESSAGES[u'report'] % {u'location': location.name,
             u'location_type': location.type.name, u'pairs': response_pairs,
-            u'name': message.persistant_connection.reporter.first_name})
+            u'name': reporter.first_name})
 
     def handle_shortage(self, message, msg_text):
+        connection, reporter = getConnectionAndReporter(message,
+            self.ALLOWED_ROLE_CODES)
         text = msg_text.strip()
 
         if text == u'':
             message.respond(self.HELP_MESSAGES[u'shortage'])
             return
 
-        if message.persistant_connection.reporter is None:
+        if reporter is None:
             message.respond(self.ERROR_MESSAGES[u'not_registered'])
             return
 
@@ -282,8 +283,8 @@ class MNCHWApp(AppBase):
                 commodity = comm
 
             Shortage.objects.create(time=now(), commodity=comm,
-                reporter=message.persistant_connection.reporter, location=location,
-                connection=message.persistant_connection)
+                reporter=reporter, location=location,
+                connection=connection)
 
         message.respond(self.RESPONSE_MESSAGES[u'shortage'] % {u'location': location.name,
             u'location_type': location.type.name, u'commodity': commodity.upper()})
