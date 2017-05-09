@@ -15,8 +15,11 @@ try:
     from dateutil.relativedelta import relativedelta
 except ImportError:
     raise ImportError('python-dateutil is required for this app to work.')
+
 from rapidsms.apps.base import AppBase
+
 from br.models import BirthRegistration
+from common.utilities import getConnectionAndReporter
 from reporters.models import PersistantConnection, Reporter, Role
 from locations.models import Location
 
@@ -33,6 +36,8 @@ br_grammar = parsley.makeGrammar('''
     report = 'br' ws 'report' ws (male_report | female_report){1,2}:gender_report -> (gender_report)
     register = 'br' ws 'register' ws <digit+>:location_code ws <letterOrDigit+>:role ws <anything*>:name -> (location_code, role, name)
 ''', {})
+
+ALLOWED_ROLE_CODES = [u'br']
 
 tbl = dict.fromkeys((i for i in xrange(sys.maxunicode)
         if unicodedata.category(unichr(i)).startswith('P')
@@ -64,18 +69,6 @@ class BirthRegistrationApp(AppBase):
 
     prefix = re.compile('^\s*(?:br)(?:[\s,;:]*)(?P<parts>.*)$', re.IGNORECASE)
     date_expression = re.compile('(?P<text>.+)\s(?P<date>\d{1,2}[\/\-]\d{1,2}([\/\-]\d{2,4})?)?$')
-
-    def parse(self, msg):
-        conn = PersistantConnection.from_message(msg)
-        msg.persistant_connection = conn
-        msg.reporter = conn.reporter
-
-        if msg.reporter:
-            msg.persistance_dict = {"reporter": msg.reporter}
-        else:
-            msg.persistance_dict = {"connection": msg.persistant_connection}
-
-        conn.seen()
 
     def handle(self, message):
         try:
@@ -157,13 +150,15 @@ class BirthRegistrationApp(AppBase):
         return message.respond(self.help_messages['general'])
 
     def register(self, message, location_code, role, name=''):
+        conn, unused = getConnectionAndReporter(message, ALLOWED_ROLE_CODES)
+
         data = {}
         try:
             data['location'] = Location.objects.get(code=location_code)
             data['role'] = Role.objects.get(code__iexact=role)
             data['alias'], data['first_name'], data['last_name'] = Reporter.parse_name(name.strip())
             rep = Reporter(**data)
-            conn = PersistantConnection.from_message(message)
+
             if Reporter.exists(rep, conn):
                 message.respond(self.response_messages['already_registered'] % dict(
                     name=rep.first_name,
@@ -172,8 +167,7 @@ class BirthRegistrationApp(AppBase):
                 return True
 
             rep.save()
-            conn.reporter = rep
-            conn.save()
+            conn.reporters.add(rep)
 
             message.respond(self.response_messages['registered'] % dict(
                 name=rep.first_name,
@@ -188,32 +182,34 @@ class BirthRegistrationApp(AppBase):
         return True
 
     def report(self, message, gender_data):
+        connection, reporter = getConnectionAndReporter(message, ALLOWED_ROLE_CODES)
+
         report = dict(gender_data)
         for gender in ['m', 'f']:
             report[gender] = map(lambda i: int(i), report[gender]) + ([0] * (4 - len(report[gender]))) if report[gender] else [0, 0, 0, 0]
 
         try:
-            if not hasattr(message, 'reporter') or not message.reporter:
+            if reporter is None:
                 message.respond(self.error_messages['unauthorized_reporter'])
                 return True
 
-            if not message.reporter.role.code.lower() in ['br']:
+            if not reporter.role.code.lower() in ALLOWED_ROLE_CODES:
                 message.respond(self.error_messages['unauthorized_role'])
                 return True
 
-            location = message.reporter.location
+            location = reporter.location
 
             # store the report
             try:
                 br = BirthRegistration.objects.get(
-                    connection=PersistantConnection.from_message(message),
-                    reporter=message.reporter,
+                    connection=connection,
+                    reporter=reporter,
                     location=location,
                     time=message.datetime)
             except BirthRegistration.DoesNotExist:
                 br = BirthRegistration()
-                br.connection = PersistantConnection.from_message(message)
-                br.reporter = message.reporter
+                br.connection = connection
+                br.reporter = reporter
                 br.location = location
                 br.time = message.datetime
 
