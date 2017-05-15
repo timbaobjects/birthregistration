@@ -48,7 +48,7 @@ RESPONSE_MESSAGES = {
 
 
 def classify_date(dt):
-    if dt.day <= 7:
+    if dt.day <= 14:
         if dt.month == 1:
             report_month = 12
             report_year = dt.year - 1
