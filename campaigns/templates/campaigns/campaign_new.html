@@ -35,7 +35,7 @@
                         <div class="alert alert-danger">
                           <ul>
                             {% for err_field, field_errors in form.errors.iteritems %}
-                            {% for err_msg in field_errors }
+                            {% for err_msg in field_errors %}
                             <li>{{ err_field }}: {{ err_msg }}</li>
                             {% endfor %}
                             {% endfor %}
