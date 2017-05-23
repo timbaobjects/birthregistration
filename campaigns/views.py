@@ -30,7 +30,7 @@ class CampaignCreateView(BaseCampaignViewMixin, CreateView):
     template_name = u'campaigns/campaign_new.html'
 
     def get_success_url(self):
-        return reverse(u'campaigns:campaign_list')
+        return reverse(u'mnchw:campaign_list')
 
 
 class CampaignListView(BaseCampaignViewMixin, ListView):
