@@ -105,7 +105,7 @@ class DeathRegistrationApp(FuzzySubKeywordAppBase):
             return
 
         location = Location.get_by_code(location_code)
-        if location is None:
+        if location is None or location.type.name.lower() != u'lga':
             message.respond(ERROR_MESSAGES[u'invalid_location'] % {
                 u'location_code': location_code, u'text': message.text})
             return

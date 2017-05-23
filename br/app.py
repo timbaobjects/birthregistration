@@ -154,7 +154,8 @@ class BirthRegistrationApp(AppBase):
 
         data = {}
         try:
-            data['location'] = Location.objects.get(code=location_code)
+            data['location'] = Location.objects.get(code=location_code,
+                type__name=u'RC')
             data['role'] = Role.objects.get(code__iexact=role)
             data['alias'], data['first_name'], data['last_name'] = Reporter.parse_name(name.strip())
             rep = Reporter(**data)
