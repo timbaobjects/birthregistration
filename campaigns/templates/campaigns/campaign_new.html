@@ -5,6 +5,7 @@
 {% endblock %}
 {% block stylesheets %}
 {{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static 'css/select2/select2.min.css' %}">
 <style type="text/css">
     .select2-container.form-control {
         display: inline-block;
@@ -30,6 +31,17 @@
                 <form class="form-horizontal" role="form" method="post">{% csrf_token %}
                     <fieldset>
                         <legend><strong>Create campaign</strong></legend>
+                        {% if form.errors %}
+                        <div class="alert alert-danger">
+                          <ul>
+                            {% for err_field, field_errors in form.errors.iteritems %}
+                            {% for err_msg in field_errors }
+                            <li>{{ err_field }}: {{ err_msg }}</li>
+                            {% endfor %}
+                            {% endfor %}
+                          </ul>
+                        </div>
+                        {% endif %}
                         <div class="form-group row">
                             <label for="{{ form.name.id_for_label }}" class="col-md-3 form-control-label text-md-right">Name</label>
                             <div class="col-md-4">
@@ -39,7 +51,8 @@
                         <div class="form-group row">
                             <label for="{{ form.locations.id_for_label }}" class="col-md-3 form-control-label text-md-right">Locations</label>
                             <div class="col-md-4">
-                              <input type="hidden" id="{{ form.locations.id_for_label }}" name="{{ form.locations.name }}">
+                              <select class="select2 form-control" id="{{ form.locations.id_for_label }}" name="{{ form.locations.name }}" data-placeholder="Locations">
+                            </select>
                             </div>
                         </div>
                         <div class="form-group row">
@@ -72,9 +85,9 @@
 {% block scripts %}
 {{ block.super }}
 <script src="{% static "base/vendor/underscore/underscore-min.js" %}"></script>
-<script src="{% static "base/vendor/select2/select2.min.js" %}"></script>
 <script src="{% static "base/vendor/moment/min/moment.min.js" %}"></script>
 <script src="{% static "base/vendor/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js" %}"></script>
+<script src="{% static "js/select2/select2.min.js" %}"></script>
 <script type="text/javascript">
 (function() {
   document.addEventListener('DOMContentLoaded', function() {
@@ -87,26 +100,16 @@
     $('#{{ form.locations.id_for_label }}').select2({
       ajax: {
           url: endpoint,
-          data: function(term, page) {
-            return {q: term};
+          data: function(params) {
+            return {q: params.term};
           },
           dataType: 'json',
           quietMillis: 250,
-          results: function(data, page) {
+          processResults: function(data, params) {
             return {results: data.results};
           }
       },
       width: '100%',
-      formatResult: function(item) {
-          return item.name + ' (' + item.type + ')';
-      },
-      formatSelection: function(item) {
-          if (item.text)
-              return item.text;
-          else
-              return item.name + ' (' + item.type + ')';
-      },
-      allowClear: true,
       minimumInputLength: 2,
       multiple: true,
       placeholder: 'Locations',
