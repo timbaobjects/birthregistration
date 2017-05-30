@@ -2,16 +2,18 @@
 from datetime import datetime
 import json
 from dateutil.relativedelta import relativedelta
-from locations.forms import generate_edit_form, CenterGroupCreationForm
+from locations.forms import generate_edit_form, CenterCreationForm
 from locations.filters import CenterFilterSet
 from locations.helpers import stringify
 from locations.models import Location, LocationType
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.urlresolvers import reverse
+from django.core.urlresolvers import reverse, reverse_lazy
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.db.models import Max, Min
+from django.forms.formsets import formset_factory
 from django.http import (
     HttpResponse, HttpResponseNotFound, HttpResponseRedirect,
     HttpResponseNotAllowed, HttpResponseForbidden, HttpResponseBadRequest)
@@ -128,57 +130,42 @@ class CenterCreationView(TemplateView):
         return context
 
     def post(self, request, *args, **kwargs):
-        context = self.get_context_data(**kwargs)
-        group_form = CenterGroupCreationForm(request.POST)
-        self.template_name = 'locations/center_create_post.html'
+        CenterForms = formset_factory(CenterCreationForm)
 
-        context['page_title'] = 'Center creation results'
+        center_forms = CenterForms(request.POST)
 
-        if not group_form.is_valid():
-            return HttpResponseForbidden()
+        center_type = LocationType.objects.get(name=u'RC')
 
-        center_data = json.loads(group_form.cleaned_data['center_data'])
+        for form in center_forms:
+            if form.is_valid():
+                lga = form.cleaned_data.get(u'lga')
+                name = form.cleaned_data.get(u'name')
+                
+                if Location.objects.filter(name=name, parent=lga).exists():
+                    messages.warning(request, u'The center {} already exists.'.format(
+                        name), extra_tags=u'alert-warning')
+                    continue
 
-        if not isinstance(center_data, list):
-            return HttpResponseBadRequest()
+                last_rc_code = lga.children.order_by(u'-code').first().code
+                try:
+                    next_rc_code = str(int(last_rc_code) + 1).zfill(9)
+                except ValueError:
+                    messages.error(request, u'The center {} could not be added due to an error'.format(
+                        name), extra_tags=u'alert-danger')
+                    continue
 
-        if not center_data:
-            context['creation_log'] = []
-            return self.render_to_response(context)
-
-        log = center_data[:]
-        center_type = LocationType.objects.get(name='RC')
-
-        for index, row in enumerate(center_data):
-            try:
-                lga = Location.objects.get(
-                    name=stringify(row['lga']).strip(),
-                    parent__name=stringify(row['state']).strip(),
-                    type__name='LGA')
-            except Location.DoesNotExist:
-                log[index]['message'] = 'Invalid state or LGA'
-                log[index]['success'] = False
-                continue
-
-            try:
-                loc, created = Location.objects.get_or_create(
-                    name=stringify(row['name']).strip(),
-                    parent=lga,
-                    code=stringify(row['code']).strip(),
+                Location.objects.create(name=name, parent=lga, code=next_rc_code,
                     type=center_type)
-            except IntegrityError:
-                log[index]['message'] = 'Code already in use'
-                log[index]['success'] = False
-                continue
-
-            if created:
-                log[index]['message'] = 'OK'
-                log[index]['success'] = True
+                messages.success(request, u'The center {} was successfully added.'.format(
+                    name), extra_tags=u'alert-success')
             else:
-                log[index]['message'] = 'Center already exists'
-                log[index]['success'] = False
+                messages.error(request, u'The center {} could not be added without a parent LGA'.format(
+                        form[u'name'].value()), extra_tags=u'alert-danger')
 
-        context['creation_log'] = log
+        if center_forms.is_valid():
+            return HttpResponseRedirect(reverse_lazy(u'locations.center_list'))
+
+        context = self.get_context_data(**kwargs)
 
         return self.render_to_response(context)
 

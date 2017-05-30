@@ -26,6 +26,15 @@
 {% block content %}
 <div class="row">
     <div class="col-lg-12">
+        {% if messages %}
+        <section class="widget">
+        <div class="widget-body">
+        {% for message in messages %}
+        <p class="alert {{ message.extra_tags }}">{{ message }}</p>
+        {% endfor %}
+        </div>
+        </section>
+        {% endif %}
         <section class="widget">
             <form class="form-horizontal form-inline" role="form" id="filter_form">
                 <fieldset>
