@@ -163,7 +163,7 @@ class CenterCreationView(TemplateView):
                         form[u'name'].value()), extra_tags=u'alert-danger')
 
         if center_forms.is_valid():
-            return HttpResponseRedirect(reverse_lazy(u'locations.center_list'))
+            return HttpResponseRedirect(reverse_lazy(u'locations:center_list'))
 
         context = self.get_context_data(**kwargs)
 
