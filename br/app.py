@@ -88,7 +88,7 @@ class BirthRegistrationApp(AppBase):
                         message.respond(self.error_messages['invalid_date'] % dict(text=message.text))
                         return True
                 else:
-                    message_date = now
+                    message_date = now.date()
 
                 if message_date <= now:
                     time_diff = now - message_date
