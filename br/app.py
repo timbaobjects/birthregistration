@@ -75,20 +75,20 @@ class BirthRegistrationApp(AppBase):
             # strip whitespace and delete punctuations
             text_message = remove_punctuation(message.text.lower().strip())
             if text_message.startswith('br'):
-                now = datetime.now()
+                now = date.today()
                 # parse and extract any specified dates
                 search_query = re.search(self.date_expression, text_message)
                 if search_query:
                     message_parts = search_query.groups()
                     # a date string was found in the text
                     try:
-                        message_date = parse(message_parts[1], dayfirst=True)
+                        message_date = parse(message_parts[1], dayfirst=True).date()
                         text_message = message_parts[0]
                     except ValueError:
                         message.respond(self.error_messages['invalid_date'] % dict(text=message.text))
                         return True
                 else:
-                    message_date = now.date()
+                    message_date = now
 
                 if message_date <= now:
                     time_diff = now - message_date
