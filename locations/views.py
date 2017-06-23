@@ -146,7 +146,7 @@ class CenterCreationView(TemplateView):
                         name), extra_tags=u'alert-warning')
                     continue
 
-                last_rc_code = lga.children.order_by(u'-code').first().code
+                last_rc_code = lga.children.filter(type__name=u'RC').order_by(u'-code').first().code
                 try:
                     next_rc_code = str(int(last_rc_code) + 1).zfill(9)
                 except ValueError:
