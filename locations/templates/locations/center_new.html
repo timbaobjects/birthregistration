@@ -1,5 +1,14 @@
 {% extends 'base/layout.html' %}{% load static %}
 {% block title %}Birth Registration Statistics · Create registration centers (RC){% endblock %}
+{% block stylesheets %}
+{{ block.super }}
+<link rel="stylesheet" type="text/css" href="{% static 'css/select2/select2.min.css' %}">
+<style type="text/css">
+    .select2-container.form-control {
+        display: inline-block;
+    }
+</style>
+{% endblock %}
 {% block usermenu %}{% include 'common/usermenu.html' %}{% endblock %}
 {% block masthead %}
 <div class="row">
@@ -13,6 +22,11 @@
 </div>
 {% endblock %}
 {% block content %}
+<div class="row">
+    <div class="col-lg-6 col-lg-offset-3">
+        <div class="alert alert-warning"><strong>There is a known bug in this tool:</strong> If you select a state then change that state, you will have the LGAs from the first state displayed. <em>We're working to fix this.</em></div>
+    </div>
+</div>
 <div class="row">
     <div class="col-lg-12">
         {% if messages %}
@@ -54,7 +68,11 @@
 {% endblock content %}
 {% block scripts %}
 {{ block.super }}
+<script src="{% static "js/select2/select2.min.js" %}"></script>
 <script src="{% static "js/vendor/vue.min.js" %}"></script>
+<script type="text/x-template" id="lga-picker-template">
+    <select :name="lga_name" :state_id="state_id" class="form-control"></select>
+</script>
 <script type="text/x-template" id="center-form-template">
     <div>
         <div class="form-group row">
@@ -70,12 +88,10 @@
                 </select>
             </div>
         </div>
-        <div class="form-group row">
+        <div class="form-group row" v-if="form.selectedState">
             <label class="col-4 col-form-label" :for="form.lga_id">LGA:</label>
             <div class="col-8">
-                <select :name="form.lga_name" class="form-control">
-                    <option v-for="lga in lgas" :value="lga.id">{% verbatim %}{{ lga.name }}{% endverbatim %}</option>
-                </select>
+                <lga-picker :state_id="form.selectedState" :lga_name="form.lga_name"></lga-picker>
             </div>
         </div>
         <div class="form-group row">
@@ -97,12 +113,57 @@
         this.state_id = 'id_' + this.state_name;
         this.lga_name = 'form-' + this.id + '-lga';
         this.lga_id = 'id_' + this.lga_name;
+        this.selectedState = null;
     };
+
+    Vue.component('lga-picker', {
+        template: '#lga-picker-template',
+        props: ['state_id', 'lga_name'],
+        methods: {
+            getLGAEndpoint: function() {
+                var url = endpoint + '&parent=' + this.state_id;
+
+                return url;
+            }
+        },
+        mounted: function() {
+            this.$nextTick(function() {
+                $(this.$el).select2({
+                    ajax: {
+                        url: this.getLGAEndpoint(),
+                        data: function(params) {
+                            return {q: params.term};
+                        },
+                        dataType: 'json',
+                        quietMillis: 250,
+                        processResults: function(data, params) {
+                            return {results: data.results}
+                        }
+                    },
+                    placeholder: 'Select a LGA',
+                    width: '30em',
+                    allowClear: true,
+                    minimumInputLength: 2,
+                    cache: true,
+                    templateResult: function(item) {
+                        return item.name + ' (' + item.type + ')';
+                    },
+                    templateSelection: function(item) {
+                        if (item.text)
+                            return item.text;
+                        else
+                            return item.name + ' (' + item.type + ')';
+                    }
+                });
+            })
+        }
+    })
 
     Vue.component('center-form', {
         data: function() {
             return {
-                lgas: []
+                lgas: [],
+                stateId: null
             }
         },
         props: ['form'],
@@ -111,21 +172,8 @@
                 var selectedIndex = dropdown.selectedIndex;
                 if (!selectedIndex)
                     return;
-                var stateName = dropdown.options[selectedIndex].label;
-                var stateId = dropdown.value;
 
-                if (stateId) {
-                    var url = endpoint + '&parent=' + stateId;
-
-                    var centerForm = this;
-
-                    $.get(url, function(data) {
-                        centerForm.lgas = defaultLGAdata.concat(data.results);
-                    });
-                }
-                else {
-                    this.lgas = defaultLGAdata;
-                }
+                this.form.selectedState = dropdown.value;
             },
             onStateChoiceChange: function(event) {
                 this.getLGAChoices(event.target);
