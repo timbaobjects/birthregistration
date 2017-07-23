@@ -105,3 +105,33 @@ class DeathReport(models.Model):
 
     def female(self):
         return sum(values(pick(Groups.female, self.data)))
+
+    def certified(self):
+        return sum(values(pick(Groups.certified, self.data)))
+
+    def uncertified(self):
+        return sum(values(pick(Groups.uncertified, self.data)))
+
+    def childbirth(self):
+        return sum(values(pick(Groups.childbirth, self.data)))
+
+    def fevers(self):
+        return sum(values(pick(Groups.fevers, self.data)))
+
+    def accidents(self):
+        return sum(values(pick(Groups.accidents, self.data)))
+
+    def hiv(self):
+        return sum(values(pick(Groups.hiv, self.data)))
+
+    def other(self):
+        return sum(values(pick(Groups.other, self.data)))
+
+    def underOne(self):
+        return sum(values(pick(Groups.underOne, self.data)))
+
+    def oneToFour(self):
+        return sum(values(pick(Groups.oneToFour, self.data)))
+
+    def fiveAndOlder(self):
+        return sum(values(pick(Groups.fiveAndOlder, self.data)))

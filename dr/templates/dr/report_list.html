@@ -65,14 +65,30 @@
                 <table class="table table-striped">
                     <thead>
                         <tr>
-                            <th>&nbsp;</th>
-                            <th>Date</th>
-                            <th>State</th>
-                            <th>LGA</th>
-                            <th>Phone</th>
-                            <th>Male deaths</th>
-                            <th>Female deaths</th>
-                            <th></th>
+                            <th rowspan="2">&nbsp;</th>
+                            <th rowspan="2">Date</th>
+                            <th rowspan="2">State</th>
+                            <th rowspan="2">LGA</th>
+                            <th rowspan="2">Phone</th>
+                            <th colspan="2">Gender</th>
+                            <th colspan="2">Certification</th>
+                            <th colspan="5">Cause of death</th>
+                            <th colspan="3">Age</th>
+                        </tr>
+                        <tr>
+                            <th>Male</th>
+                            <th>Female</th>
+                            <th>Certified</th>
+                            <th>Uncertified</th>
+                            <th><abbr title="Childbirth">A</abbr></th>
+                            <th><abbr title="Fevers">B</abbr></th>
+                            <th><abbr title="Accidents">C</abbr></th>
+                            <th><abbr title="HIV">D</abbr></th>
+                            <th><abbr title="Other">E</abbr></th>
+                            <th>Under 1</th>
+                            <th>1-4</th>
+                            <th>5+</th>
+                            <th rowspan="2"></th>
                         </tr>
                     </thead>
                     <form id="delete_form" action="{% url "dr:dr_report_delete" %}" method="post">{% csrf_token %}
@@ -85,10 +101,20 @@
                                 <td>{{ report.connection.identity }}</td>
                                 <td>{{ report.male }}</td>
                                 <td>{{ report.female }}</td>
+                                <td>{{ report.certified }}</td>
+                                <td>{{ report.uncertified }}</td>
+                                <td>{{ report.childbirth }}</td>
+                                <td>{{ report.fevers }}</td>
+                                <td>{{ report.accidents }}</td>
+                                <td>{{ report.hiv }}</td>
+                                <td>{{ report.other }}</td>
+                                <td>{{ report.underOne }}</td>
+                                <td>{{ report.oneToFour }}</td>
+                                <td>{{ report.fiveAndOlder }}</td>
                                 <td><a href="{% url 'dr:dr_report_edit' report.pk %}">Edit</a></td>
                             </tr>{% empty %}
                             <tr>
-                                <td class="table-warning text-xs-center" colspan="8">No records found</td>
+                                <td class="table-warning text-xs-center" colspan="13">No records found</td>
                             </tr>{% endfor %}
                         </tbody>
                     </form>
