@@ -53,7 +53,7 @@ def dashboardview(request, state=None, year=now().year, month=None):
         response.write(export_records_3(location, year, month, format='xlsx'))
         return response
 
-    dataframe = get_record_dataset(location, year, month, cumulative)
+    dataframe, location_count = get_record_dataset(location, year, month, cumulative)
     dataframe_distribution = dataframe \
         .groupby(lambda x: x.to_period('M')).sum().sort()
     dataframe_coverage = dataframe \
@@ -81,6 +81,7 @@ def dashboardview(request, state=None, year=now().year, month=None):
         'page_title': 'Birth Registration Statistics',
         'location': location,
         'location_codes': location_codes,
+        'location_count': location_count,
         'year': year,
         'year_range': year_range,
         'month_range': range(1, 13),

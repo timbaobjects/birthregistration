@@ -250,15 +250,15 @@ def get_record_dataset(location, year, month=None, cumulative=False):
             'below1', '1to4', '5to9', '10to18', 'above5', 'boys_above5',
             'girls_above5', 'rc', 'lga', 'state'
         ]
-        return pd.DataFrame(index=index, columns=columns).fillna(0)
+        return pd.DataFrame(index=index, columns=columns).fillna(0), 0
 
-    dataset = pd.DataFrame(
-        list(records.values(
+    dataset = pd.DataFrame.from_records(
+        records.values(
             'time', 'girls_below1', 'girls_1to4', 'girls_5to9', 'girls_10to18',
             'boys_below1', 'boys_1to4', 'boys_5to9', 'boys_5to9',
             'boys_10to18', 'location__name', 'location__parent__name',
             'location__parent__parent__name',
-        ))
+        )
     ).rename(columns={'location__name':'rc',
         'location__parent__name': 'lga',
         'location__parent__parent__name': 'state'})
@@ -276,4 +276,6 @@ def get_record_dataset(location, year, month=None, cumulative=False):
     dataset['girls_above5'] = dataset['girls_5to9'] + dataset['girls_10to18']
     dataset['total'] = dataset['below1'] + dataset['1to4'] + dataset['above5']
 
-    return dataset.set_index('time').sort_index()
+    location_count = records.values('location').distinct().count()
+
+    return dataset.set_index('time').sort_index(), location_count
