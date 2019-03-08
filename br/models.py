@@ -1,5 +1,5 @@
 from django.contrib.auth.models import User
-from django.core.cache import cache, get_cache, InvalidCacheBackendError
+from django.core.cache import cache
 from django.db import models
 import pandas as pd
 from locations.models import Location
@@ -52,10 +52,7 @@ class CensusResult(models.Model):
 
     @staticmethod
     def get_dataframe():
-        try:
-            app_cache = get_cache('census_data')
-        except InvalidCacheBackendError:
-            app_cache = cache
+        app_cache = cache
 
         dataframe = app_cache.get('population_estimates')
         if (type(dataframe) is not pd.DataFrame) or dataframe.empty:
