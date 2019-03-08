@@ -2,6 +2,7 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.contrib.auth import views as auth_views
 
 from unicefng.backend import HttpBackendView
 
@@ -27,6 +28,6 @@ urlpatterns = [
 
 # authentication urls
 urlpatterns += [
-    url(r'^accounts/login/$', 'django.contrib.auth.views.login', {'template_name': 'login.html'}, name="user-login"),
-    url(r'^accounts/logout/$', 'django.contrib.auth.views.logout_then_login', name="user-logout")
+    url(r'^accounts/login/$', auth_views.login, {'template_name': 'login.html'}, name="user-login"),
+    url(r'^accounts/logout/$', auth_views.logout_then_login, name="user-logout")
 ]
