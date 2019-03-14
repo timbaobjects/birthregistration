@@ -3,11 +3,15 @@
 from __future__ import unicode_literals
 import functools
 from datetime import datetime
+import logging
 from dateutil.relativedelta import relativedelta
 from django.db.models import F, Func, SmallIntegerField, Sum
 import pandas as pd
 from locations.models import Location
 from .models import BirthRegistration, CensusResult
+
+logger = logging.getLogger(__name__)
+
 
 BR_DATA_COLUMNS = [
     'boys_below1', 'boys_1to4', 'boys_5to9', 'boys_10to18',
@@ -21,7 +25,6 @@ class ExtractMonth(Func):
     def __init__(self, *expressions, **extra):
         extra['output_field'] = SmallIntegerField()
         super(ExtractMonth, self).__init__(*expressions, **extra)
-
 
 
 def memoize(obj):
@@ -279,3 +282,12 @@ def get_record_dataset(location, year, month=None, cumulative=False):
     location_count = records.values('location').distinct().count()
 
     return dataset.set_index('time').sort_index(), location_count
+
+
+def get_u1_reporting_for_past_4_years(location, year):
+    logger.warning('Calling it!')
+    rcs = location.get_descendants().filter(type__name='RC')
+
+    return BirthRegistration.objects.filter(
+        location__pk__in=rcs, time__year__range=(year - 4, year - 1)
+    ).aggregate(u1=Sum(F('boys_below1') + F('girls_below1'))).get('u1', 0)

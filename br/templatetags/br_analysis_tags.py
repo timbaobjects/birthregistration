@@ -4,7 +4,7 @@ from datetime import datetime
 from django import template
 from django.conf import settings
 from locations.models import Location
-from br.helpers import memoize
+from br.helpers import memoize, get_u1_reporting_for_past_4_years
 from br.models import CensusResult
 
 # logger = logging.getLogger(__name__)
@@ -99,6 +99,7 @@ def performance(dataframe, index, location, node_pk, year, month, category):
             elif category == '1to4':
                 numerator = dataframe.ix[index].ix[['below1', '1to4']].sum()
                 denominator = estimate * cr.under_5_rate * 0.01
+                denominator -= get_u1_reporting_for_past_4_years(subloc, year)
                 return numerator / denominator
         else:
             if category == 'below1':
@@ -108,6 +109,7 @@ def performance(dataframe, index, location, node_pk, year, month, category):
             elif category == '1to4':
                 numerator = dataframe.ix[index].sum()[['below1', '1to4']].sum()
                 denominator = estimate * cr.under_5_rate * 0.01
+                denominator -= get_u1_reporting_for_past_4_years(subloc, year)
                 return numerator / denominator
         return total
     except Location.DoesNotExist:
@@ -195,6 +197,7 @@ def location_performance(location, dataframe, year, month, category):
         elif category == '1to4':
             numerator = dataframe[['below1', '1to4']].sum().sum()
             denominator = estimate * census_result.under_5_rate * 0.01
+            denominator -= get_u1_reporting_for_past_4_years(location, year)
             total = numerator / denominator
         return total
     except Location.DoesNotExist:
