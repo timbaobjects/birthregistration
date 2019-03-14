@@ -99,7 +99,8 @@ def performance(dataframe, index, location, node_pk, year, month, category):
             elif category == '1to4':
                 numerator = dataframe.ix[index].ix[['below1', '1to4']].sum()
                 denominator = estimate * cr.under_5_rate * 0.01
-                denominator -= get_u1_reporting_for_past_4_years(subloc, year)
+                difference = get_u1_reporting_for_past_4_years(subloc, year) or 0
+                denominator -= difference
                 return numerator / denominator
         else:
             if category == 'below1':
@@ -109,7 +110,8 @@ def performance(dataframe, index, location, node_pk, year, month, category):
             elif category == '1to4':
                 numerator = dataframe.ix[index].sum()[['below1', '1to4']].sum()
                 denominator = estimate * cr.under_5_rate * 0.01
-                denominator -= get_u1_reporting_for_past_4_years(subloc, year)
+                difference = get_u1_reporting_for_past_4_years(subloc, year) or 0
+                denominator -= difference
                 return numerator / denominator
         return total
     except Location.DoesNotExist:
@@ -197,7 +199,8 @@ def location_performance(location, dataframe, year, month, category):
         elif category == '1to4':
             numerator = dataframe[['below1', '1to4']].sum().sum()
             denominator = estimate * census_result.under_5_rate * 0.01
-            denominator -= get_u1_reporting_for_past_4_years(location, year)
+            difference = get_u1_reporting_for_past_4_years(location, year) or 0
+            denominator -= difference
             total = numerator / denominator
         return total
     except Location.DoesNotExist:
