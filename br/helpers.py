@@ -3,15 +3,12 @@
 from __future__ import unicode_literals
 import functools
 from datetime import datetime
-import logging
 from dateutil.relativedelta import relativedelta
 from django.db.models import F, Func, SmallIntegerField, Sum
 from django.db.models.functions import TruncMonth
 import pandas as pd
 from locations.models import Location
 from .models import BirthRegistration, CensusResult
-
-logger = logging.getLogger(__name__)
 
 
 BR_DATA_COLUMNS = [
@@ -291,7 +288,6 @@ def get_record_dataset(location, group_list, year, month=None,
 
 
 def get_u1_reporting_for_past_4_years(location, year):
-    logger.warning('Calling it!')
     rcs = location.get_descendants().filter(type__name='RC')
 
     return BirthRegistration.objects.filter(
