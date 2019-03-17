@@ -54,8 +54,8 @@ def get_population_growth_estimate(parent_location, location_name, location_type
     if df.empty:
         return 0
 
-    subset = df[(df.year <= year) & (df.loc_id == current_loc.id)].sort(columns='year', ascending=False)
-    # subset = df[(df.year <= year) & (df.loc_id == loc_node['id'])].sort(columns='year', ascending=False)
+    subset = df[(df.year <= year) & (df.loc_id == current_loc.id)].sort_values(
+        by='year', ascending=False)
 
     if subset.empty:
         return 0
