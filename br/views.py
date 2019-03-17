@@ -1,6 +1,5 @@
 # vim: ai ts=4 sts=4 et sw=4
 from datetime import datetime
-import json
 from dateutil.relativedelta import relativedelta
 from br.models import BirthRegistration
 from br.filters import BirthRegistrationFilter
@@ -8,17 +7,14 @@ from br.forms import BirthRegistrationModelForm, ReportDeleteForm
 from br.helpers import get_record_dataset
 from br.exporter import export_records_3
 from braces.views import LoginRequiredMixin, PermissionRequiredMixin
-from locations.forms import generate_edit_form
-from locations.filters import CenterFilterSet
-from locations.models import Location, LocationType
+from locations.models import Location
 from django.conf import settings
 from django.contrib import messages
 from django.core.urlresolvers import reverse
-from django.db import IntegrityError
 from django.db.models import Max, Min
 from django.http import (
     HttpResponse, HttpResponseNotFound, HttpResponseRedirect,
-    HttpResponseNotAllowed, HttpResponseForbidden, HttpResponseBadRequest)
+    HttpResponseNotAllowed, HttpResponseForbidden)
 from django.shortcuts import get_object_or_404, render
 from django.utils.http import is_safe_url
 from django.utils.timezone import now
@@ -53,26 +49,22 @@ def dashboardview(request, state=None, year=now().year, month=None):
         response.write(export_records_3(location, year, month, format='xlsx'))
         return response
 
-    dataframe, location_count = get_record_dataset(location, year, month, cumulative)
-    dataframe_distribution = dataframe \
-        .groupby(lambda x: x.to_period('M')).sum().sort()
-    dataframe_coverage = dataframe \
-        .groupby([dataframe.lga if state else dataframe.state, dataframe.index.to_period('M')]) \
-        .sum()
+    dataframe, location_count = get_record_dataset(
+        location, group_list, year, month, cumulative)
 
     if cumulative:
-        dataframe_summary = dataframe.groupby(group_list).sum().sort()
+        dataframe_summary = dataframe.groupby(group_list).sum().sort_index()
     else:
         if month:
             timestamp = datetime(year, month, 1)
             dataframe_summary = dataframe \
                 .truncate(before=timestamp, after=timestamp + relativedelta(months=1) - relativedelta(seconds=1)) \
-                .groupby(group_list).sum().sort()
+                .groupby(group_list).sum().sort_index()
         else:
             timestamp = datetime(year, 1, 1)
             dataframe_summary = dataframe \
                 .truncate(before=timestamp, after=timestamp + relativedelta(years=1) - relativedelta(seconds=1)) \
-                .groupby(group_list).sum().sort()
+                .groupby(group_list).sum().sort_index()
 
     br_time_span = BirthRegistration.objects.all().aggregate(time_min=Min('time'), time_max=Max('time'))
     year_range = range(br_time_span['time_min'].year, br_time_span['time_max'].year + 1)
@@ -87,8 +79,6 @@ def dashboardview(request, state=None, year=now().year, month=None):
         'month_range': range(1, 13),
         'month': month,
         'cumulative': cumulative,
-        'dataframe_distribution': dataframe_distribution,
-        'dataframe_coverage': dataframe_coverage,
         'dataframe_summary': dataframe_summary,
         'states': Location.objects.filter(type__name='State').order_by('name').values_list('name', flat=True),
     }
