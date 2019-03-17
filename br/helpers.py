@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 import functools
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
-from django.db.models import F, Func, SmallIntegerField, Sum
+from django.db.models import F, SmallIntegerField, Sum
 from django.db.models.functions import TruncMonth
 import pandas as pd
 from locations.models import Location
@@ -15,14 +15,6 @@ BR_DATA_COLUMNS = [
     'boys_below1', 'boys_1to4', 'boys_5to9', 'boys_10to18',
     'girls_below1', 'girls_1to4', 'girls_5to9', 'girls_10to18',
 ]
-
-
-class ExtractMonth(Func):
-    template = "EXTRACT(MONTH FROM %(expressions)s)"
-
-    def __init__(self, *expressions, **extra):
-        extra['output_field'] = SmallIntegerField()
-        super(ExtractMonth, self).__init__(*expressions, **extra)
 
 
 def memoize(obj):
