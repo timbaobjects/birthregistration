@@ -329,7 +329,7 @@
             .valueFormat(d3.format(','))
             .showLegend(false)
             .margin({top: 0, bottom: 0, left: 0, right: 0})
-            .showLabels(false);
+            .showLabels(true);
 
         d3.select("#chart_under_1 svg")
             .datum(getSlices()[0].values)
@@ -347,7 +347,7 @@
             .valueFormat(d3.format(','))
             .showLegend(false)
             .margin({top: 0, bottom: 0, left: 0, right: 0})
-            .showLabels(false);
+            .showLabels(true);
 
         d3.select("#chart_under_5 svg")
             .datum(getSlices()[1].values)
@@ -365,7 +365,7 @@
             .valueFormat(d3.format(','))
             .showLegend(false)
             .margin({top: 0, bottom: 0, left: 0, right: 0})
-            .showLabels(false);
+            .showLabels(true);
 
         d3.select("#chart_above_5 svg")
             .datum(getSlices()[2].values)
@@ -374,33 +374,6 @@
         
         return chart;
     });
-
-    {% for dataframe_location in dataframe_coverage|dataframe_coverage_locations %}nv.addGraph(function() {
-        var chart = nv.models.stackedAreaChart()
-            .margin({top: 0, right: 0, bottom: 0, left: 0})
-            .useInteractiveGuideline(true)
-            .showControls(false)
-            .options({showXAxis: false, showYAxis: false})
-            .color(['#5d8fc2', '#ddd']);
-        chart.xAxis
-            .tickFormat(function(d) { return d3.time.format("%b %Y")(new Date(d)) });
-        chart.yAxis
-            .tickFormat(d3.format('.1%'));
-        d3.select('#coverage_{{ dataframe_location|lower|slugify }} svg')
-            .datum([{
-                area: true,
-                key: "Under 1",
-                values: [{% for period in dataframe_coverage|dataframe_coverage_period:dataframe_location %}{x: {{ period|period_in_ms }}, y: {% coverage_performance dataframe_coverage dataframe_location period 'below1' location period.year period.month %}},{% endfor %}]
-            }, {
-                area: true,
-                key: 'Under 5',
-                values: [{% for period in dataframe_coverage|dataframe_coverage_period:dataframe_location %}{x: {{ period|period_in_ms }}, y: {% coverage_performance dataframe_coverage dataframe_location period '1to4' location period.year period.month %}},{% endfor %}]
-            }])
-            .transition().duration(500)
-            .call(chart);
-        nv.utils.windowResize(chart.update);
-        return chart;
-    });{% endfor %}
 </script>
 <script type="text/javascript">
 var under1_data = {
