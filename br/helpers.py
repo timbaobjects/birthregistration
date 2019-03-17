@@ -6,6 +6,7 @@ from datetime import datetime
 import logging
 from dateutil.relativedelta import relativedelta
 from django.db.models import F, Func, SmallIntegerField, Sum
+from django.db.models.functions import TruncMonth
 import pandas as pd
 from locations.models import Location
 from .models import BirthRegistration, CensusResult
@@ -226,7 +227,8 @@ def get_nonperforming_locations(location, start_date, end_date):
         return set(qs.values_list(u'name', flat=True))
 
 
-def get_record_dataset(location, year, month=None, cumulative=False):
+def get_record_dataset(location, group_list, year, month=None,
+                       cumulative=False):
     if month:
         start_date = datetime(year, month, 1) - relativedelta(years=1)
         end_date = datetime(year, month, 1) + relativedelta(months=1) - relativedelta(seconds=1)
@@ -240,10 +242,23 @@ def get_record_dataset(location, year, month=None, cumulative=False):
     center_nodes = [
         node['id'] for node in location.nx_descendants()
         if node['type'] == 'RC' and node['active']]
+
+    columns = [
+        'boys_below1', 'boys_1to4', 'boys_5to9', 'boys_10to18',
+        'girls_below1', 'girls_1to4', 'girls_5to9', 'girls_10to18'
+    ]
+    output_cols = columns + group_list + ['mth']
+
     records = BirthRegistration.objects.filter(
         time__range=(start_date, end_date),
         location__pk__in=center_nodes
-    )
+    ).annotate(
+        mth=TruncMonth('time'), rc=F('location__name'),
+        lga=F('location__parent__name'),
+        state=F('location__parent__parent__name')
+    ).values(*(['mth'] + group_list)).annotate(
+        **{c: Sum(c) for c in columns}
+    ).values(*output_cols)
 
     if not records.exists():
         index = pd.date_range(start_date, end_date)
@@ -255,16 +270,7 @@ def get_record_dataset(location, year, month=None, cumulative=False):
         ]
         return pd.DataFrame(index=index, columns=columns).fillna(0), 0
 
-    dataset = pd.DataFrame.from_records(
-        records.values(
-            'time', 'girls_below1', 'girls_1to4', 'girls_5to9', 'girls_10to18',
-            'boys_below1', 'boys_1to4', 'boys_5to9', 'boys_5to9',
-            'boys_10to18', 'location__name', 'location__parent__name',
-            'location__parent__parent__name',
-        )
-    ).rename(columns={'location__name':'rc',
-        'location__parent__name': 'lga',
-        'location__parent__parent__name': 'state'})
+    dataset = pd.DataFrame.from_records(records)
 
     dataset['below1'] = dataset['boys_below1'] + dataset['girls_below1']
     dataset['1to4'] = dataset['boys_1to4'] + dataset['girls_1to4']
@@ -281,7 +287,7 @@ def get_record_dataset(location, year, month=None, cumulative=False):
 
     location_count = records.values('location').distinct().count()
 
-    return dataset.set_index('time').sort_index(), location_count
+    return dataset.set_index('mth').sort_index(), location_count
 
 
 def get_u1_reporting_for_past_4_years(location, year):
