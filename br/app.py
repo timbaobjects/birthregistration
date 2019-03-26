@@ -20,7 +20,7 @@ from rapidsms.apps.base import AppBase
 
 from br.models import BirthRegistration
 from common.utilities import getConnectionAndReporter
-from reporters.models import PersistantConnection, Reporter, Role
+from reporters.models import Reporter, Role
 from locations.models import Location
 
 MAX_REPORT_WINDOW = 90 * 24 * 3600  # reports older than 90 days from the day of submission will be rejected
@@ -55,6 +55,7 @@ class BirthRegistrationApp(AppBase):
         'early_report': _("You used an incorrect date in your report. You can't send a report earlier than %(early_date)s. You sent: %(text)s"),
         'future_report': _("You used an incorrect date in your report. You can't send a report for a date in the future. You sent: %(text)s"),
         'invalid_message': _("Your message is incorrect. Please send BR HELP for help on sending a report. You sent: %(text)s"),
+        'inactive_location': _("You are registered at a location marked as inactive. Please contact your supervisor"),
     }
     help_messages = {
         'general': _("For help on BR reports, reply: BR HELP REPORT. For help on registration, reply: BR HELP REGISTER"),
@@ -155,7 +156,7 @@ class BirthRegistrationApp(AppBase):
         data = {}
         try:
             data['location'] = Location.objects.get(code=location_code,
-                type__name=u'RC')
+                type__name=u'RC', active=True)
             data['role'] = Role.objects.get(code__iexact=role)
             data['alias'], data['first_name'], data['last_name'] = Reporter.parse_name(name.strip())
             rep = Reporter(**data)
@@ -199,6 +200,9 @@ class BirthRegistrationApp(AppBase):
                 return True
 
             location = reporter.location
+            if not location.active:
+                message.respond(self.response_messages['inactive_location'])
+                return True
 
             # store the report
             try:
