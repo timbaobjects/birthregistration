@@ -408,32 +408,16 @@ $(function () {
     });
 
     var normalizePerformance = function (performance) {
-        if (performance < 6)
+        if (performance < 26)
+            return 0;
+        else if ((performance >= 26) && (performance < 50))
             return 1;
-        else if ((performance >= 6) && (performance < 12))
-            return 2;
-        else if ((performance >= 12) && (performance < 18))
-            return 3;
-        else if ((performance >= 18) && (performance < 24))
-            return 4;
-        else if ((performance >= 24) && (performance < 30))
-            return 5;
-        else if ((performance >= 30) && (performance < 40))
-            return 6;
-        else if ((performance >= 40) && (performance < 50))
-            return 7;
         else if ((performance >= 50) && (performance < 60))
-            return 8;
+            return 2;
         else if ((performance >= 60) && (performance < 70))
-            return 9;
+            return 3;
         else
-            return 10;
-        // if (performance < 30)
-        //     return 1;
-        // else if ((performance >= 30) && (performance < 70))
-        //     return 2;
-        // else
-        //     return 3;
+            return 4;
     }
 
 {% if not cumulative %}
@@ -453,7 +437,7 @@ $(function () {
                     min: 0, max: 100,
                     values: under1_data,
                     // scale: ['#ef2929', '#fcaf3e', '#8ae234'],
-                    scale: ['#a40000','#c34d11','#e07f27','#fcaf3e','#fdc344','#fdd649','#fce94f','#d2e23f','#a5db2d','#73d216'],
+                    scale: ['#ef2929', '#fdc344', '#d2e23f', '#a5db2d', '#73d216'],
                     normalizeFunction: normalizePerformance,
                     legend: {
                         vertical: false,
@@ -480,7 +464,7 @@ $(function () {
                     min: 0, max: 100,
                     values: under5_data,
                     // scale: ['#ef2929', '#fcaf3e', '#8ae234'],
-                    scale: ['#a40000','#c34d11','#e07f27','#fcaf3e','#fdc344','#fdd649','#fce94f','#d2e23f','#a5db2d','#73d216'],
+                    scale: ['#ef2929', '#fdc344', '#d2e23f', '#a5db2d', '#73d216'],
                     normalizeFunction: normalizePerformance,
                     legend: {
                         vertical: false,
