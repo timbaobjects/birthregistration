@@ -59,10 +59,14 @@ def death_report_summary(queryset):
     return df
 
 def compute_rankings(dataframe):
+    dataframe_with_rankings = dataframe.copy()
     for ranking in RANKINGS:
-        dataframe[map(lambda x: x + '_rank', ranking)] = dataframe[ranking].rank(
+        ranking_df = dataframe[ranking].rank(
             'columns', 'max', numeric_only=True, na_option='top', ascending=True)
-    return dataframe
+        for col in ranking:
+            new_col = col + '_rank'
+            dataframe_with_rankings[new_col] = ranking_df[col]
+    return dataframe_with_rankings
 
 def death_report_periods(queryset):
     return queryset.annotate(
