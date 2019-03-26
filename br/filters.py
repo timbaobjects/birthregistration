@@ -38,8 +38,8 @@ class LocationFilter(django_filters.ChoiceFilter):
 class BirthRegistrationFilter(django_filters.FilterSet):
     location = LocationFilter2(queryset=Location.objects.filter(
         type__name__in=[u'State', u'LGA']))
-    start_time = django_filters.DateFilter(name='time', lookup_type='gte')
-    end_time = django_filters.DateFilter(name='time', lookup_type='lte')
+    start_time = django_filters.DateFilter(name='time', lookup_expr='gte')
+    end_time = django_filters.DateFilter(name='time', lookup_expr='lte')
 
     class Meta:
         model = BirthRegistration
