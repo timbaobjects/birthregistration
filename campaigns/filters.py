@@ -13,7 +13,9 @@ class CampaignLocationFilter(django_filters.ModelChoiceFilter):
 
 
 class CampaignFilterSet(django_filters.FilterSet):
-    location = CampaignLocationFilter(queryset=Location.objects.filter(
-        type__name=u'State').order_by(u'name'))
-    start_date = django_filters.DateFilter(lookup_type=u'gte')
-    end_date = django_filters.DateFilter(lookup_type=u'lte')
+    location = CampaignLocationFilter(
+        label='Location', queryset=Location.objects.filter(
+            type__name=u'State').order_by(u'name'))
+    start_date = django_filters.DateFilter(
+        label='Start date', lookup_expr=u'gte')
+    end_date = django_filters.DateFilter(label='End date', lookup_expr=u'lte')
