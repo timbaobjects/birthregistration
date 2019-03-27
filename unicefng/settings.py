@@ -123,14 +123,14 @@ TEMPLATES = [
         ],
         u'OPTIONS': {
             u'context_processors': (
+                u'django.template.context_processors.debug',
+                u'django.template.context_processors.request',
                 u'django.contrib.auth.context_processors.auth',
-                u'django.core.context_processors.debug',
-                u'django.core.context_processors.i18n',
-                u'django.core.context_processors.media',
-                u'django.core.context_processors.static',
-                u'django.core.context_processors.tz',
-                u'django.core.context_processors.request',
                 u'django.contrib.messages.context_processors.messages',
+                u'django.template.context_processors.i18n',
+                u'django.template.context_processors.media',
+                u'django.template.context_processors.static',
+                u'django.template.context_processors.tz',
             ),
             u'debug': DEBUG,
         }
