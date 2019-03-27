@@ -13,4 +13,5 @@ class LGAFilter(django_filters.ModelChoiceFilter):
 
 
 class CenterFilterSet(django_filters.FilterSet):
-    lga = LGAFilter(queryset=Location.objects.filter(type__name=u'LGA'))
+    lga = LGAFilter(
+        label='LGA', queryset=Location.objects.filter(type__name=u'LGA'))

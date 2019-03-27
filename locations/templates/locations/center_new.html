@@ -1,14 +1,5 @@
 {% extends 'base/layout.html' %}{% load static %}
 {% block title %}Birth Registration Statistics · Create registration centers (RC){% endblock %}
-{% block stylesheets %}
-{{ block.super }}
-<link rel="stylesheet" type="text/css" href="{% static 'css/select2/select2.min.css' %}">
-<style type="text/css">
-    .select2-container.form-control {
-        display: inline-block;
-    }
-</style>
-{% endblock %}
 {% block usermenu %}{% include 'common/usermenu.html' %}{% endblock %}
 {% block masthead %}
 <div class="row">
@@ -22,11 +13,6 @@
 </div>
 {% endblock %}
 {% block content %}
-<div class="row">
-    <div class="col-lg-6 col-lg-offset-3">
-        <div class="alert alert-warning"><strong>There is a known bug in this tool:</strong> If you select a state then change that state, you will have the LGAs from the first state displayed. <em>We're working to fix this.</em></div>
-    </div>
-</div>
 <div class="row">
     <div class="col-lg-12">
         {% if messages %}
@@ -68,8 +54,7 @@
 {% endblock content %}
 {% block scripts %}
 {{ block.super }}
-<script src="{% static "js/select2/select2.min.js" %}"></script>
-<script src="{% static "js/vendor/vue.min.js" %}"></script>
+<script src="{% static "js/vendor/vue.js" %}"></script>
 <script type="text/x-template" id="lga-picker-template">
     <select :name="lga_name" :state_id="state_id" class="form-control"></select>
 </script>
@@ -104,6 +89,7 @@
   document.addEventListener('DOMContentLoaded', function() {
     var endpoint = '{% url "api:location_list_typed" %}?type=lga';
     var defaultLGAdata = [{id: '', name: '--- Select a LGA ---'}];
+    var eventBus = new Vue();
 
     var CenterForm = function (newId) {
         this.id = newId;
@@ -119,43 +105,46 @@
     Vue.component('lga-picker', {
         template: '#lga-picker-template',
         props: ['state_id', 'lga_name'],
-        methods: {
+        computed: {
             getLGAEndpoint: function() {
-                var url = endpoint + '&parent=' + this.state_id;
+                var url = endpoint + '&limit=100&parent=' + this.state_id;
 
                 return url;
             }
         },
-        mounted: function() {
-            this.$nextTick(function() {
-                $(this.$el).select2({
-                    ajax: {
-                        url: this.getLGAEndpoint(),
-                        data: function(params) {
-                            return {q: params.term};
-                        },
-                        dataType: 'json',
-                        quietMillis: 250,
-                        processResults: function(data, params) {
-                            return {results: data.results}
+        methods: {
+            populateChoices: function() {
+                var inst = this;
+                // clear existing option
+                for (var i = 0; i < inst.$el.options.length; i++)
+                    inst.$el.remove(0);
+                // add boilerplate option
+                var option = document.createElement('option');
+                option.value = '';
+                option.text = '--- Select a LGA ---';
+                inst.$el.add(option);
+
+                // load the remote data
+                $.ajax({
+                    url: inst.getLGAEndpoint,
+                }).done(function(data) {
+                    inst.$nextTick(function() {
+                        for (var i = 0; i < data.results.length; i++) {
+                            var option = document.createElement('option');
+                            option.value = data.results[i].id;
+                            option.text = data.results[i].name;
+                            inst.$el.add(option);
                         }
-                    },
-                    placeholder: 'Select a LGA',
-                    width: '30em',
-                    allowClear: true,
-                    minimumInputLength: 2,
-                    cache: true,
-                    templateResult: function(item) {
-                        return item.name + ' (' + item.type + ')';
-                    },
-                    templateSelection: function(item) {
-                        if (item.text)
-                            return item.text;
-                        else
-                            return item.name + ' (' + item.type + ')';
-                    }
+                    });
                 });
-            })
+            }
+        },
+        mounted: function() {
+            var vm = this;
+            eventBus.$on('reload', vm.populateChoices);
+            vm.$nextTick(function() {
+                vm.populateChoices();
+            });
         }
     })
 
@@ -177,6 +166,9 @@
             },
             onStateChoiceChange: function(event) {
                 this.getLGAChoices(event.target);
+                var stateDropdown = document.getElementById(this.form.state_id);
+                this.stateId = stateDropdown.value;
+                eventBus.$emit('reload');
             },
             onFormDelete: function() {
                 this.$emit('delete', this.form);

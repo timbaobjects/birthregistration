@@ -140,7 +140,7 @@ class CenterCreationView(TemplateView):
             if form.is_valid():
                 lga = form.cleaned_data.get(u'lga')
                 name = form.cleaned_data.get(u'name')
-                
+
                 if Location.objects.filter(name=name, parent=lga).exists():
                     messages.warning(request, u'The center {} already exists.'.format(
                         name), extra_tags=u'alert-warning')
