@@ -1,37 +1,28 @@
 # vim: ai ts=4 sts=4 et sw=4
-from datetime import datetime
-import json
-from dateutil.relativedelta import relativedelta
 from locations.forms import generate_edit_form, CenterCreationForm
 from locations.filters import CenterFilterSet
-from locations.helpers import stringify
 from locations.models import Location, LocationType
+
 from django.conf import settings
+
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.db import IntegrityError
-from django.db.models import Max, Min
+from django.contrib.auth.mixins import (
+    LoginRequiredMixin, PermissionRequiredMixin)
 from django.forms.formsets import formset_factory
 from django.http import (
     HttpResponse, HttpResponseNotFound, HttpResponseRedirect,
     HttpResponseNotAllowed, HttpResponseForbidden, HttpResponseBadRequest)
-from django.shortcuts import get_object_or_404, render
-from django.utils.decorators import method_decorator
-from django.utils.timezone import now
-from django.views.generic import ListView, FormView, DeleteView, TemplateView
+from django.shortcuts import get_object_or_404
+from django.views.generic import ListView, FormView, TemplateView
 
 
-class CenterListView(ListView):
+class CenterListView(LoginRequiredMixin, ListView):
     context_object_name = 'centers'
     page_title = 'Centers'
     paginate_by = settings.PAGE_SIZE
     template_name = 'locations/center_list.html'
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        return super(CenterListView, self).dispatch(*args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         queryset = Location.objects.filter(type__name=u'RC')
@@ -60,13 +51,9 @@ class CenterListView(ListView):
         return self.filter_set.qs
 
 
-class CenterUpdateView(FormView):
+class CenterUpdateView(
+        LoginRequiredMixin, PermissionRequiredMixin, FormView):
     template_name = 'locations/center_edit.html'
-
-    @method_decorator(login_required)
-    def dispatch(self, *args, **kwargs):
-        self.object = self.get_object()
-        return super(CenterUpdateView, self).dispatch(*args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(CenterUpdateView, self).get_context_data(**kwargs)
@@ -111,13 +98,11 @@ class CenterUpdateView(FormView):
             return self.form_invalid(form)
 
 
-class CenterCreationView(TemplateView):
+class CenterCreationView(
+        LoginRequiredMixin, PermissionRequiredMixin, TemplateView):
     page_title = u'Create registration centers'
+    permission_required = 'locations.add_location'
     template_name = u'locations/center_new.html'
-
-    @method_decorator(login_required)
-    def dispatch(self, request, *args, **kwargs):
-        return super(CenterCreationView, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
 

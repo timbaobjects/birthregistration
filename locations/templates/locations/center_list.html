@@ -51,7 +51,7 @@
                 </fieldset>
             </form>
         </section>
-        <section class="widget"><a href="{% url 'locations:center_add' %}" class="btn btn-success">Add new</a></section>
+        {% if perms.locations.add_location %}<section class="widget"><a href="{% url 'locations:center_add' %}" class="btn btn-success">Add new</a></section>{% endif %}
     </div>
 </div>
 <div class="row">
