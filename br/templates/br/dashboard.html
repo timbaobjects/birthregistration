@@ -71,8 +71,16 @@
                     </div>
                 </div>
                 <div class="col-xs-6">
-                    <div id="sparkline2" class="chart-overflow-bottom mb-0 text-xs-center mt-sm"></div>
-                    <div id="chart_under_1"><svg></svg></div>
+                    <div class="row windget-padding-md">
+                        <div class="col-xs-6 text-xs-center gen-stats">
+                            <h6 class="display-inline-block fw-normal">Girls</h6>
+                            <p class="h2 fw-normal">{{ dataframe_summary.girls_below1.sum|intcomma }}</p>
+                        </div>
+                        <div class="col-xs-6 text-xs-center gen-stats">
+                            <h6 class="display-inline-block fw-normal">Boys</h6>
+                            <p class="h2 fw-normal">{{ dataframe_summary.boys_below1.sum|intcomma }}</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -89,7 +97,16 @@
                     </div>
                 </div>
                 <div class="col-xs-6">
-                    <div id="chart_under_5"><svg></svg></div>
+                    <div class="row windget-padding-md">
+                        <div class="col-xs-6 text-xs-center gen-stats">
+                            <h6 class="display-inline-block fw-normal">Girls</h6>
+                            <p class="h2 fw-normal">{{ dataframe_summary.girls_below1.sum|add:dataframe_summary.girls_1to4.sum|intcomma }}</p>
+                        </div>
+                        <div class="col-xs-6 text-xs-center gen-stats">
+                            <h6 class="display-inline-block fw-normal">Boys</h6>
+                            <p class="h2 fw-normal">{{ dataframe_summary.boys_below1.sum|add:dataframe_summary.boys_1to4.sum|intcomma }}</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -108,7 +125,16 @@
                     </div>
                 </div>
                 <div class="col-xs-6">
-                    <div id="chart_above_5"><svg></svg></div>
+                    <div class="row windget-padding-md">
+                        <div class="col-xs-6 text-xs-center gen-stats">
+                            <h6 class="display-inline-block fw-normal">Girls</h6>
+                            <p class="h2 fw-normal">{{ dataframe_summary.girls_above5.sum|intcomma }}</p>
+                        </div>
+                        <div class="col-xs-6 text-xs-center gen-stats">
+                            <h6 class="display-inline-block fw-normal">Boys</h6>
+                            <p class="h2 fw-normal">{{ dataframe_summary.boys_above5.sum|intcomma }}</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
@@ -296,85 +322,6 @@
 <script src="{% static "base/js/ng-states.js" %}"></script>
 <script src="{% static "base/js/ng-lgas.js" %}"></script>
 <script src="{% static "js/Uri.js" %}"></script>
-<script type="text/javascript">
-    var pieColors = ['#5d8fc2', '#ddd'];
-
-    function getSlices() {
-        var slices = [
-            {values: [
-                { label: "Boys", value: {{ dataframe_summary.boys_below1.sum }} },
-                { label: "Girls", value: {{ dataframe_summary.girls_below1.sum }} }
-            ]},
-            {values: [
-                { label: "Boys", value: {{ dataframe_summary.boys_below1.sum|add:dataframe_summary.boys_1to4.sum }} },
-                { label: "Girls", value: {{ dataframe_summary.girls_below1.sum|add:dataframe_summary.girls_1to4.sum }} }
-            ]},
-            {values: [
-                { label: "Boys", value: {{ dataframe_summary.boys_above5.sum }} },
-                { label: "Girls", value: {{ dataframe_summary.girls_above5.sum }} }
-            ]}
-        ];
-        return slices;
-    }
-
-    d3.scale.pieColors = function () {
-        return d3.scale.ordinal().range(pieColors);
-    };
-
-    nv.addGraph(function() {
-        var chart = nv.models.pieChart()
-            .x(function(d) { return d.label })
-            .y(function(d) { return d.value })
-            .color(d3.scale.pieColors().range())
-            .valueFormat(d3.format(','))
-            .showLegend(false)
-            .margin({top: 0, bottom: 0, left: 0, right: 0})
-            .showLabels(true);
-
-        d3.select("#chart_under_1 svg")
-            .datum(getSlices()[0].values)
-            .transition().duration(1200)
-            .call(chart);
-        
-        return chart;
-    });
-
-    nv.addGraph(function() {
-        var chart = nv.models.pieChart()
-            .x(function(d) { return d.label })
-            .y(function(d) { return d.value })
-            .color(d3.scale.pieColors().range())
-            .valueFormat(d3.format(','))
-            .showLegend(false)
-            .margin({top: 0, bottom: 0, left: 0, right: 0})
-            .showLabels(true);
-
-        d3.select("#chart_under_5 svg")
-            .datum(getSlices()[1].values)
-            .transition().duration(1200)
-            .call(chart);
-        
-        return chart;
-    });
-
-    nv.addGraph(function() {
-        var chart = nv.models.pieChart()
-            .x(function(d) { return d.label })
-            .y(function(d) { return d.value })
-            .color(d3.scale.pieColors().range())
-            .valueFormat(d3.format(','))
-            .showLegend(false)
-            .margin({top: 0, bottom: 0, left: 0, right: 0})
-            .showLabels(true);
-
-        d3.select("#chart_above_5 svg")
-            .datum(getSlices()[2].values)
-            .transition().duration(1200)
-            .call(chart);
-        
-        return chart;
-    });
-</script>
 <script type="text/javascript">
 var under1_data = {
 {% with location.node as parent_node %}{% if parent_node.type == 'Country' %}{% for state_node in parent_node|subnodes:'State'|dictsort:'name' %}
