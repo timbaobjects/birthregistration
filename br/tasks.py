@@ -11,6 +11,7 @@ from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils.timezone import now
 from rapidsms.contrib.messagelog.models import Message
+from rapidsms.models import Connection
 import pandas as pd
 
 
@@ -162,7 +163,7 @@ def prompt_nonreporting_reporters():
                 '-pk').first()
             if reporter:
                 conn = reporter.connection()
-                if conn and conn.identity():
+                if conn and conn.identity:
                     item = {
                         conn.identity: (conn, reporter.full_name())
                     }
@@ -177,6 +178,11 @@ def prompt_nonreporting_reporters():
             name, reporting_date + relativedelta(hours=4))
 
         send_sms_message(message, phone)
+
+        # log the outgoing message even though it's
+        # not gone out via the RapidSMS infrastructure
+        r_connection = Connection.objects.filter(
+            identity=phone).order_by('-pk').first()
         Message.objects.create(
-            connection=connection, direction='O', date=now(),
+            connection=r_connection, direction='O', date=now(),
             text=message)
