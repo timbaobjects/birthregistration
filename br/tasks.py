@@ -1,7 +1,7 @@
 from __future__ import absolute_import
 from br.helpers import get_performance_dataframe, get_nonperforming_locations
 from br.models import BirthRegistration, Subscription
-from reporters.models import Reporter
+from locations.models import Location
 from messaging.utils import send_sms_message
 from celery import shared_task
 from datetime import datetime
@@ -140,13 +140,26 @@ def prompt_nonreporting_reporters():
     rc_ids = BirthRegistration.objects.filter(
         time=reporting_date).values_list('location__pk', flat=True)
 
-    reporters = Reporter.objects.filter(
-        role__code='BR', location__active=True, location__type__name='RC'
-    ).exclude(
-        location__pk__in=rc_ids
-    )
+    missing_rcs = Location.objects.filter(type__name='RC').exclude(
+        pk__in=rc_ids)
 
-    dataset = {(r.connection(), r.full_name()) for r in reporters}
+    dataset = set()
+    for rc in missing_rcs:
+        # get the phone number from the last report sent
+        report = rc.birthregistration_records.order_by('-time').first()
+        if report:
+            if report.connection and report.connection.identity:
+                dataset.add(
+                    (report.connection.identity, report.reporter.full_name()))
+        else:
+            reporter = rc.reporters.filter(role__code='BR').order_by(
+                '-pk').first()
+            if reporter:
+                conn = reporter.connection()
+                if conn and conn.identity():
+                    dataset.add(
+                        (conn.identity, reporter.full_name()))
+
     for connection, name in dataset:
         if connection is None:
             continue
