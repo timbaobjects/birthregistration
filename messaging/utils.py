@@ -18,4 +18,5 @@ def send_sms_message(text, number):
         'message': text
     }
 
-    response = requests.get(url, params=params)
+    if url:
+        response = requests.get(url, params=params)
