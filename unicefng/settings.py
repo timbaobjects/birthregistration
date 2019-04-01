@@ -93,16 +93,29 @@ TEMPLATE_LOADERS = (
     'django.template.loaders.app_directories.Loader',
 )
 
-MIDDLEWARE_CLASSES = (
-    'subdomains.middleware.SubdomainURLRoutingMiddleware',
-    'django.middleware.common.CommonMiddleware',
+# MIDDLEWARE_CLASSES = (
+#     'subdomains.middleware.SubdomainURLRoutingMiddleware',
+#     'django.middleware.common.CommonMiddleware',
+#     'django.contrib.sessions.middleware.SessionMiddleware',
+#     'django.middleware.csrf.CsrfViewMiddleware',
+#     'django.contrib.auth.middleware.AuthenticationMiddleware',
+#     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+#     'django.contrib.messages.middleware.MessageMiddleware',
+#     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+# )
+
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'subdomains.middleware.SubdomainMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-)
+
+]
 
 ROOT_URLCONF = 'unicefng.urls'
 SUBDOMAIN_URLCONFS = {
@@ -252,7 +265,8 @@ RAPIDSMS_HANDLERS = (
 LOCATIONS_GRAPH_MAXAGE = 3600  # number of seconds cache the locations graph
 PAGE_SIZE = 30  # Number of submissions viewable per page
 SITE_ID = 1
-STATICFILES_STORAGE = 'pipeline.storage.PipelineCachedStorage'
+# STATICFILES_STORAGE = 'pipeline.storage.PipelineCachedStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # django-pipeline settings
 PIPELINE = {
@@ -360,3 +374,8 @@ SENDFILE_ROOT = config(u'SENDFILE_DOCUMENT_ROOT',
     default=os.path.join(PROJECT_PATH, u'documents'))
 
 SENDFILE_URL = u'/protected'
+
+SENDSMS_URL = config('SENDSMS_URL', default='')
+SENDSMS_USERNAME = config('SENDSMS_USERNAME', default='')
+SENDSMS_PASSWORD = config('SENDSMS_PASSWORD', default='')
+SENDSMS_SHORTCODE = config('SENDSMS_SHORTCODE', default='')
