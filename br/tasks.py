@@ -10,6 +10,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils.timezone import now
+from rapidsms.contrib.messagelog.models import Message
 import pandas as pd
 
 
@@ -143,24 +144,31 @@ def prompt_nonreporting_reporters():
     missing_rcs = Location.objects.filter(type__name='RC').exclude(
         pk__in=rc_ids)
 
-    dataset = set()
+    dataset = {}
     for rc in missing_rcs:
         # get the phone number from the last report sent
+        # check the latest report for this
         report = rc.birthregistration_records.order_by('-time').first()
         if report:
             if report.connection and report.connection.identity:
-                dataset.add(
-                    (report.connection.identity, report.reporter.full_name()))
+                item = {
+                    report.connection.identity: (
+                        report.connection, report.reporter.full_name())
+                }
+                dataset.update(item)
         else:
+            # or check the last BR reporter attached to this location
             reporter = rc.reporters.filter(role__code='BR').order_by(
                 '-pk').first()
             if reporter:
                 conn = reporter.connection()
                 if conn and conn.identity():
-                    dataset.add(
-                        (conn.identity, reporter.full_name()))
+                    item = {
+                        conn.identity: (conn, reporter.full_name())
+                    }
+                    dataset.update(item)
 
-    for connection, name in dataset:
+    for connection, name in dataset.values():
         if connection is None:
             continue
 
@@ -169,3 +177,6 @@ def prompt_nonreporting_reporters():
             name, reporting_date + relativedelta(hours=4))
 
         send_sms_message(message, phone)
+        Message.objects.create(
+            connection=connection, direction='O', date=now(),
+            text=message)
