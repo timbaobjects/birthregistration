@@ -30,6 +30,7 @@ def compute_performance(subscription):
     # extract the best performing and worst performing locations
     # TODO: add protections for a mixture of location types in the subscription
     summary = pd.DataFrame()
+    timestamp = now() + relativedelta(months=-1)
     report_region = None
     best_performing_under1 = []
     best_performing_under5 = []
@@ -42,7 +43,7 @@ def compute_performance(subscription):
         elif location.type.name == "State":
             report_region = "LGA"
 
-        dataframe, _ = get_performance_dataframe(location, datetime.now().year, datetime.now().month)
+        dataframe, _ = get_performance_dataframe(location, timestamp.year, timestamp.month)
         dataframe = dataframe.fillna(0)
         summary = summary.append(dataframe)
 
@@ -50,19 +51,19 @@ def compute_performance(subscription):
     if not summary.empty:
         best_performing_under1 = [{
             'name': report[1][report_region.lower()],
-            'performance': report[1]['U1 Performance'] * 100}
+            'performance': report[1]['U1 Performance']}
             for report in summary.sort_values('U1 Performance', ascending=False).head(2).iterrows()]
         best_performing_under5 = [{
             'name': report[1][report_region.lower()],
-            'performance': report[1]['U5 Performance'] * 100}
+            'performance': report[1]['U5 Performance']}
             for report in summary.sort_values('U5 Performance', ascending=False).head(2).iterrows()]
         worst_performing_under1 = [{
             'name': report[1][report_region.lower()],
-            'performance': report[1]['U1 Performance'] * 100}
+            'performance': report[1]['U1 Performance']}
             for report in summary.sort_values('U1 Performance', ascending=True).head(2).iterrows()]
         worst_performing_under5 = [{
             'name': report[1][report_region.lower()],
-            'performance': report[1]['U5 Performance'] * 100}
+            'performance': report[1]['U5 Performance']}
             for report in summary.sort_values('U5 Performance', ascending=True).head(2).iterrows()]
 
     context = {
