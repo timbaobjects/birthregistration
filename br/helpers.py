@@ -192,7 +192,8 @@ def get_performance_dataframe(location, year, month=None):
         u1_denominator = node_census_data[u'estimate'] * node_census_data[u'under_1_rate'] * 0.01
 
         u5_denominator = (
-            node_census_data[u'estimate'] * node_census_data[u'under_5_rate'] * 0.01) - diff
+            node_census_data[u'estimate'] * node_census_data[u'under_5_rate'] * 0.01)
+        u1_numerator += diff
 
         dataframe.loc[node[u'id'], u'U1 Performance'] = (u1_numerator / u1_denominator) * 100
         dataframe.loc[node[u'id'], u'U5 Performance'] = (u5_numerator / u5_denominator) * 100
