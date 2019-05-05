@@ -45,6 +45,7 @@ RANKINGS = [
 extracted_fields = {field: Func(F("data"), Value("$." + field), function="JSON_EXTRACT") for field in FIELD_MAP.keys()}
 extracted_fields_sum = {field: Sum(Func(F("data"), Value("$." + field), function="JSON_EXTRACT")) for field in FIELD_MAP.keys()}
 
+
 def death_report_summary(queryset):
     items = queryset.annotate(
         lga=F('location__name'),
@@ -58,6 +59,7 @@ def death_report_summary(queryset):
             df[k] = df.eval(FORMULAS[k])
     return df
 
+
 def compute_rankings(dataframe):
     dataframe_with_rankings = dataframe.copy()
     for ranking in RANKINGS:
@@ -68,11 +70,13 @@ def compute_rankings(dataframe):
             dataframe_with_rankings[new_col] = ranking_df[col]
     return dataframe_with_rankings
 
+
 def death_report_periods(queryset):
     return queryset.annotate(
         year=Func(F('date'), function='YEAR'),
         month=Func(F('date'), function='MONTH'),
     ).values('year', 'month').order_by('-year').annotate(max_year=Max('year')).values_list('year', 'month')
+
 
 def death_report_period_url(period):
     period_date = date(year=period[0], month=period[1], day=1)

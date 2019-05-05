@@ -4,6 +4,7 @@ from dr import views
 
 urlpatterns = [
     url(r'^$', views.dashboard, name='dashboard'),
+    url(r'^(?P<year>\d{4})/$', views.dashboard, name='dashboard_with_year'),
     url(r'^(?P<year>\d{4})/(?P<month>\d{1,2})$', views.dashboard, name='dashboard_with_period'),
     url(r'reports/(?P<pk>\d+)/?$', views.DeathReportUpdateView.as_view(),
         name=u'dr_report_edit'),

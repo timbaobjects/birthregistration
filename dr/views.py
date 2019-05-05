@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import calendar
 from datetime import date
 import os
 
@@ -26,16 +27,25 @@ PROTECTED_VIEW_PERMISSION = u'dr.change_deathreport'
 def dashboard(request, year=None, month=None):
     context = {}
     qs = DeathReport.objects.all()
-    if year and month:
-        period = date(year=int(year), month=int(month), day=1)
-        qs = qs.filter(date__year=period.year, date__month=period.month)
-    else:
-        period = None
+    period = None
+
+    reporting_periods = list(death_report_periods(qs))
+    max_year = reporting_periods[0][0]
+    min_year = reporting_periods[-1][0]
+    year_range = list(range(min_year, max_year + 1))
+
+    try:
+        if year and month:
+            period = date(year=int(year), month=int(month), day=1)
+            qs = qs.filter(date__year=period.year, date__month=period.month)
+        else:
+            if year:
+                period = date(year=int(year), month=1, day=1)
+                qs = qs.filter(date__year=period.year)
+    except ValueError:
+        pass
 
     df = death_report_summary(qs)
-    period_urls = map(
-        lambda p: death_report_period_url(p),
-        death_report_periods(DeathReport.objects.all()))
 
     if not df.empty:
         general_data = df.groupby('country').sum().astype('int')
@@ -69,11 +79,15 @@ def dashboard(request, year=None, month=None):
             'male_hiv':       general_data.ix[0]['male_hiv'],
             'male_others':    general_data.ix[0]['male_others'],
 
-            'period_urls': period_urls,
-            'period': period,
+            'year_range': year_range,
+            'year': period.year if period else None,
+            'month': calendar.month_abbr[period.month] if (period and month) else None
         }
 
         context['states_data'] = []
+        context['month_info'] = [
+            (i, calendar.month_abbr[i]) for i in range(1, 13)
+        ]
 
         for state in sorted(states_data.index):
             data = {'state': state}
