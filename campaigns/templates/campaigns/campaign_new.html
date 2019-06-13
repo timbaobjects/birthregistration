@@ -49,9 +49,9 @@
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label for="{{ form.locations.id_for_label }}" class="col-md-3 form-control-label text-md-right">Locations</label>
+                            <label for="locations" class="col-md-3 form-control-label text-md-right">Locations</label>
                             <div class="col-md-4">
-                              <select class="select2 form-control" id="{{ form.locations.id_for_label }}" name="{{ form.locations.name }}" data-placeholder="Locations">
+                              <select class="select2 form-control" id="locations" name="{{ form.locations.name }}" data-placeholder="Locations">
                             </select>
                             </div>
                         </div>
@@ -97,7 +97,7 @@
       format: 'MM/DD/YYYY'
     });
 
-    $('#{{ form.locations.id_for_label }}').select2({
+    $('#locations').select2({
       ajax: {
           url: endpoint,
           data: function(params) {
