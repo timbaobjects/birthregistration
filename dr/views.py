@@ -20,6 +20,8 @@ from dr.filters import DeathReportFilter
 from dr.forms import DeathReportForm, DeathReportDeleteForm
 from dr.helpers import death_report_summary, compute_rankings, death_report_periods, death_report_period_url
 from dr.models import DeathReport
+from dr.utils import generate_reporting_periods
+
 
 PROTECTED_VIEW_PERMISSION = u'dr.change_deathreport'
 
@@ -29,10 +31,7 @@ def dashboard(request, year=None, month=None):
     qs = DeathReport.objects.all()
     period = None
 
-    reporting_periods = list(death_report_periods(qs))
-    max_year = reporting_periods[0][0]
-    min_year = reporting_periods[-1][0]
-    year_range = list(range(min_year, max_year + 1))
+    reporting_periods = generate_reporting_periods()
 
     try:
         if year and month:
@@ -79,8 +78,8 @@ def dashboard(request, year=None, month=None):
             'male_hiv':       general_data.ix[0]['male_hiv'],
             'male_others':    general_data.ix[0]['male_others'],
 
-            'year_range': year_range,
-            'year': period.year if period else None,
+            'reporting_periods': reporting_periods,
+            'year': period.year if period else date.today().year,
             'month': calendar.month_abbr[period.month] if (period and month) else None
         }
 
