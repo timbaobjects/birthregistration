@@ -62,15 +62,15 @@
         </ul>
       </div>
     </nav>
-    
+
     <div class="text-muted">
       <div class="container pb-4">
         <div class="row">
           <div class="col-sm-12">
             {% if month and year %}
-            <h3>Summary for {{ month }} {{ year }}</h3>
+            <h3 class="m-3">Summary for {{ month }} {{ year }}</h3>
             {% else %}
-            <h3>Summary for {{ year }}</h3>
+            <h3 class="m-3">Summary for {{ year }}</h3>
             {% endif %}
           </div>
         </div>
@@ -274,7 +274,14 @@
           filename = 'dr-summary-' + year;
         else
           filename = 'dr-summary';
-        var elt = document.getElementById('data-table');
+
+        // clone the table
+        var elt = document.getElementById('data-table').cloneNode(true);
+        var abbrRow = elt.children[0].children[2];
+        for (var i = 0; i < abbrRow.cells.length; i++) {
+          var cell = abbrRow.cells[i];
+          cell.innerText = cell.children[0].dataset.originalTitle;
+        }
         var wb = XLSX.utils.table_to_book(elt, {sheet:"DR export"});
         return dl ?
           XLSX.write(wb, {bookType:type, bookSST:true, type: 'base64'}) :
