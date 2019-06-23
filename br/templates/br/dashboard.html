@@ -1,9 +1,41 @@
-{% extends 'base/layout.html' %}{% load br_analysis_tags static humanize %}
+{% extends 'base/layout.html' %}{% load br_dashboard_tags static humanize %}
 {% block title %}Birth Registration Statistics · {{ location.name|lower|title }}{% endblock %}
 {% block loginblock %}<li><a class="dropdown-item" href="{% url 'user-login' %}?next={% url 'br:dashboard' %}"><i class="fa fa-sign-in"></i> &nbsp; Log In</a></li>{% endblock %}
 {% block usermenu %}
 {% include 'common/usermenu.html' %}
 {% endblock %}
+{% block stylesheets %}
+<link rel="stylesheet" href="{% static "base/vendor/leaflet/leaflet.css" %}">
+<link rel="stylesheet" href="{% static "base/vendor/leaflet-easybutton/easy-button.css" %}">
+<style>
+.info {
+    padding: 6px 8px;
+    font: 14px/16px Arial, Helvetica, sans-serif;
+    background: white;
+    background: rgba(255,255,255,0.8);
+    box-shadow: 0 0 15px rgba(0,0,0,0.2);
+    border-radius: 5px;
+}
+.info h4 {
+    margin: 0 0 5px;
+    color: #777;
+}
+.legend {
+    line-height: 18px;
+    color: #555;
+}
+.legend i {
+    width: 18px;
+    height: 18px;
+    float: left;
+    margin-right: 8px;
+    opacity: 0.7;
+}
+.easy-map-button {
+    font-size: 1.5em;
+}
+</style>
+{% endblock stylesheets %}
 {% block masthead %}
 <div class="row">
     <div class="col-lg-4 title">
@@ -51,7 +83,7 @@
                 </ul>
             </li>
             <li class="nav-item">
-                <form action="" method="GET" id="export"><input type="hidden" name="export" value="✓" /><a href="javascript:;" id="export_button" class="nav-link">Export</a></form>
+                <form action="{{ request.get_full_path }}" method="GET" id="export"><input type="hidden" name="export" value="✓">{% if cumulative %}<input type="hidden" name="cumulative" value="1">{% endif %}<a href="javascript:;" id="export_button" class="nav-link">Export</a></form>
             </li>
         </ul>
     </div>
@@ -66,7 +98,7 @@
                     <div class="row windget-padding-md">
                         <div class="col-xs-12 text-xs-center gen-stats">
                             <h6 class="text-white display-inline-block fw-normal">Under 1</h6>
-                            <p class="h5 fw-normal text-white">{{ dataframe_summary.below1.sum|intcomma }}</p>
+                            <p class="h5 fw-normal text-white">{{ summary_data.u1|br_default|intcomma }}</p>
                         </div>
                     </div>
                 </div>
@@ -74,11 +106,11 @@
                     <div class="row windget-padding-md">
                         <div class="col-xs-6 text-xs-center gen-stats">
                             <h6 class="display-inline-block fw-normal">Girls</h6>
-                            <p class="h5 fw-normal">{{ dataframe_summary.girls_below1.sum|intcomma }}</p>
+                            <p class="h5 fw-normal">{{ summary_data.girls_below1|br_default|intcomma }}</p>
                         </div>
                         <div class="col-xs-6 text-xs-center gen-stats">
                             <h6 class="display-inline-block fw-normal">Boys</h6>
-                            <p class="h5 fw-normal">{{ dataframe_summary.boys_below1.sum|intcomma }}</p>
+                            <p class="h5 fw-normal">{{ summary_data.boys_below1|br_default|intcomma }}</p>
                         </div>
                     </div>
                 </div>
@@ -92,7 +124,7 @@
                     <div class="row windget-padding-md">
                         <div class="col-xs-12 text-xs-center gen-stats">
                             <h6 class="text-white display-inline-block fw-normal">Under 5</h6>
-                            <p class="h5 fw-normal text-white">{{ dataframe_summary.below1.sum|add:dataframe_summary.1to4.sum|intcomma }}</p>
+                            <p class="h5 fw-normal text-white">{{ summary_data.u5|br_default|intcomma }}</p>
                         </div>
                     </div>
                 </div>
@@ -100,11 +132,11 @@
                     <div class="row windget-padding-md">
                         <div class="col-xs-6 text-xs-center gen-stats">
                             <h6 class="display-inline-block fw-normal">Girls</h6>
-                            <p class="h5 fw-normal">{{ dataframe_summary.girls_below1.sum|add:dataframe_summary.girls_1to4.sum|intcomma }}</p>
+                            <p class="h5 fw-normal">{{ summary_data.u5_girls|br_default|intcomma }}</p>
                         </div>
                         <div class="col-xs-6 text-xs-center gen-stats">
                             <h6 class="display-inline-block fw-normal">Boys</h6>
-                            <p class="h5 fw-normal">{{ dataframe_summary.boys_below1.sum|add:dataframe_summary.boys_1to4.sum|intcomma }}</p>
+                            <p class="h5 fw-normal">{{ summary_data.u5_boys|br_default|intcomma }}</p>
                         </div>
                     </div>
                 </div>
@@ -120,7 +152,7 @@
                     <div class="row windget-padding-md">
                         <div class="col-xs-12 text-xs-center gen-stats">
                             <h6 class="text-white display-inline-block fw-normal">Above 5</h6>
-                            <p class="h5 fw-normal text-white">{{ dataframe_summary.above5.sum|intcomma }}</p>
+                            <p class="h5 fw-normal text-white">{{ summary_data.five_plus|br_default|intcomma }}</p>
                         </div>
                     </div>
                 </div>
@@ -128,11 +160,11 @@
                     <div class="row windget-padding-md">
                         <div class="col-xs-6 text-xs-center gen-stats">
                             <h6 class="display-inline-block fw-normal">Girls</h6>
-                            <p class="h5 fw-normal">{{ dataframe_summary.girls_above5.sum|intcomma }}</p>
+                            <p class="h5 fw-normal">{{ summary_data.girls_five_plus|br_default|intcomma }}</p>
                         </div>
                         <div class="col-xs-6 text-xs-center gen-stats">
                             <h6 class="display-inline-block fw-normal">Boys</h6>
-                            <p class="h5 fw-normal">{{ dataframe_summary.boys_above5.sum|intcomma }}</p>
+                            <p class="h5 fw-normal">{{ summary_data.boys_five_plus|br_default|intcomma }}</p>
                         </div>
                     </div>
                 </div>
@@ -145,8 +177,8 @@
                 <div class="col-xs-12 bg-primary btlr bblr">
                     <div class="row windget-padding-md">
                         <div class="col-xs-12 text-xs-center gen-stats">
-                            <h6 class="text-white display-inline-block fw-normal">Centers reporting</h6>
-                            <p class="h5 fw-normal text-white">{{ location_count|intcomma }}</p>
+                            <h6 class="text-white display-inline-block fw-normal">Centre coverage</h6>
+                            <p class="h5 fw-normal text-white">{{ reporting_location_count|intcomma }} / {{ location.center_count|intcomma }}</p>
                         </div>
                     </div>
                 </div>
@@ -155,11 +187,11 @@
     </div>
 </div>
 {% if not cumulative %}
-<div class="row">
+<div class="row" id="map-container" data-map='{{ map_data }}'>
     <div class="col-lg-6">
         <section class="widget bg-body">
             <div class="card bg-body">
-                <h3 class="card-title"><span class="fw-semi-bold">Under 1</span> Performance ({% location_performance_pct location dataframe_summary year month 'below1' %}%)</h3>
+                <h3 class="card-title"><span class="fw-semi-bold">Under 1</span> Performance ({{ u1_performance|default_if_none:'0' }}%)</h3>
             </div>
             <div class="card map-container bg-body-light">
                 <div id="under1_map" class="content-map"></div>
@@ -169,7 +201,7 @@
     <div class="col-lg-6">
         <section class="widget bg-body">
             <div class="card bg-body">
-                <h3 class="card-title"><span class="fw-semi-bold">Under 5</span> Performance ({% location_performance_pct location dataframe_summary year month '1to4' %}%)</h3>
+                <h3 class="card-title"><span class="fw-semi-bold">Under 5</span> Performance ({{ u5_performance|default_if_none:'0' }}%)</h3>
             </div>
             <div class="card map-container bg-body-light">
                 <div id="under5_map" class="content-map"></div>
@@ -199,7 +231,7 @@
                             {% endif %}
                         </tr>
                         <tr>
-                            <th>{% if location.node.type == 'Country' %}State{% else %}LGA{% endif %}</th>
+                            <th>{% if level == 'country' %}State{% else %}LGA{% endif %}</th>
                             <th>Boys</th>
                             <th>Girls</th>
                             <th>Total</th>
@@ -223,90 +255,11 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% with location.node as parent_node %}
-                        {% if parent_node.type == 'Country' %}
-                        {% for state_node in parent_node|subnodes:'State'|dictsort:'name' %}
-                        <tr>
-                            <td>{{ state_node.name|lower|title }}</td>
-                            <td>{{ dataframe_summary|ix:state_node.name|ix:"boys_below1"|br_default|intcomma }}</td>
-                            <td>{{ dataframe_summary|ix:state_node.name|ix:"girls_below1"|br_default|intcomma }}</td>
-                            <td>{{ dataframe_summary|ix:state_node.name|ix:"below1"|br_default|intcomma }}</td>
-                            <td>&nbsp;</td>
-                            <td>{{ dataframe_summary|ix:state_node.name|ix:"boys_1to4"|br_default|intcomma }}</td>
-                            <td>{{ dataframe_summary|ix:state_node.name|ix:"girls_1to4"|br_default|intcomma }}</td>
-                            <td>{{ dataframe_summary|ix:state_node.name|ix:"1to4"|br_default|intcomma }}</td>
-                            <td>&nbsp;</td>
-                            <td>{{ dataframe_summary|ix:state_node.name|ix:"boys_above5"|br_default|intcomma }}</td>
-                            <td>{{ dataframe_summary|ix:state_node.name|ix:"girls_above5"|br_default|intcomma }}</td>
-                            <td>{{ dataframe_summary|ix:state_node.name|ix:"above5"|br_default|intcomma }}</td>
-                            <td>&nbsp;</td>
-                            <td>{{ dataframe_summary|ix:state_node.name|ix:"boys"|br_default|intcomma }}</td>
-                            <td>{{ dataframe_summary|ix:state_node.name|ix:"girls"|br_default|intcomma }}</td>
-                            <td>{{ dataframe_summary|ix:state_node.name|ix:"total"|br_default|intcomma }}</td>
-                            {% if not cumulative %}
-                            <td>&nbsp;</td>
-                            <td><span class="label {% performance_class dataframe_summary state_node.name location state_node.id year month 'below1' %}">{% performance_pct dataframe_summary state_node.name location state_node.id year month "below1" %}%</span></td>
-                            <td><span class="label {% performance_class dataframe_summary state_node.name location state_node.id year month '1to4' %}">{% performance_pct dataframe_summary state_node.name location state_node.id year month '1to4' %}%</span></td>
-                            {% endif %}
-                        </tr>
-                        {% endfor %}
-                        {% else %}
-                        {% for lga_node in parent_node|subnodes:'LGA'|dictsort:'name' %}
-                        {% with lga_data=dataframe_summary|ix:lga_node.name %}
-                        <tr>
-                            <th>{{ lga_node.name|title }}</th>
-                            <th>{{ lga_data.boys_below1.sum|br_default|intcomma }}</th>
-                            <th>{{ lga_data.girls_below1.sum|br_default|intcomma }}</th>
-                            <th>{{ lga_data.below1.sum|br_default|intcomma }}</th>
-                            <th>&nbsp;</th>
-                            <th>{{ lga_data.boys_1to4.sum|br_default|intcomma }}</th>
-                            <th>{{ lga_data.girls_1to4.sum|br_default|intcomma }}</th>
-                            <th>{{ lga_data.1to4.sum|br_default|intcomma }}</th>
-                            <th>&nbsp;</th>
-                            <th>{{ lga_data.boys_above5.sum|br_default|intcomma }}</th>
-                            <th>{{ lga_data.girls_above5.sum|br_default|intcomma }}</th>
-                            <th>{{ lga_data.above5.sum|br_default|intcomma }}</th>
-                            <th>&nbsp;</th>
-                            <th>{{ lga_data.boys.sum|br_default|intcomma }}</th>
-                            <th>{{ lga_data.girls.sum|br_default|intcomma }}</th>
-                            <th>{{ lga_data.total.sum|br_default|intcomma }}</th>
-                            {% if not cumulative %}
-                            <td>&nbsp;</td>
-                            <th><span class="label {% performance_class dataframe_summary lga_node.name location lga_node.id year month 'below1' %}">{% performance_pct dataframe_summary lga_node.name location lga_node.id year month "below1" %}%</span></th>
-                            <th><span class="label {% performance_class dataframe_summary lga_node.name location lga_node.id year month '1to4' %}">{% performance_pct dataframe_summary lga_node.name location lga_node.id year month '1to4' %}%</span></th>
-                            {% endif %}
-                        </tr>
-                        {% for center_node in lga_node|subnodes:'RC'|dictsort:'name' %}
-                        <tr>
-                            <th>{{ center_node.name|title }}</th>
-                            {% with center_data=lga_data|ix:center_node.name %}
-                            <td>{{ center_data.boys_below1|br_default|intcomma }}</td>
-                            <td>{{ center_data.girls_below1|br_default|intcomma }}</td>
-                            <td>{{ center_data.below1|br_default|intcomma }}</td>
-                            <td></td>
-                            <td>{{ center_data.boys_1to4|br_default|intcomma }}</td>
-                            <td>{{ center_data.girls_1to4|br_default|intcomma }}</td>
-                            <td>{{ center_data.1to4|br_default|intcomma }}</td>
-                            <td></td>
-                            <td>{{ center_data.boys_above5|br_default|intcomma }}</td>
-                            <td>{{ center_data.girls_above5|br_default|intcomma }}</td>
-                            <td>{{ center_data.above5|br_default|intcomma }}</td>
-                            <td></td>
-                            <td>{{ center_data.boys|br_default|intcomma }}</td>
-                            <td>{{ center_data.girls|br_default|intcomma }}</td>
-                            <td>{{ center_data.total|br_default|intcomma }}</td>
-                            {% if not cumulative %}
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            {% endif %}
-                            {% endwith %}
-                        </tr>
-                        {% endfor %}
-                        {% endwith %}
-                        {% endfor %}
-                        {% endif %}
-                        {% endwith %}
+                    {% if level == 'country' %}
+                    {% include 'br/national_table.html' %}
+                    {% else %}
+                    {% include 'br/state_table.html' %}
+                    {% endif %}
                     </tbody>
                 </table>
             </div>
@@ -316,24 +269,11 @@
 {% endblock content %}
 {% block scripts %}
 {{ block.super }}
-<script src="{% static "base/vendor/d3/d3.js" %}"></script>
-<script src="{% static "base/vendor/nvd3/build/nv.d3.js" %}"></script>
-<script src="{% static "base/vendor/jvectormap/jquery-jvectormap-2.0.3.min.js" %}"></script>
-<script src="{% static "base/js/ng-states.js" %}"></script>
-<script src="{% static "base/js/ng-lgas.js" %}"></script>
+<script src="{% static "base/vendor/leaflet/leaflet.js" %}"></script>
+<script src="{% static "base/vendor/leaflet-easybutton/easy-button.js" %}"></script>
 <script src="{% static "js/Uri.js" %}"></script>
-<script type="text/javascript">
-var under1_data = {
-{% with location.node as parent_node %}{% if parent_node.type == 'Country' %}{% for state_node in parent_node|subnodes:'State'|dictsort:'name' %}
-    "{{ location_codes|get_item:state_node.name }}": {% performance_pct dataframe_summary state_node.name location state_node.id year month "below1" %},{% endfor %}{% else %}{% for lga_node in parent_node|subnodes:'LGA' %}
-    "{{ location_codes|get_item:lga_node.name }}": {% performance_pct dataframe_summary lga_node.name location lga_node.id year month "below1" %},{% endfor %}{% endif %}{% endwith %}
-}
-var under5_data = {
-{% with location.node as parent_node %}{% if parent_node.type == 'Country' %}{% for state_node in parent_node|subnodes:'State'|dictsort:'name' %}
-    "{{ location_codes|get_item:state_node.name }}": {% performance_pct dataframe_summary state_node.name location state_node.id year month "1to4" %},{% endfor %}{% else %}{% for lga_node in parent_node|subnodes:'LGA' %}
-    "{{ location_codes|get_item:lga_node.name }}": {% performance_pct dataframe_summary lga_node.name location lga_node.id year month "1to4" %},{% endfor %}{% endif %}{% endwith %}
-}
-$(function () {
+<script>
+var loader = function() {
     $('#export_button').click(function () {
         $('#export').submit();
     });
@@ -354,81 +294,148 @@ $(function () {
         window.location.href = uri.toString();
     });
 
-    var normalizePerformance = function (performance) {
-        if (performance < 26)
-            return 0;
-        else if ((performance >= 26) && (performance < 50))
-            return 1;
-        else if ((performance >= 50) && (performance < 60))
-            return 2;
-        else if ((performance >= 60) && (performance < 70))
-            return 3;
+    // extract performance from HTML
+    var performanceData = JSON.parse(document.getElementById('map-container').dataset.map);
+
+    // URL to pull map data from
+    var mapSource = {% if level == 'country' %}"{% static "base/js/nga-states-mod.json" %}"{% else %}"{% static "base/js/nga-lgas-mod.json" %}"{% endif %};
+
+    // the property that contains the location name
+    var layerProp = {% if level == 'country' %}'admin1name'{% else %}'admin2name'{% endif %};
+
+    // create both maps and add OSM layers
+    var topLeft = L.latLng([2.69170169436, 4.24059418377]);
+    var bottomRight = L.latLng([14.5771777686, 13.8659239771]);
+    var u1Map = L.map('under1_map', {
+        zoom: 5
+      })
+      .fitBounds(L.latLngBounds(topLeft, bottomRight));
+    var u5Map = L.map('under5_map', {
+        zoom: 5
+      })
+      .fitBounds(L.latLngBounds(topLeft, bottomRight));
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png?{foo}', {foo: 'bar', attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'}).addTo(u1Map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png?{foo}', {foo: 'bar', attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'}).addTo(u5Map);
+
+    var getColour = function(x) {
+        if (x > 70)
+          return '#73d216';
+        else if (x > 60)
+          return '#a5db2d';
+        else if (x > 50)
+          return '#d2e23f';
+        else if (x > 30)
+          return '#fdc344';
+        else if (x >= 0)
+          return '#ef2929';
         else
-            return 4;
+          return '#dcdcdc';
+    };
+
+    var legendU1 = L.control({position: 'bottomright'});
+    var legendU5 = L.control({position: 'bottomright'});
+
+    var legendAddHandler = function (map) {
+        var div = L.DomUtil.create('div', 'info legend'),
+            grades = [-1, 0, 30, 50, 60, 70],
+            labels = ['unused', '0-29', '30-49', '50-59', '60-69', '70+'];
+        for (var i = 0; i < grades.length; i++) {
+            var colour = i > 0 ? getColour(grades[i] + 1) : getColour(grades[i]);
+            div.innerHTML += '<i style="background:' + colour + '"></i> '
+                + labels[i] + '<br>';
+        }
+
+        return div;
+    };
+
+    legendU1.onAdd = legendAddHandler;
+    legendU5.onAdd = legendAddHandler;
+
+    legendU1.addTo(u1Map);
+    legendU5.addTo(u5Map);
+
+    // replace these two with a partially-applied function, perhaps?
+    function styleUnder1(feature) {
+        return {
+          fillColor: getColour(feature.properties.u1_performance),
+          weight: 1,
+          opacity: 1,
+          color: 'white',
+          // dashArray: '3',
+          fillOpacity: 0.7
+        }
+    }
+    function styleUnder5(feature) {
+        return {
+          fillColor: getColour(feature.properties.u5_performance),
+          weight: 1,
+          opacity: 1,
+          color: 'white',
+          fillOpacity: 0.7
+        }
     }
 
-{% if not cumulative %}
-    function initMap() {
-        $('#under1_map').vectorMap({
-            map: '{% if location.type.name == "Country" %}states_merc{% else %}lgas_merc{% endif %}',
-            backgroundColor: '#eee',
-            zoomMin:0.85,
-            regionStyle: {
-                initial: {
-                    fill: Sing.colors['gray-light']
-                }
-            },
-            focusOn: [{% for code in location_codes.values %}"{{ code }}",{% endfor %}],
-            series: {
-                regions: [{
-                    min: 0, max: 100,
-                    values: under1_data,
-                    // scale: ['#ef2929', '#fcaf3e', '#8ae234'],
-                    scale: ['#ef2929', '#fdc344', '#d2e23f', '#a5db2d', '#73d216'],
-                    normalizeFunction: normalizePerformance,
-                    legend: {
-                        vertical: false,
-                        title: 'Performance'
-                    }
-                }]
-            },
-            onRegionTipShow: function(e, el, code){
-                if (under1_data[code] !== undefined)
-                    el.html(el.html()+' ('+ under1_data[code] +'%)');
-            }
-        });
-        $('#under5_map').vectorMap({
-            map: '{% if location.type.name == "Country" %}states_merc{% else %}lgas_merc{% endif %}',
-            backgroundColor: '#eee',
-            regionStyle: {
-                initial: {
-                    fill: Sing.colors['gray-light']
-                }
-            },
-            focusOn: [{% for code in location_codes.values %}"{{ code }}",{% endfor %}],
-            series: {
-                regions: [{
-                    min: 0, max: 100,
-                    values: under5_data,
-                    // scale: ['#ef2929', '#fcaf3e', '#8ae234'],
-                    scale: ['#ef2929', '#fdc344', '#d2e23f', '#a5db2d', '#73d216'],
-                    normalizeFunction: normalizePerformance,
-                    legend: {
-                        vertical: false,
-                        title: 'Performance'
-                    }
-                }]
-            },
-            onRegionTipShow: function(e, el, code){
-                if (under5_data[code] !== undefined)
-                    el.html(el.html()+' ('+ under5_data[code] +'%)');
-            }
-        });
-    }
+    $.getJSON(mapSource, function (data) {
+        // this 'layer' is just so we can zoom to the area of interest
+        var zoomExtentsLayer = {
+            type: 'FeatureCollection',
+            features: []
+        };
+        // this one is the real GeoJSON
+        var geoJSONData = {
+            type: 'FeatureCollection',
+            features: data.features.map(
+                function (feature) {
+                    var featurePerfData = performanceData[feature.properties.dbid];
+                    if (featurePerfData) {
+                        // we're interested in its performance, add to the
+                        // zoom extents layer
+                        zoomExtentsLayer.features.push(feature);
 
-    initMap();
-    SingApp.onPageLoad(initMap);
-{% endif %}
-});
-</script>
+                        // add in the performance data
+                        feature.properties.u1_performance = featurePerfData[0];
+                        feature.properties.u5_performance = featurePerfData[1];
+                    }
+                    else {
+                        feature.properties.u1_performance = -1;
+                        feature.properties.u5_performance = -1;
+                    }
+                    return feature;
+                })
+        };
+
+        // add the GeoJSON layers for U1 and U5 performance, and for each of them
+        // activate a tooltip with the name of the location and the performance
+        // (if there's a performance value for that feature/location)
+        L.geoJSON(
+            geoJSONData, {style: styleUnder1}
+        ).bindTooltip(function (layer) {
+            if (layer.feature.properties.u1_performance == -1)
+                return layer.feature.properties[layerProp];
+            return layer.feature.properties[layerProp] + ': ' + layer.feature.properties.u1_performance + '%';
+        }).addTo(u1Map);
+        L.geoJSON(
+            geoJSONData, {style: styleUnder5}
+        ).bindTooltip(function (layer) {
+            if (layer.feature.properties.u5_performance == -1)
+                return layer.feature.properties[layerProp];
+            return layer.feature.properties[layerProp] + ': ' + layer.feature.properties.u5_performance + '%';
+        }).addTo(u5Map);
+
+        // zoom to the AOI
+        var zoomHelper = L.geoJSON(zoomExtentsLayer);
+        u1Map.fitBounds(zoomHelper.getBounds());
+        u5Map.fitBounds(zoomHelper.getBounds());
+
+        var resetZoomU1 = L.easyButton('<span class="easy-map-button">&target;</span>', function() {
+            u1Map.fitBounds(zoomHelper.getBounds());
+        }).addTo(u1Map);
+        var resetZoomU5 = L.easyButton('<span class="easy-map-button">&target;</span>', function() {
+            u5Map.fitBounds(zoomHelper.getBounds());
+        }).addTo(u5Map);
+    });
+};
+
+document.addEventListener('DOMContentLoaded', loader);
+</script> 
 {% endblock %}

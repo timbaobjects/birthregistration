@@ -1,0 +1,52 @@
+{% load br_dashboard_tags static humanize %}{% for record, is_header in table_data %}
+{% if is_header %}
+<tr>
+  <th>{{ record.lga }}</th>
+  <th>{{ record.boys_below1|br_default|intcomma }}</th>
+  <th>{{ record.girls_below1|br_default|intcomma }}</th>
+  <th>{{ record.u1|br_default|intcomma }}</th>
+  <th>&nbsp;</th>
+  <th>{{ record.boys_1to4|br_default|intcomma }}</th>
+  <th>{{ record.girls_1to4|br_default|intcomma }}</th>
+  <th>{{ record.one_to_four|br_default|intcomma }}</th>
+  <th>&nbsp;</th>
+  <th>{{ record.boys_five_plus|br_default|intcomma }}</th>
+  <th>{{ record.girls_five_plus|br_default|intcomma }}</th>
+  <th>{{ record.five_plus|br_default|intcomma }}</th>
+  <th>&nbsp;</th>
+  <th>{{ record.boys|br_default|intcomma }}</th>
+  <th>{{ record.girls|br_default|intcomma }}</th>
+  <th>{{ record.total|br_default|intcomma }}</th>
+  <th>&nbsp;</th>
+  {% if not cumulative %}
+  <th><span class="label {% performance_class record.u1_performance %}">{% performance_pct record.u1_performance %}%</span></th>
+  <th><span class="label {% performance_class record.u5_performance %}">{% performance_pct record.u5_performance %}%</span></th>
+  {% endif %}
+</tr>
+{% else %}
+<tr>
+  <td>{{ record.rc }}</td>
+  <td>{{ record.boys_below1|br_default|intcomma }}</td>
+  <td>{{ record.girls_below1|br_default|intcomma }}</td>
+  <td>{{ record.u1|br_default|intcomma }}</td>
+  <td>&nbsp;</td>
+  <td>{{ record.boys_1to4|br_default|intcomma }}</td>
+  <td>{{ record.girls_1to4|br_default|intcomma }}</td>
+  <td>{{ record.one_to_four|br_default|intcomma }}</td>
+  <td>&nbsp;</td>
+  <td>{{ record.boys_five_plus|br_default|intcomma }}</td>
+  <td>{{ record.girls_five_plus|br_default|intcomma }}</td>
+  <td>{{ record.five_plus|br_default|intcomma }}</td>
+  <td>&nbsp;</td>
+  <td>{{ record.boys|br_default|intcomma }}</td>
+  <td>{{ record.girls|br_default|intcomma }}</td>
+  <td>{{ record.total|br_default|intcomma }}</td>
+  <td>&nbsp;</td>
+  {% if not cumulative %}
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  <td>&nbsp;</td>
+  {% endif %}
+</tr>
+{% endif %}
+{% endfor %}

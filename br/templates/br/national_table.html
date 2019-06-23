@@ -1,0 +1,25 @@
+{% load br_dashboard_tags static humanize %}{% for record in table_data %}
+<tr>
+  <td>{{ record.state }}</td>
+  <td>{{ record.boys_below1|br_default|intcomma }}</td>
+  <td>{{ record.girls_below1|br_default|intcomma }}</td>
+  <td>{{ record.u1|br_default|intcomma }}</td>
+  <td>&nbsp;</td>
+  <td>{{ record.boys_1to4|br_default|intcomma }}</td>
+  <td>{{ record.girls_1to4|br_default|intcomma }}</td>
+  <td>{{ record.one_to_four|br_default|intcomma }}</td>
+  <td>&nbsp;</td>
+  <td>{{ record.boys_five_plus|br_default|intcomma }}</td>
+  <td>{{ record.girls_five_plus|br_default|intcomma }}</td>
+  <td>{{ record.five_plus|br_default|intcomma }}</td>
+  <td>&nbsp;</td>
+  <td>{{ record.boys|br_default|intcomma }}</td>
+  <td>{{ record.girls|br_default|intcomma }}</td>
+  <td>{{ record.total|br_default|intcomma }}</td>
+  <td>&nbsp;</td>
+  {% if not cumulative %}
+  <td><span class="label {% performance_class record.u1_performance %}">{% performance_pct record.u1_performance %}%</span></td>
+  <td><span class="label {% performance_class record.u5_performance %}">{% performance_pct record.u5_performance %}%</span></td>
+  {% endif %}
+</tr>
+{% endfor %}
