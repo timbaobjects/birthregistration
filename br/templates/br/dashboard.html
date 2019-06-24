@@ -427,10 +427,10 @@ var loader = function() {
         u1Map.fitBounds(zoomHelper.getBounds());
         u5Map.fitBounds(zoomHelper.getBounds());
 
-        var resetZoomU1 = L.easyButton('<span class="easy-map-button">&target;</span>', function() {
+        var resetZoomU1 = L.easyButton('<span class="easy-map-button" title="Reset view">&target;</span>', function() {
             u1Map.fitBounds(zoomHelper.getBounds());
         }).addTo(u1Map);
-        var resetZoomU5 = L.easyButton('<span class="easy-map-button">&target;</span>', function() {
+        var resetZoomU5 = L.easyButton('<span class="easy-map-button" title="Reset view">&target;</span>', function() {
             u5Map.fitBounds(zoomHelper.getBounds());
         }).addTo(u5Map);
     });
