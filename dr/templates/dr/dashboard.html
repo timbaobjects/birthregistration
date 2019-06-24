@@ -9,7 +9,6 @@
     <link rel="icon" href="">
     <title>Death Report Statistics</title>
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.11/c3.min.css" integrity="sha256-gl80aFE+bSTFw7UJf+ne/RkwC55cjidIp0Oe3AX5pfo=" crossorigin="anonymous" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css" integrity="sha256-PHcOkPmOshsMBC+vtJdVr5Mwb7r0LkSVJPlPrp/IMpU=" crossorigin="anonymous" />
     <link rel="stylesheet" href="{% static 'css/bootnavbar.css' %}">
     <style>
@@ -262,9 +261,8 @@
     <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.0/d3.min.js" integrity="sha256-dqMULkpKk8zC0jJ8tlqNHrS/4XneIex7kRQxO6OU8Xo=" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/c3/0.4.11/c3.min.js" integrity="sha256-mlJR4DaLFvEBAgHcavz/vASrM6RrzcQq2lXDBwMixZU=" crossorigin="anonymous"></script>
     <script src="{% static 'js/bootnavbar.js' %}"></script>
+    <script src="https://unpkg.com/apexcharts@3.8.1/dist/apexcharts.min.js" integrity="sha384-MCYd4NnI76F/U5GOvoFCG2siodAO8e5IplAv1NKujM2w4RRQwtaYF0kiiSqdxc78" crossorigin="anonymous"></script>
     <script>
       function doit(type, fn, dl) {
         var year = {{ year|default:"''" }};
@@ -295,99 +293,57 @@
       });
 
       Holder.addTheme("gray", { bg: '#eee', fg: '#aaa', text: 'No Data Available', size: '8pt', fontweight: 400 });
-{% if general_male or general_female %}
-      var general_gender = c3.generate({
-        bindto: "#general-gender",
-        data: {
-          columns: [
-            ['Male ({{ general_male|intcomma }})', {{ general_male }}],
-            ['Female ({{ general_female|intcomma }})', {{ general_female }}]
-          ],
+      var baseChartOptions = {
+        chart: {
+          toolbar: {
+            show: true,
+            download: true
+          },
           type: 'pie'
+        },
+        legend: {
+          position: 'bottom',
+          horizontalAlign: 'center',
+          onItemClick: { toggleDataSeries: true }
         }
-      });
+      };
+
+      var legendFormatter = function(seriesName, opts) {
+        return seriesName + ' (' + opts.w.globals.series[opts.seriesIndex] + ')';
+      };
+
+      function makeChart(selector, series, labels) {
+        var options = JSON.parse(JSON.stringify(baseChartOptions));
+        options.series = series;
+        options.labels = labels;
+        options.legend.formatter = legendFormatter;
+
+        var chart = new ApexCharts(document.querySelector(selector), options);
+        chart.render();
+
+        return chart;
+      }
+
+{% if general_male or general_female %}
+      var general_gender = makeChart('#general-gender', [{{ general_male }}, {{ general_female }}], ['Male', 'Female']);
 {% endif %}
 {% if general_certified or general_uncertified %}
-      var general_certification = c3.generate({
-        bindto: "#general-certification",
-        data: {
-          columns: [
-            ['Certified ({{ general_certified|intcomma }})', {{ general_certified }}],
-            ['Uncertified ({{ general_uncertified|intcomma }})', {{ general_uncertified }}]
-          ],
-          type: 'pie'
-        }
-      });
+      var general_certification = makeChart('#general-certification', [{{ general_certified }}, {{ general_uncertified }}], ['Certified', 'Uncertified']);
 {% endif %}
 {% if general_childbirth or general_fevers or general_accidents or general_hiv or general_others %}
-      var general_cause = c3.generate({
-        bindto: "#general-cause",
-        data: {
-          columns: [
-            ['Childbirth ({{ general_childbirth|intcomma }})', {{ general_childbirth }}],
-            ['Fevers/Typhoid ({{ general_fevers|intcomma }})', {{ general_fevers }}],
-            ['Accidents/Injuries ({{ general_accidents|intcomma }})', {{ general_accidents }}],
-            ['HIV/AIDS ({{ general_hiv|intcomma }})', {{ general_hiv }}],
-            ['Other Ailments ({{ general_others|intcomma }})', {{ general_others }}]
-          ],
-          type: 'pie'
-        }
-      });
+      var general_cause = makeChart('#general-cause', [{{ general_childbirth }}, {{ general_fevers }}, {{ general_accidents }}, {{ general_hiv }}, {{ general_others }} ], ['Childbirth', 'Fevers/Typhoid', 'Accidents/Injuries', 'HIV/AIDS', 'Other Ailments']);
 {% endif %}
 {% if male_1 or male_4 or male_5 %}
-      var male_age = c3.generate({
-        bindto: "#male-age",
-        data: {
-          columns: [
-            ['Aged below 1 year ({{ male_1|intcomma }})', {{ male_1 }}],
-            ['Aged 1 to 4 years ({{ male_4|intcomma }})', {{ male_4 }}],
-            ['Aged 5 years and above ({{ male_5|intcomma }})', {{ male_5 }}]
-          ],
-          type: 'pie'
-        }
-      });
+    var male_age = makeChart('#male-age', [{{ male_1 }}, {{ male_4 }}, {{ male_5 }}], ['Aged below 1 year', 'Aged 1 to 4 years', 'Aged 5 years and above']);
 {% endif %}
 {% if male_fevers or male_accidents or male_hiv or male_others %}
-      var male_cause = c3.generate({
-        bindto: "#male-cause",
-        data: {
-          columns: [
-            ['Fevers/Typhoid ({{ male_fevers|intcomma }})', {{ male_fevers }}],
-            ['Accidents/Injuries ({{ male_accidents|intcomma }})', {{ male_accidents }}],
-            ['HIV/AIDS ({{ male_hiv|intcomma }})', {{ male_hiv }}],
-            ['Other Ailments ({{ male_others|intcomma }})', {{ male_others }}]
-          ],
-          type: 'pie'
-        }
-      });
+      var male_cause = makeChart('#male-cause', [0, {{ male_fevers }}, {{ male_accidents }}, {{ male_hiv }}, {{ male_others }} ], ['Childbirth', 'Fevers/Typhoid', 'Accidents/Injuries', 'HIV/AIDS', 'Other Ailments']);
 {% endif %}
 {% if female_1 or female_4 or female_5 %}
-      var female_age = c3.generate({
-        bindto: "#female-age",
-        data: {
-          columns: [
-            ['Aged below 1 year ({{ female_1|intcomma }})', {{ female_1 }}],
-            ['Aged 1 to 4 years ({{ female_4|intcomma }})', {{ female_4 }}],
-            ['Aged 5 years and above ({{ female_5|intcomma }})', {{ female_5 }}]
-          ],
-          type: 'pie'
-        }
-      });
+      var female_age = makeChart('#female-age', [{{ female_1 }}, {{ female_4 }}, {{ female_5 }}], ['Aged below 1 year', 'Aged 1 to 4 years', 'Aged 5 years and above']);
 {% endif %}
 {% if female_childbirth or female_fevers or female_accidents or female_hiv or female_others %}
-      var female_cause = c3.generate({
-        bindto: "#female-cause",
-        data: {
-          columns: [
-            ['Childbirth ({{ female_childbirth|intcomma }})', {{ female_childbirth }}],
-            ['Fevers/Typhoid ({{ female_fevers|intcomma }})', {{ female_fevers }}],
-            ['Accidents/Injuries ({{ female_accidents|intcomma }})', {{ female_accidents }}],
-            ['HIV/AIDS ({{ female_hiv|intcomma }})', {{ female_hiv }}],
-            ['Other Ailments ({{ female_others|intcomma }})', {{ female_others }}]
-          ],
-          type: 'pie'
-        }
-      });
+      var female_cause = makeChart('#female-cause', [{{ female_childbirth }}, {{ female_fevers }}, {{ female_accidents }}, {{ female_hiv }}, {{ female_others }} ], ['Childbirth', 'Fevers/Typhoid', 'Accidents/Injuries', 'HIV/AIDS', 'Other Ailments']);
 {% endif %}
     </script>
   </body>
