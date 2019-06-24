@@ -70,7 +70,7 @@ def compute_performance(prior_u1_df, record):
     try:
         subset = prior_u1_df.loc[record.name]
     except KeyError:
-        return record.name, None, None
+        return record.name, None, None, None
 
     u1_performance = round(record['u1'] / record['u1_estimate'] * 100.0, 2)
     u5_performance = round(
