@@ -67,10 +67,13 @@ def compute_performance(prior_u1_df, record):
         performance as a tuple. If there is no prior U1 data,
         the last two will be None
     '''
-    try:
-        subset = prior_u1_df.loc[record.name]
-    except KeyError:
-        return record.name, None, None, None
+    if prior_u1_df.empty:
+        subset = {'u1': 0}
+    else:
+        try:
+            subset = prior_u1_df.loc[record.name]
+        except KeyError:
+            return record.name, None, None, None
 
     u1_performance = round(record['u1'] / record['u1_estimate'] * 100.0, 2)
     u5_performance = round(
