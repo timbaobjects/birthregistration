@@ -26,7 +26,7 @@
         {% endif %}
         <section class="widget">
             <div class="widget-body">
-                <form class="form-horizontal" role="form" method="post" id="app">{% csrf_token %}
+                <form class="form-horizontal" role="form" method="post" id="app" data-states='{{ states_data }}'>{% csrf_token %}
                     <fieldset>
                         <div class="alert alert-info">Creating <strong>{% verbatim %}{{ forms.length }}{% endverbatim %}</strong> centers</div>
                         <div>
@@ -54,42 +54,38 @@
 {% endblock content %}
 {% block scripts %}
 {{ block.super }}
-<script src="{% static "js/vendor/vue.js" %}"></script>
-<script type="text/x-template" id="lga-picker-template">
-    <select :name="lga_name" :state_id="state_id" class="form-control"></select>
-</script>
-<script type="text/x-template" id="center-form-template">
-    <div>
-        <div class="form-group row">
-            <label class="col-4 col-form-label" :for="form.name_id">Name:</label>
-            <div class="col-8"><input class="form-control" :name="form.name_name" :id="form.name_id"></input></div>
-        </div>
-        <div class="form-group row">
-            <label class="col-4 col-form-label" :for="form.state_id">State:</label>
-            <div class="col-8">
-                <select class="form-control" :name="form.state_name" :id="form.state_id" @change="onStateChoiceChange">
-                    <option value="">--- Select a state ---</option>
-                    {% for state in states %}<option value="{{ state.pk }}">{{ state.name }}</option>{% endfor %}
-                </select>
-            </div>
-        </div>
-        <div class="form-group row" v-if="form.selectedState">
-            <label class="col-4 col-form-label" :for="form.lga_id">LGA:</label>
-            <div class="col-8">
-                <lga-picker :state_id="form.selectedState" :lga_name="form.lga_name"></lga-picker>
-            </div>
-        </div>
-        <div class="form-group row">
-            <button class="btn btn-sm btn-danger" @click.prevent="onFormDelete">Delete</button>
+<template id="center-form-template">
+<div>
+    <div class="form-group row">
+        <label :for="form.name_id" class="col-sm-2 col-form-label">Name:</label>
+        <div class="col-sm-8"><input type="text" class="form-control" :name="form.name_name" :id="form.name_id"></div>
+    </div>
+    <div class="form-group row">
+        <label :for="form.state_id" class="col-sm-2 col-form-label">State:</label>
+        <div class="col-sm-8">
+            <select class="form-control" :name="form.state_name" :id="form.state_id" v-model="selectedState" @change="onStateChange">
+                <option v-for="state in form.stateChoices" :value="state.id">[[ state.name ]]</option>
+            </select>
         </div>
     </div>
-</script>
-<script type="text/javascript">
-(function() {
-  document.addEventListener('DOMContentLoaded', function() {
+    <div class="form-group row" v-if="displayLGA">
+        <label :for="form.lga_id" class="col-sm-2 col-form-label">LGA:</label>
+        <div class="col-sm-8">
+            <select class="form-control" :name="form.lga_name" :id="form.lga_id" v-model="selectedLGA">
+                <option v-for="choice in lgaChoices" :value="choice.id">[[ choice.name ]]</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group row"><div class="col-sm-2"><button class="btn btn-sm btn-danger" @click.prevent="onFormDelete">Delete this</button></div></div>
+</div>
+</template>
+<script src="{% static "js/vendor/vue.js" %}"></script>
+<script>
+var loader = function() {
     var endpoint = '{% url "api:location_list_typed" %}?type=lga';
-    var defaultLGAdata = [{id: '', name: '--- Select a LGA ---'}];
-    var eventBus = new Vue();
+    var defaultLGAChoices = [{id: null, name: '--- Select a LGA ---'}];
+    var states = JSON.parse(document.querySelector('#app').dataset.states);
+    var defaultState = [{id: null, name: '--- Select a state ---'}];
 
     var CenterForm = function (newId) {
         this.id = newId;
@@ -99,87 +95,51 @@
         this.state_id = 'id_' + this.state_name;
         this.lga_name = 'form-' + this.id + '-lga';
         this.lga_id = 'id_' + this.lga_name;
-        this.selectedState = null;
+        this.stateChoices = defaultState.concat(states);
     };
 
-    Vue.component('lga-picker', {
-        template: '#lga-picker-template',
-        props: ['state_id', 'lga_name'],
+    Vue.component('center-form', {
         computed: {
+            displayLGA: function() {
+                return (this.selectedState !== null);
+            },
             getLGAEndpoint: function() {
-                var url = endpoint + '&limit=100&parent=' + this.state_id;
+                var url = endpoint + '&limit=100&parent=' + this.selectedState;
 
                 return url;
             }
         },
+        data: function() {
+            return {
+                selectedState: null,
+                lgaChoices: defaultLGAChoices,
+                selectedLGA: null,
+            };
+        },
+        delimiters: ['[[', ']]'],
         methods: {
-            populateChoices: function() {
+            onFormDelete: function() {
+                this.$emit('delete', this.form);
+            },
+            onStateChange: function() {
                 var inst = this;
-                // clear existing option
-                for (var i = 0; i < inst.$el.options.length; i++)
-                    inst.$el.remove(0);
-                // add boilerplate option
-                var option = document.createElement('option');
-                option.value = '';
-                option.text = '--- Select a LGA ---';
-                inst.$el.add(option);
-
-                // load the remote data
+                inst.selectedLGA = null;
+                if (inst.selectedState === null) {
+                    inst.$nextTick(function() {
+                        inst.lgaChoices = defaultLGAChoices;
+                    });
+                    return;
+                }
                 $.ajax({
-                    url: inst.getLGAEndpoint,
+                    url: inst.getLGAEndpoint
                 }).done(function(data) {
                     inst.$nextTick(function() {
-                        for (var i = 0; i < data.results.length; i++) {
-                            var option = document.createElement('option');
-                            option.value = data.results[i].id;
-                            option.text = data.results[i].name;
-                            inst.$el.add(option);
-                        }
+                        inst.lgaChoices = defaultLGAChoices.concat(data.results);
                     });
                 });
             }
         },
-        mounted: function() {
-            var vm = this;
-            eventBus.$on('reload', vm.populateChoices);
-            vm.$nextTick(function() {
-                vm.populateChoices();
-            });
-        }
-    })
-
-    Vue.component('center-form', {
-        data: function() {
-            return {
-                lgas: [],
-                stateId: null
-            }
-        },
         props: ['form'],
-        methods: {
-            getLGAChoices: function(dropdown) {
-                var selectedIndex = dropdown.selectedIndex;
-                if (!selectedIndex)
-                    return;
-
-                this.form.selectedState = dropdown.value;
-            },
-            onStateChoiceChange: function(event) {
-                this.getLGAChoices(event.target);
-                var stateDropdown = document.getElementById(this.form.state_id);
-                this.stateId = stateDropdown.value;
-                eventBus.$emit('reload');
-            },
-            onFormDelete: function() {
-                this.$emit('delete', this.form);
-            }
-        },
-        mounted: function() {
-            this.$nextTick(function() {
-                var stateDropdown = document.getElementById(this.form.state_id);
-                this.getLGAChoices(stateDropdown);
-            });
-        },
         template: '#center-form-template'
     });
 
@@ -200,7 +160,8 @@
             }
         }
     });
-  });
-})();
+};
+
+document.addEventListener('DOMContentLoaded', loader);
 </script>
 {% endblock scripts %}

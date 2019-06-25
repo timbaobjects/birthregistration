@@ -1,21 +1,23 @@
 # vim: ai ts=4 sts=4 et sw=4
-from locations.forms import generate_edit_form, CenterCreationForm
-from locations.filters import CenterFilterSet
-from locations.models import Location, LocationType
+import json
 
-from django.conf import settings
-
-from django.core.exceptions import ObjectDoesNotExist
-from django.core.urlresolvers import reverse, reverse_lazy
 from django.contrib import messages
 from django.contrib.auth.mixins import (
     LoginRequiredMixin, PermissionRequiredMixin)
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.urlresolvers import reverse, reverse_lazy
 from django.forms.formsets import formset_factory
 from django.http import (
     HttpResponse, HttpResponseNotFound, HttpResponseRedirect,
     HttpResponseNotAllowed, HttpResponseForbidden, HttpResponseBadRequest)
 from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, FormView, TemplateView
+
+from django.conf import settings
+
+from locations.forms import generate_edit_form, CenterCreationForm
+from locations.filters import CenterFilterSet
+from locations.models import Location, LocationType
 
 
 class CenterListView(LoginRequiredMixin, ListView):
@@ -110,7 +112,10 @@ class CenterCreationView(
 
         context = super(CenterCreationView, self).get_context_data(**kwargs)
         context['page_title'] = self.page_title
-        context[u'states'] = states
+        context['states_data'] = json.dumps([
+            {'id': s.id, 'name': s.name}
+            for s in states
+        ])
 
         return context
 
