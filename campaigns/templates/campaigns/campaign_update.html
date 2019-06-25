@@ -1,5 +1,5 @@
 {% extends 'base/layout.html' %}{% load static %}
-{% block title %}MNCHW · Create campaign{% endblock %}
+{% block title %}MNCHW · Edit campaign{% endblock %}
 {% block usermenu %}
 {% include 'common/usermenu.html' %}
 {% endblock %}
@@ -17,9 +17,9 @@
     <div class="col-lg-12 title">
         <ol class="breadcrumb">
             <li><a href="{% url "mnchw:dashboard" %}">MNCHW Dashboard</a></li>
-            <li class="active">Create campaign</li>
+            <li class="active">Edit campaign</li>
         </ol>
-        <h1 class="page-title">Create campaign</h1>
+        <h1 class="page-title">Edit campaign</h1>
     </div>
 </div>
 {% endblock %}
@@ -30,7 +30,7 @@
             <div class="widget-body">
                 <form class="form-horizontal" role="form" method="post">{% csrf_token %}
                     <fieldset>
-                        <legend><strong>Create campaign</strong></legend>
+                        <legend><strong>Edit campaign</strong></legend>
                         {% if form.errors %}
                         <div class="alert alert-danger">
                           <ul>
@@ -45,26 +45,29 @@
                         <div class="form-group row">
                             <label for="{{ form.name.id_for_label }}" class="col-md-3 form-control-label text-md-right">Name</label>
                             <div class="col-md-4">
-                              <input class="form-control" type="text" name="{{ form.name.name }}" id="{{ form.name.id_for_label }}" placeholder="Name">
+                              <input class="form-control" type="text" name="{{ form.name.name }}" id="{{ form.name.id_for_label }}" placeholder="Name" value="{{ form.name.value }}">
                             </div>
                         </div>
                         <div class="form-group row">
                             <label for="locations" class="col-md-3 form-control-label text-md-right">Locations</label>
                             <div class="col-md-4">
-                              <select class="select2 form-control" id="locations" name="{{ form.locations.name }}" data-placeholder="Locations">
+                              <select class="select2 form-control" id="locations" name="{{ form.locations.name }}" multiple="true" data-placeholder="Locations">
+                              {% for loc in selected_locations %}
+                              <option value="{{ loc.pk }}" selected>{{ loc.name }}</option>
+                              {% endfor %}
                             </select>
                             </div>
                         </div>
                         <div class="form-group row">
                             <label for="{{ form.start_date.id_for_label }}" class="col-md-3 form-control-label text-md-right">Start date</label>
                             <div class="col-md-4">
-                              <input class="form-control datepicker" type="text" name="{{ form.start_date.name }}" id="{{ form.start_date.id_for_label }}" placeholder="Start date">
+                              <input class="form-control datepicker" type="text" name="{{ form.start_date.name }}" id="{{ form.start_date.id_for_label }}" placeholder="Start date" value="{{ form.start_date.value|date:'d/m/Y' }}">
                             </div>
                         </div>
                         <div class="form-group row">
                             <label for="{{ form.end_date.id_for_label }}" class="col-md-3 form-control-label text-md-right">End date</label>
                             <div class="col-md-4">
-                              <input class="form-control datepicker" type="text" name="{{ form.end_date.name }}" id="{{ form.end_date.id_for_label }}" placeholder="End date">
+                              <input class="form-control datepicker" type="text" name="{{ form.end_date.name }}" id="{{ form.end_date.id_for_label }}" placeholder="End date" value="{{ form.end_date.value|date:'d/m/Y' }}">
                             </div>
                         </div>
                     </fieldset>
@@ -93,8 +96,13 @@
   document.addEventListener('DOMContentLoaded', function() {
     var endpoint = '{% url "api:location_list_typed" %}?type=state,lga';
 
-    $('.datepicker').datetimepicker({
-      format: 'DD/MM/YYYY'
+    $('#{{ form.start_date.id_for_label }}').datetimepicker({
+      format: 'DD/MM/YYYY',
+      date: new Date({{ form.start_date.value.year }}, {{ form.start_date.value.month|add:'-1'}}, {{ form.start_date.value.day }})
+    });
+    $('#{{ form.end_date.id_for_label }}').datetimepicker({
+      format: 'DD/MM/YYYY',
+      date: new Date({{ form.end_date.value.year }}, {{ form.end_date.value.month|add:'-1'}}, {{ form.end_date.value.day }})
     });
 
     $('#locations').select2({

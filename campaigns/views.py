@@ -2,13 +2,13 @@
 from braces.views import LoginRequiredMixin, PermissionRequiredMixin
 from django.core.urlresolvers import reverse
 from django.db.models import F
-from django.views.generic import CreateView, ListView
+from django.views.generic import CreateView, ListView, UpdateView
 
 from django.conf import settings
 
 from campaigns.filters import CampaignFilterSet
-from campaigns.forms import CampaignCreateForm
-from campaigns.models import Campaign
+from campaigns.forms import CampaignForm
+from campaigns.models import Campaign, Location
 
 PROTECTED_VIEW_PERMISSION = u'ipd.change_report'
 
@@ -25,7 +25,7 @@ class BaseCampaignViewMixin(LoginRequiredMixin, PermissionRequiredMixin):
 
 
 class CampaignCreateView(BaseCampaignViewMixin, CreateView):
-    form_class = CampaignCreateForm
+    form_class = CampaignForm
     page_title = u'Create new campaign'
     template_name = u'campaigns/campaign_new.html'
 
@@ -58,3 +58,23 @@ class CampaignListView(BaseCampaignViewMixin, ListView):
             u'name', u'start_date', u'end_date', u'loc_name', u'loc_type')
 
         return queryset
+
+
+class CampaignUpdateView(BaseCampaignViewMixin, UpdateView):
+    form_class = CampaignForm
+    model = Campaign
+    page_title = u'Edit campaign'
+    template_name = u'campaigns/campaign_update.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(CampaignUpdateView, self).get_context_data(**kwargs)
+
+        location_pks = context['form']['locations'].value()
+        selected_locs = Location.objects.filter(pk__in=location_pks)
+
+        context['selected_locations'] = selected_locs
+
+        return context
+
+    def get_success_url(self):
+        return reverse(u'mnchw:campaign_list')

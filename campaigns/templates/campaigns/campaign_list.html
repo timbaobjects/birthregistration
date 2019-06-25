@@ -40,6 +40,7 @@
                 </fieldset>
             </form>
         </section>
+        {% if perms.campaigns.add_campaign %}<section class="widget"><a href="{% url 'mnchw:campaign_new' %}" class="btn btn-success">Add new</a></section>{% endif %}
     </div>
 </div>
 <div class="row">
@@ -54,6 +55,7 @@
                             <th>End date</th>
                             <th>Location</th>
                             <th></th>
+                            {% if perms.campaigns.add_campaign %}<th></th>{% endif %}
                         </tr>
                     </thead>
                     <tbody>{% for campaign in object_list %}
@@ -63,6 +65,7 @@
                             <td>{{ campaign.end_date|date:'SHORT_DATE_FORMAT' }}</td>
                             <td>{{ campaign.loc_name }} ({{ campaign.loc_type }})</td>
                             <td><a href="{% url 'mnchw:report_list' campaign_id=campaign.pk location_id=campaign.loc_pk %}">View reports</a></td>
+                            {% if perms.campaigns.add_campaign %}<td><a href="{% url 'mnchw:campaign_update' pk=campaign.pk %}">Edit</a></td>{% endif %}
                         </tr>{% empty %}
                         <tr>
                             <td class="table-warning text-xs-center" colspan="5">No campaigns found</td>
