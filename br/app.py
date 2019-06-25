@@ -45,7 +45,7 @@ tbl = dict.fromkeys((i for i in xrange(sys.maxunicode)
 
 
 def remove_punctuation(text):
-    return unicode(text).translate(tbl).replace('\\', '/')
+    return unicode(text.replace('\\', '/')).translate(tbl).replace('\\', '/')
 
 
 class BirthRegistrationApp(AppBase):
