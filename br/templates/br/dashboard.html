@@ -82,7 +82,7 @@
                     {% endif %}
                 </ul>
             </li>
-            <li class="nav-item"><a href="https://staging.rapidsmsnigeria.org/br">Coverage</a></li>
+            <li class="nav-item"><a class="nav-link" href="https://staging.rapidsmsnigeria.org/br">Coverage</a></li>
             <li class="nav-item">
                 <form action="{{ request.get_full_path }}" method="GET" id="export"><input type="hidden" name="export" value="✓">{% if cumulative %}<input type="hidden" name="cumulative" value="1">{% endif %}<a href="javascript:;" id="export_button" class="nav-link">Export</a></form>
             </li>
