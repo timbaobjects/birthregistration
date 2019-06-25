@@ -42,8 +42,11 @@ ALLOWED_ROLE_CODES = [u'br']
 tbl = dict.fromkeys((i for i in xrange(sys.maxunicode)
         if unicodedata.category(unichr(i)).startswith('P')
         and i not in map(ord, ALLOWED_PUNCTUATIONS)), u' ')
+
+
 def remove_punctuation(text):
-    return unicode(text).translate(tbl)
+    return unicode(text).translate(tbl).replace('\\', '/')
+
 
 class BirthRegistrationApp(AppBase):
     error_messages = {
