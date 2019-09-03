@@ -8,8 +8,6 @@ from django.db import models
 class Pattern(models.Model):
     name = models.CharField(max_length=160)
     regex = models.CharField(max_length=160)
-    created = models.DateTimeField(auto_now_add=True, null=True)
-    updated = models.DateTimeField(auto_now=True)
 
     @staticmethod
     def join(patterns):
