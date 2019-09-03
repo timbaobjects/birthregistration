@@ -21,6 +21,8 @@ class Role(models.Model):
     code = models.CharField(max_length=20, blank=True, null=True,\
         help_text="Abbreviation")
     patterns = models.ManyToManyField(Pattern, blank=True)
+    created = models.DateTimeField(auto_now_add=True, null=True)
+    updated = models.DateTimeField(auto_now=True)
 
     def match(self, token):
         return self.regex and re.match(self.regex, token, re.IGNORECASE)
@@ -45,6 +47,8 @@ class ReporterGroup(models.Model):
     title = models.CharField(max_length=30, unique=True)
     parent = models.ForeignKey("self", related_name="children", null=True, blank=True)
     description = models.TextField(blank=True)
+    created = models.DateTimeField(auto_now_add=True, null=True)
+    updated = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = "Group"
@@ -73,6 +77,8 @@ class Reporter(models.Model):
     # here are some fields that don't belong here
     location = models.ForeignKey(Location, related_name="reporters", null=True, blank=True)
     role = models.ForeignKey(Role, related_name="reporters", null=True, blank=True)
+    created = models.DateTimeField(auto_now_add=True, null=True)
+    updated = models.DateTimeField(auto_now=True)
 
     # the language that this reporter prefers to
     # receive their messages in, as a w3c language tag
