@@ -23,6 +23,7 @@ class Report(models.Model):
         ('fp', 'Family Planning'),
         ('llin', 'Long Lasting Insecticide Nets'),
         ('muac', 'Measurement of Upper Arm Circumference'),
+        ('penta', 'Pentavalent Vaccine'),
     )
 
     reporter = models.ForeignKey(Reporter, blank=True, null=True)
@@ -33,6 +34,8 @@ class Report(models.Model):
         help_text=u'Total persons immunized')
     commodity = models.CharField(choices=IM_COMMODITIES, max_length=10,
         blank=True, null=True)
+    created = models.DateTimeField(auto_now_add=True, null=True)
+    updated = models.DateTimeField(auto_now=True)
 
     class Meta:
         permissions = (
@@ -64,6 +67,8 @@ class NonCompliance(models.Model):
     reason = models.CharField(choices=NC_REASONS, max_length=1, blank=True,
         null=True, help_text=u'The stated reason for non-compliance')
     cases = models.PositiveIntegerField()
+    created = models.DateTimeField(auto_now_add=True, null=True)
+    updated = models.DateTimeField(auto_now=True)
 
 
 class Shortage(models.Model):
@@ -88,6 +93,8 @@ class Shortage(models.Model):
     commodity = models.CharField(blank=True, null=True, max_length=10,
         choices=SHORTAGE_COMMODITIES,
         help_text=u'The commodity being reported as having a shortage')
+    created = models.DateTimeField(auto_now_add=True, null=True)
+    updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return u'{} ({}) => {}'.format(self.reporter, self.location,

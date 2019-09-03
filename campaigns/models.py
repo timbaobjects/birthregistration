@@ -8,6 +8,8 @@ from locations.models import Location
 class Application(models.Model):
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
+    created = models.DateTimeField(auto_now_add=True, null=True)
+    updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name
@@ -20,6 +22,8 @@ class Campaign(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
     apps = models.ManyToManyField(Application)
+    created = models.DateTimeField(auto_now_add=True, null=True)
+    updated = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name

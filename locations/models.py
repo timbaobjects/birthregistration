@@ -9,6 +9,8 @@ from mptt.models import MPTTModel, TreeForeignKey
 
 class LocationType(models.Model):
     name = models.CharField(max_length=100)
+    created = models.DateTimeField(auto_now_add=True, null=True)
+    updated = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = "Type"
@@ -43,6 +45,8 @@ class Location(MPTTModel):
     tree_id = models.PositiveIntegerField(blank=True, default=0, db_index=True)
     level = models.PositiveIntegerField(blank=True, default=0, db_index=True)
     active = models.BooleanField(default=True)
+    created = models.DateTimeField(auto_now_add=True, null=True)
+    updated = models.DateTimeField(auto_now=True)
 
     def __unicode__(self):
         if hasattr(self, 'type') and self.type:

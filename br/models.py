@@ -29,6 +29,8 @@ class BirthRegistration(models.Model):
     boys_5to9 = models.IntegerField()
     boys_10to18 = models.IntegerField()
     time = models.DateTimeField()
+    created = models.DateTimeField(auto_now_add=True, null=True)
+    updated = models.DateTimeField(auto_now=True)
 
     objects = BirthRegistrationManager()
 

@@ -96,6 +96,8 @@ class DeathReport(models.Model):
         related_name=u'death_reports')
     date = models.DateField(default=date.today)
     data = JSONField()
+    created = models.DateTimeField(auto_now_add=True, null=True)
+    updated = models.DateTimeField(auto_now=True)
 
     # manager
     objects = SearchableLocationQuerySet.as_manager()
