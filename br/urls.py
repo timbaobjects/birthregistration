@@ -17,7 +17,7 @@ urlpatterns = [
         name='report_delete'),
     url(r'^reports/delete/?$', views.br_report_delete, name=u'rep_delete'),
 
-    url(r'^/?$', views.dashboard, name='dashboard'),
+    url(r'^$', views.dashboard, name='dashboard'),
     url(r'^(?P<year>\d+)/?$', views.dashboard, name='dashboard_with_year'),
     url(r'^(?P<year>\d+)/(?P<month>\d+)/?$', views.dashboard,
         name='dashboard_with_year_and_month'),
