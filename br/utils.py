@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 import calendar
-from datetime import datetime, timedelta
-from functools import partial
+import csv
+from datetime import datetime
+from io import BytesIO
 from operator import itemgetter
 
 from dateutil.relativedelta import relativedelta
@@ -100,7 +101,6 @@ def extract_reporting_records(location, year, month):
     level = location.type.name.lower()
     start_date, end_date, u1_lower_bound, u1_upper_bound = get_boundary_dates(
         year, month)
-    params = []
     params_reporting = []
     params_prior_reporting = []
 
@@ -108,13 +108,12 @@ def extract_reporting_records(location, year, month):
         query_reporting = raw_queries.NATIONAL_REPORTING_QUERY
         query_u1_prior = raw_queries.NATIONAL_PRIOR_U1_REPORTING_QUERY
         params_reporting = [start_date, end_date]
-        params_prior_reporting =[u1_lower_bound, u1_upper_bound]
+        params_prior_reporting = [u1_lower_bound, u1_upper_bound]
     else:
         query_reporting = raw_queries.STATE_REPORTING_QUERY
         query_u1_prior = raw_queries.STATE_PRIOR_U1_REPORTING_QUERY
         params_reporting = [start_date, end_date, location.id]
         params_prior_reporting = [u1_lower_bound, u1_upper_bound, location.id]
-
 
     reporting_df = pd.read_sql_query(
         query_reporting, connection, params=params_reporting)
@@ -147,7 +146,6 @@ def extract_reporting_records(location, year, month):
 
 
 def extract_cumulative_records(location, year, month):
-    level = location.type.name.lower()
     if month is None:
         month = 12
         day = 31
@@ -155,15 +153,12 @@ def extract_cumulative_records(location, year, month):
         day = calendar.monthrange(year, month)[1]
     start_date = make_aware(datetime(year, month, day, 23, 59, 59, 999))
     params_reporting = []
-    params_prior = []
 
     if location.type.name.lower() == 'country':
         query_reporting = raw_queries.NATIONAL_CUMULATIVE_QUERY
-        level = 'national'
         params_reporting = [start_date]
     else:
         query_reporting = raw_queries.STATE_CUMULATIVE_QUERY
-        level = 'state'
         params_reporting = [location.id, start_date]
 
     reporting_df = pd.read_sql_query(
@@ -299,3 +294,31 @@ def get_state_subnodes(state):
 
     lga_nodes = sorted(dataset, key=sort_key)
     return lga_nodes
+
+
+def generate_report_attachment(report):
+    headers = [
+        'name', 'girls_below1', 'girls_1to4', 'girls_5to9',
+        'girls_10to18', 'boys_below1', 'boys_1to4', 'boys_5to9',
+        'boys_10to18', 'estimate', 'u1_estimate', 'u5_estimate',
+        'prior_u1', 'u1_performance', 'u5_performance',
+        'reporting_centre_count', 'centre_count']
+
+    header_row = [
+        'Name', 'Girls <1', 'Girls 1-4', 'Girls 5-9',
+        'Girls 10+', 'Boys <1', 'Boys 1-4', 'Boys 5-9', 'Boys 10+',
+        'Population Estimate', 'U1 Estimate', 'U5 Estimate', 'U1 (graduated)',
+        'U1 Performance', 'U5 Performance', 'Centres Reporting',
+        'Total Centres']
+
+    with BytesIO() as file_buffer:
+        writer = csv.DictWriter(file_buffer, headers, extrasaction='ignore')
+        writer.writerow(dict(zip(headers, header_row)))
+
+        for record in report['breakdown']:
+            writer.writerow(record)
+        writer.writerow(report['summary'])
+
+        output_value = file_buffer.getvalue()
+
+    return output_value
