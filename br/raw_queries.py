@@ -131,7 +131,7 @@ ON loc.type_id = lt.id WHERE loc.lft > %s AND loc.rgt < %s
 AND lt.name in ('LGA', 'RC') ORDER BY loc.lft;
 '''
 
-DATA_QUERY = '''
+MONTH_END_DATA_QUERY = '''
 SELECT
     lga.name as lga,
     lga.id as lga_id,
@@ -172,7 +172,7 @@ ORDER BY
     state, lga;
 '''
 
-PRIOR_DATA_QUERY = '''
+MONTH_END_PRIOR_DATA_QUERY = '''
 SELECT
     lga.name as lga,
     lga.id as lga_id,
