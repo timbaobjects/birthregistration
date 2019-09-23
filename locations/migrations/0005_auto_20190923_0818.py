@@ -23,7 +23,9 @@ class Migration(migrations.Migration):
     ON
         loc.type_id = typ.id
     WHERE
-        typ.name = 'RC';
+        typ.name = 'RC' AND loc.id NOT IN (
+            SELECT location_id FROM locations_facility
+        );
     '''
 
     operations = [
