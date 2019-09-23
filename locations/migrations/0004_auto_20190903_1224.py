@@ -19,7 +19,7 @@ def update_location_create_timestamps(apps, schema_editor):
         else:
             rc.created = now()
         rc.save(update_fields=['created'])
-    
+
     other_locations = Location.objects.exclude(type__name='RC')
     other_locations.update(created=make_aware(datetime(2011, 1, 28)))
 
