@@ -133,8 +133,8 @@ AND lt.name in ('LGA', 'RC') ORDER BY loc.lft;
 
 MONTH_END_DATA_QUERY = '''
 SELECT
-    lga.name as lga,
-    lga.id as lga_id,
+    lga.name AS lga,
+    lga.id AS lga_id,
     state.name AS state,
     state.id AS state_id,
     COUNT(DISTINCT rc.id) AS centre_count,
@@ -174,8 +174,8 @@ ORDER BY
 
 MONTH_END_PRIOR_DATA_QUERY = '''
 SELECT
-    lga.name as lga,
-    lga.id as lga_id,
+    lga.name AS lga,
+    lga.id AS lga_id,
     state.name AS state,
     state.id AS state_id,
     SUM(br.girls_below1 + br.boys_below1) AS u1
