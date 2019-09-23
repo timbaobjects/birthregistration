@@ -2,6 +2,7 @@
 from django.conf.urls import url
 
 from locations import api as locations_api
+from locations.views import facilities
 
 urlpatterns = [
     url(r'^locations/(?P<pk>\d+)/?$', locations_api.LocationItemView.as_view(),
@@ -10,4 +11,5 @@ urlpatterns = [
         name=u'location_list'),
     url(r'^locations-typed/?$', locations_api.TypedLocationListView.as_view(),
         name=u'location_list_typed'),
+    url(r'^facilities/?$', facilities, name='facilities'),
 ]

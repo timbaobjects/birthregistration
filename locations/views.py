@@ -6,13 +6,16 @@ from django.contrib.auth.mixins import (
     LoginRequiredMixin, PermissionRequiredMixin)
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse, reverse_lazy
+from django.db import connection
 from django.forms.formsets import formset_factory
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, FormView, TemplateView
+import pandas as pd
 
 from django.conf import settings
 
+from locations import raw_queries
 from locations.forms import generate_edit_form, CenterCreationForm
 from locations.filters import CenterFilterSet
 from locations.models import Facility, Location, LocationType
@@ -177,3 +180,16 @@ class CenterCreationView(
             context=context,
             **kwargs
         )
+
+
+def facilities(request):
+    ng = Location.get_by_code('ng')
+    ancestor_pk = request.GET.get('ancestor', ng.pk)
+
+    facility_dataframe = pd.read_sql_query(
+        raw_queries.FACILITY_QUERY, connection, params=[ancestor_pk])
+
+    response = HttpResponse(content_type='text/csv')
+    facility_dataframe.to_csv(response, encoding='UTF-8', index=False)
+
+    return response
