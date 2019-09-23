@@ -111,7 +111,11 @@ CENSUS_QUERY = '''
 '''
 
 REPORTING_RANGE_QUERY = '''
-SELECT MIN(br_birthregistration.time), MAX(br_birthregistration.time) FROM br_birthregistration;
+SELECT
+    MIN(br_birthregistration.time),
+    MAX(br_birthregistration.time)
+FROM
+    br_birthregistration;
 '''
 
 STATE_NODES_QUERY = '''
@@ -125,4 +129,98 @@ SELECT loc.id, loc.name, lt.name FROM
 locations_location AS loc JOIN locations_locationtype AS lt
 ON loc.type_id = lt.id WHERE loc.lft > %s AND loc.rgt < %s
 AND lt.name in ('LGA', 'RC') ORDER BY loc.lft;
+'''
+
+DATA_QUERY = '''
+SELECT
+    lga.name as lga,
+    lga.id as lga_id,
+    state.name AS state,
+    state.id AS state_id,
+    COUNT(DISTINCT rc.id) AS centre_count,
+    COUNT(DISTINCT br.location_id) AS reporting_centre_count,
+    COUNT(CASE WHEN br.id IS NULL THEN 1 END) AS missing,
+    SUM(br.girls_below1) AS girls_below1,
+    SUM(br.girls_1to4) AS girls_1to4,
+    SUM(br.girls_5to9) AS girls_5to9,
+    SUM(br.girls_10to18) AS girls_10to18,
+    SUM(br.boys_below1) AS boys_below1,
+    SUM(br.boys_1to4) AS boys_1to4,
+    SUM(br.boys_5to9) AS boys_5to9,
+    SUM(br.boys_10to18) AS boys_10to18,
+    SUM(br.girls_below1 + br.boys_below1) AS u1,
+    SUM(br.girls_below1 + br.boys_below1 + br.girls_1to4 + br.boys_1to4) AS u5,
+    SUM(br.girls_below1 + br.girls_1to4) AS u5_girls,
+    SUM(br.boys_below1 + br.boys_1to4) AS u5_boys
+FROM
+    locations_location AS rc
+LEFT JOIN
+    br_birthregistration AS br
+ON
+    br.location_id = rc.id AND br.time BETWEEN %s AND %s
+JOIN
+    locations_location AS lga ON rc.parent_id = lga.id
+JOIN
+    locations_location AS state ON lga.parent_id = state.id
+JOIN
+    locations_location AS loc ON (rc.lft >= loc.lft AND rc.rgt <= loc.rgt)
+WHERE
+    loc.id = %s AND rc.type_id = 8
+GROUP BY
+    lga, lga_id, state, state_id
+ORDER BY
+    state, lga;
+'''
+
+PRIOR_DATA_QUERY = '''
+SELECT
+    lga.name as lga,
+    lga.id as lga_id,
+    state.name AS state,
+    state.id AS state_id,
+    SUM(br.girls_below1 + br.boys_below1) AS u1
+FROM
+    locations_location AS rc
+LEFT JOIN
+    br_birthregistration AS br
+ON
+    br.location_id = rc.id AND br.time BETWEEN %s AND %s
+JOIN
+    locations_location AS lga ON rc.parent_id = lga.id
+JOIN
+    locations_location AS state ON lga.parent_id = state.id
+JOIN
+    locations_location AS loc ON (rc.lft >= loc.lft AND rc.rgt <= loc.rgt)
+WHERE
+    loc.id = %s AND rc.type_id = 8
+GROUP BY
+    lga_id, state_id
+ORDER BY
+    state, lga;
+'''
+
+CENTRE_REPORTING_QUERY = '''
+SELECT
+    lga.name AS lga,
+    lga.id AS lga_id,
+    state.name AS state,
+    state.id AS state_id,
+    COUNT(DISTINCT rc.id) AS total,
+    COUNT(CASE WHEN br.id IS NULL THEN 1 END) AS missing
+FROM
+    locations_location AS rc
+LEFT JOIN
+    br_birthregistration AS br ON br.location_id = rc.id AND br.time BETWEEN %s AND %s
+JOIN
+    locations_location AS loc ON (rc.lft >= loc.lft AND rc.rgt <= loc.rgt)
+JOIN
+    locations_location AS lga ON rc.parent_id = lga.id
+JOIN
+    locations_location AS state ON lga.parent_id = state.id
+WHERE
+    loc.id = %s AND rc.type_id = 8
+GROUP BY
+    lga_id, state_id
+ORDER BY
+    state, lga
 '''

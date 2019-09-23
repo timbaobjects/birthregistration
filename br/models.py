@@ -63,12 +63,12 @@ class CensusResult(models.Model):
 
         return dataframe
 
-    @staticmethod
-    def get_census_dataframe(year):
-        db_year = CensusResult.objects.filter(year__lte=year).aggregate(
+    @classmethod
+    def get_census_dataframe(cls, year):
+        db_year = cls.objects.filter(year__lte=year).aggregate(
             max_year=models.Max(u'year')).get(u'max_year')
 
-        qs = CensusResult.objects.filter(year=db_year).annotate(
+        qs = cls.objects.filter(year=db_year).annotate(
             loc_id=models.F(u'location__pk')).values(u'year', u'population',
             u'growth_rate', u'loc_id', u'under_1_rate', u'under_5_rate')
 
@@ -76,6 +76,32 @@ class CensusResult(models.Model):
             u'loc_id').sort_index()
 
         return dataframe
+
+    @classmethod
+    def get_estimate_dataframe(cls, year, month=None):
+        dataframe = cls.get_census_dataframe(year)
+        if month is not None:
+            if month not in list(range(1, 13)):
+                raise ValueError('Invalid month value')
+
+        def _process(row):
+            if month is not None:
+                growth_rate = ((1 + row['growth_rate']) ** (1 / 12.0)) - 1
+                exponent = (year - row['year'] - 1) + month
+            else:
+                growth_rate = row['growth_rate']
+                exponent = (year - row['year'])
+
+            estimate = row['population'] * (
+                (1 + (growth_rate / 100)) ** exponent)
+            u1_estimate = estimate * row['under_1_rate'] / 100.0
+            u5_estimate = estimate * row['under_5_rate'] / 100.0
+
+            return pd.Series(
+                [estimate, u1_estimate, u5_estimate],
+                index=['estimate', 'u1_estimate', 'u5_estimate'])
+
+        return dataframe.apply(_process, axis=1)
 
 
 def generate_population_dataframe():
