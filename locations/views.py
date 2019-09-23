@@ -7,9 +7,7 @@ from django.contrib.auth.mixins import (
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.urlresolvers import reverse, reverse_lazy
 from django.forms.formsets import formset_factory
-from django.http import (
-    HttpResponse, HttpResponseNotFound, HttpResponseRedirect,
-    HttpResponseNotAllowed, HttpResponseForbidden, HttpResponseBadRequest)
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, FormView, TemplateView
 
@@ -17,7 +15,7 @@ from django.conf import settings
 
 from locations.forms import generate_edit_form, CenterCreationForm
 from locations.filters import CenterFilterSet
-from locations.models import Location, LocationType
+from locations.models import Facility, Location, LocationType
 
 
 class CenterListView(LoginRequiredMixin, ListView):
@@ -79,6 +77,9 @@ class CenterUpdateView(
             pk=form.cleaned_data['lga'])
         center.active = form.cleaned_data['active']
         center.save()
+        center.facilities.update(
+            code=center.code, name=center.name
+        )
 
         return HttpResponseRedirect(self.get_success_url())
 
@@ -132,24 +133,32 @@ class CenterCreationView(
                 name = form.cleaned_data.get(u'name')
 
                 if Location.objects.filter(name=name, parent=lga).exists():
-                    messages.warning(request, u'The center {} already exists.'.format(
-                        name), extra_tags=u'alert-warning')
+                    messages.warning(
+                        request, u'The center {} already exists.'.format(name),
+                        extra_tags=u'alert-warning')
                     continue
 
-                last_rc_code = lga.children.filter(type__name=u'RC').order_by(u'-code').first().code
+                last_rc_code = lga.children.filter(type__name=u'RC').order_by(
+                    u'-code').first().code
                 try:
                     next_rc_code = str(int(last_rc_code) + 1).zfill(9)
                 except ValueError:
-                    messages.error(request, u'The center {} could not be added due to an error'.format(
-                        name), extra_tags=u'alert-danger')
+                    messages.error(
+                        request, u'The center {} could not be added due to an error'.format(
+                            name), extra_tags=u'alert-danger')
                     continue
 
-                Location.objects.create(name=name, parent=lga, code=next_rc_code,
-                    type=center_type)
-                messages.success(request, u'The center {} was successfully added.'.format(
-                    name), extra_tags=u'alert-success')
+                rc = Location.objects.create(
+                    name=name, parent=lga, code=next_rc_code, type=center_type)
+                Facility.objects.create(
+                    name=rc.name, code=rc.code, location=rc)
+                messages.success(
+                    request, u'The center {} was successfully added.'.format(
+                        name
+                    ), extra_tags=u'alert-success')
             else:
-                messages.error(request, u'The center {} could not be added without a parent LGA'.format(
+                messages.error(
+                    request, u'The center {} could not be added without a parent LGA'.format(
                         form[u'name'].value()), extra_tags=u'alert-danger')
 
         if center_forms.is_valid():
