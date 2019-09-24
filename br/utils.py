@@ -44,7 +44,7 @@ def compute_estimate(census_results, year, month, record):
         growth_rate = subset['growth_rate']
         exponent = year - subset['year']
     else:
-        growth_rate = growth_rate = ((1 + subset[u'growth_rate']) ** (1 / 12.0)) - 1
+        growth_rate = ((1 + subset[u'growth_rate']) ** (1 / 12.0)) - 1
         exponent = (year - subset[u'year'] - 1) + month
 
     estimate = subset['population'] * ((1 + (growth_rate / 100.0)) ** exponent)
