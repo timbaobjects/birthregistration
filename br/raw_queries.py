@@ -224,3 +224,152 @@ GROUP BY
 ORDER BY
     state, lga
 '''
+
+U1_REPORTING_QUERY = '''
+SELECT
+    lga.name AS lga,
+    lga.id AS lga_id,
+    state.name AS state,
+    state.id AS state_id,
+    COUNT(DISTINCT rc.id) AS centre_count,
+    COUNT(DISTINCT br.location_id) AS reporting_centre_count,
+    COUNT(CASE WHEN br.id IS NULL THEN 1 END) AS missing,
+    SUM(br.girls_below1) AS girls,
+    SUM(br.boys_below1) AS boys,
+    SUM(br.girls_below1 + br.boys_below1) AS u1,
+    COUNT(CASE WHEN rc.created BETWEEN %s AND %s THEN 1 END) AS new_count
+FROM
+    locations_location AS rc
+LEFT JOIN
+    br_birthregistration AS br
+ON
+    br.location_id = rc.id AND br.time BETWEEN %s AND %s
+JOIN
+    locations_location AS lga ON rc.parent_id = lga.id
+JOIN
+    locations_location AS state ON lga.parent_id = state.id
+JOIN
+    locations_location AS loc ON (rc.lft >= loc.lft AND rc.rgt <= loc.rgt)
+WHERE
+    loc.id = %s AND rc.type_id = 8
+GROUP BY
+    lga, lga_id, state, state_id
+ORDER BY
+    state, lga;
+'''
+
+U1_PREVIOUS_PERIOD_QUERY = '''
+SELECT
+    lga.name AS lga,
+    lga.id AS lga_id,
+    state.name AS state,
+    state.id AS state_id,
+    SUM(br.girls_below1 + br.boys_below1) AS u1
+FROM
+    locations_location AS rc
+LEFT JOIN
+    br_birthregistration AS br
+ON
+    br.location_id = rc.id AND br.time BETWEEN %s AND %s
+JOIN
+    locations_location AS lga ON rc.parent_id = lga.id
+JOIN
+    locations_location AS state ON lga.parent_id = state.id
+JOIN
+    locations_location AS loc ON (rc.lft >= loc.lft AND rc.rgt <= loc.rgt)
+WHERE
+    loc.id = %s AND rc.type_id = 8
+GROUP BY
+    lga, lga_id, state, state_id
+ORDER BY
+    state, lga;
+'''
+
+U5_REPORTING_QUERY = '''
+SELECT
+    lga.name AS lga,
+    lga.id AS lga_id,
+    state.name AS state,
+    state.id AS state_id,
+    COUNT(DISTINCT rc.id) AS centre_count,
+    COUNT(DISTINCT br.location_id) AS reporting_centre_count,
+    COUNT(CASE WHEN br.id IS NULL THEN 1 END) AS missing,
+    SUM(br.girls_below1 + br.girls_1to4) AS girls,
+    SUM(br.boys_below1 + br.boys_1to4) AS boys,
+    SUM(br.girls_below1 + br.boys_below1 + br.girls_1to4 + br.boys_1to4) AS u5,
+    COUNT(CASE WHEN rc.created BETWEEN %s AND %s THEN 1 END) AS new_count
+FROM
+    locations_location AS rc
+LEFT JOIN
+    br_birthregistration AS br
+ON
+    br.location_id = rc.id AND br.time BETWEEN %s AND %s
+JOIN
+    locations_location AS lga ON rc.parent_id = lga.id
+JOIN
+    locations_location AS state ON lga.parent_id = state.id
+JOIN
+    locations_location AS loc ON (rc.lft >= loc.lft AND rc.rgt <= loc.rgt)
+WHERE
+    loc.id = %s AND rc.type_id = 8
+GROUP BY
+    lga, lga_id, state, state_id
+ORDER BY
+    state, lga;
+'''
+
+U5_PREVIOUS_PERIOD_QUERY = '''
+SELECT
+    lga.name AS lga,
+    lga.id AS lga_id,
+    state.name AS state,
+    state.id AS state_id,
+    SUM(br.girls_below1 + br.girls_1to4) AS girls,
+    SUM(br.boys_below1 + br.boys_1to4) AS boys,
+    SUM(br.girls_below1 + br.boys_below1 + br.girls_1to4 + br.boys_1to4) AS u5
+FROM
+    locations_location AS rc
+LEFT JOIN
+    br_birthregistration AS br
+ON
+    br.location_id = rc.id AND br.time BETWEEN %s AND %s
+JOIN
+    locations_location AS lga ON rc.parent_id = lga.id
+JOIN
+    locations_location AS state ON lga.parent_id = state.id
+JOIN
+    locations_location AS loc ON (rc.lft >= loc.lft AND rc.rgt <= loc.rgt)
+WHERE
+    loc.id = %s AND rc.type_id = 8
+GROUP BY
+    lga, lga_id, state, state_id
+ORDER BY
+    state, lga;
+'''
+
+U5_PREVIOUS_U1_QUERY = '''
+SELECT
+    lga.name AS lga,
+    lga.id AS lga_id,
+    state.name AS state,
+    state.id AS state_id,
+    SUM(br.girls_below1 + br.boys_below1) AS u1
+FROM
+    locations_location AS rc
+LEFT JOIN
+    br_birthregistration AS br
+ON
+    br.location_id = rc.id AND br.time BETWEEN %s AND %s
+JOIN
+    locations_location AS lga ON rc.parent_id = lga.id
+JOIN
+    locations_location AS state ON lga.parent_id = state.id
+JOIN
+    locations_location AS loc ON (rc.lft >= loc.lft AND rc.rgt <= loc.rgt)
+WHERE
+    loc.id = %s AND rc.type_id = 8
+GROUP BY
+    lga, lga_id, state, state_id
+ORDER BY
+    state, lga;
+'''
