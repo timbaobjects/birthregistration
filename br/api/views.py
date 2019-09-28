@@ -4,13 +4,17 @@ import json
 import os
 
 from dateutil.relativedelta import relativedelta
+from django.core.cache.backends.base import DEFAULT_TIMEOUT
 from django.db import connection
 from django.http import HttpResponse, HttpResponseBadRequest
+from django.views.decorators.cache import cache_page
 import pandas as pd
 
 from django.conf import settings
 
 from br import models, raw_queries, utils
+
+CACHE_TTL = getattr(settings, 'CACHE_TTL', DEFAULT_TIMEOUT)
 
 
 def _get_u1_reporting(boundary_dates, location_id):
@@ -149,6 +153,7 @@ def _get_geodata(level):
     return geodata_map
 
 
+@cache_page(CACHE_TTL)
 def get_u1_dashboard_data(request):
     dt = date.today()
     ng = models.Location.get_by_code('ng')
@@ -226,6 +231,7 @@ def get_u1_dashboard_data(request):
     return response
 
 
+@cache_page(CACHE_TTL)
 def get_u5_dashboard_data(request):
     dt = date.today()
     ng = models.Location.get_by_code('ng')
