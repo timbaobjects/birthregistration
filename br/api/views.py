@@ -114,8 +114,11 @@ def _compute_u1_performance(date_pair, data_frame):
         year, month)
 
     estimates = estimate_dataframe.loc[data_frame['id']].reset_index()
+    numerator = data_frame['u1']
+    denominator = estimates['u1_estimate']
+    performance = (numerator * 100 / denominator).round(1)
 
-    return (data_frame['u1'] / estimates['u1_estimate'] * 100).round(1)
+    return performance, numerator
 
 
 def _compute_u5_performance(date_pair, data_frame, u1_data_frame):
@@ -130,12 +133,13 @@ def _compute_u5_performance(date_pair, data_frame, u1_data_frame):
 
     estimate_dataframe = models.CensusResult.get_estimate_dataframe(
         year, month)
-
     estimates = estimate_dataframe.loc[data_frame['id']].reset_index()
 
-    return (
-        (data_frame['u5'] + u1_data_frame['u1']) / estimates['u5_estimate'] * 100
-    ).round(1)
+    numerator = data_frame['u5'] + u1_data_frame['u1']
+    denominator = estimates['u1_estimate']
+    performance = (numerator * 100 / denominator).round(1)
+
+    return performance, numerator
 
 
 def _get_geodata(level):
@@ -185,19 +189,30 @@ def get_u1_dashboard_data(request):
     current_reporting, previous_reporting, level = _transform_reporting(
         current_reporting, *previous_reporting)
 
-    current_performance = _compute_u1_performance(
+    current_performance, current_numerator = _compute_u1_performance(
         boundary_dates[0], current_reporting)
 
-    previous_performance = [
+    previous_performance_numerator_pairs = [
         _compute_u1_performance(date_pair, data_frame)
         for date_pair, data_frame in zip(
             boundary_dates[1:], previous_reporting)
     ]
 
-    headers = ['location', 'current_performance']
-    headers.extend([date_pair[0].year for date_pair in boundary_dates[1:4]])
+    headers = ['location', 'current_performance', 'current_numerator']
     headers.extend([
-        '{0:%m}-{0:%Y}'.format(date_pair[0])
+        'perf_{}'.format(date_pair[0].year)
+        for date_pair in boundary_dates[1:4]
+    ])
+    headers.extend([
+        'num_{}'.format(date_pair[0].year)
+        for date_pair in boundary_dates[1:4]
+    ])
+    headers.extend([
+        'perf_{0:%m}-{0:%Y}'.format(date_pair[0])
+        for date_pair in boundary_dates[4:]
+    ])
+    headers.extend([
+        'num_{0:%m}-{0:%Y}'.format(date_pair[0])
         for date_pair in boundary_dates[4:]
     ])
     headers.extend([
@@ -205,10 +220,15 @@ def get_u1_dashboard_data(request):
 
     dataset = [
         current_reporting['location'].tolist(),
-        current_performance.tolist()
+        current_performance.tolist(),
+        current_numerator.tolist()
     ]
     dataset.extend([
-        perf.tolist() for perf in previous_performance
+        perf.tolist() for perf, unused in previous_performance_numerator_pairs
+    ])
+    dataset.extend([
+        numerator.tolist()
+        for unused, numerator in previous_performance_numerator_pairs
     ])
     dataset.extend([
         current_reporting['boys'].tolist(),
@@ -268,10 +288,10 @@ def get_u5_dashboard_data(request):
     previous_u5_reporting = previous_reporting[:6]
     previous_u1_reporting = previous_reporting[6:]
 
-    current_performance = _compute_u5_performance(
+    current_performance, current_numerator = _compute_u5_performance(
         boundary_dates[0], current_reporting, previous_u1_reporting[0])
 
-    previous_performance = [
+    previous_performance_numerator_pairs = [
         _compute_u5_performance(date_pair, u5_data_frame, u1_data_frame)
         for date_pair, u5_data_frame, u1_data_frame in zip(
             boundary_dates[1:7], previous_u5_reporting,
@@ -279,10 +299,21 @@ def get_u5_dashboard_data(request):
         )
     ]
 
-    headers = ['location', 'current_performance']
-    headers.extend([date_pair[0].year for date_pair in boundary_dates[1:4]])
+    headers = ['location', 'current_performance', 'current_numerator']
     headers.extend([
-        '{0:%m}-{0:%Y}'.format(date_pair[0])
+        'perf_{}'.format(date_pair[0].year)
+        for date_pair in boundary_dates[1:4]
+    ])
+    headers.extend([
+        'num_{}'.format(date_pair[0].year)
+        for date_pair in boundary_dates[1:4]
+    ])
+    headers.extend([
+        'perf_{0:%m}-{0:%Y}'.format(date_pair[0])
+        for date_pair in boundary_dates[4:7]
+    ])
+    headers.extend([
+        'num_{0:%m}-{0:%Y}'.format(date_pair[0])
         for date_pair in boundary_dates[4:7]
     ])
     headers.extend([
@@ -290,10 +321,15 @@ def get_u5_dashboard_data(request):
 
     dataset = [
         current_reporting['location'].tolist(),
-        current_performance.tolist()
+        current_performance.tolist(),
+        current_numerator.tolist(),
     ]
     dataset.extend([
-        perf.tolist() for perf in previous_performance
+        perf.tolist() for perf, unused in previous_performance_numerator_pairs
+    ])
+    dataset.extend([
+        numerator.tolist()
+        for unused, numerator in previous_performance_numerator_pairs
     ])
     dataset.extend([
         current_reporting['boys'].tolist(),
