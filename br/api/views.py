@@ -134,7 +134,7 @@ def _compute_u5_performance(date_pair, data_frame, u1_data_frame):
     estimates = estimate_dataframe.loc[data_frame['id']].reset_index()
 
     return (
-        (data_frame['u5'] + u1_data_frame['u1']) / estimates['u1_estimate'] * 100
+        (data_frame['u5'] + u1_data_frame['u1']) / estimates['u5_estimate'] * 100
     ).round(1)
 
 
