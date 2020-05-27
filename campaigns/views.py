@@ -2,12 +2,13 @@
 from braces.views import LoginRequiredMixin, PermissionRequiredMixin
 from django.core.urlresolvers import reverse
 from django.db.models import F
+from django.http import HttpResponseRedirect
 from django.views.generic import CreateView, ListView, UpdateView
 
 from django.conf import settings
 
 from campaigns.filters import CampaignFilterSet
-from campaigns.forms import CampaignForm
+from campaigns.forms import CampaignCreateForm, CampaignUpdateForm
 from campaigns.models import Campaign, Location
 
 PROTECTED_VIEW_PERMISSION = u'ipd.change_report'
@@ -25,9 +26,22 @@ class BaseCampaignViewMixin(LoginRequiredMixin, PermissionRequiredMixin):
 
 
 class CampaignCreateView(BaseCampaignViewMixin, CreateView):
-    form_class = CampaignForm
+    form_class = CampaignCreateForm
     page_title = u'Create new campaign'
     template_name = u'campaigns/campaign_new.html'
+
+    def form_valid(self, form):
+        name = '{program} {year}'.format(
+            program=Campaign.PROGRAM_TYPES.get(
+                form.cleaned_data['program']),
+            year=form.cleaned_data['start_date'].year)
+
+        campaign = form.save(commit=False)
+        campaign.name = name
+        campaign.save()
+        form.save_m2m()
+
+        return HttpResponseRedirect(self.get_success_url())
 
     def get_success_url(self):
         return reverse(u'mnchw:campaign_list')
@@ -61,7 +75,7 @@ class CampaignListView(BaseCampaignViewMixin, ListView):
 
 
 class CampaignUpdateView(BaseCampaignViewMixin, UpdateView):
-    form_class = CampaignForm
+    form_class = CampaignUpdateForm
     model = Campaign
     page_title = u'Edit campaign'
     template_name = u'campaigns/campaign_update.html'

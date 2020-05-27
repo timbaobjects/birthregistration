@@ -16,6 +16,11 @@ class Application(models.Model):
 
 
 class Campaign(models.Model):
+    PROGRAM_TYPES = {
+        '1': 'May/June',
+        '2': 'Nov/Dec',
+    }
+
     name = models.CharField(max_length=255)
     locations = models.ManyToManyField(Location, limit_choices_to={
         u'type__name__in': [u'State', u'LGA']})
