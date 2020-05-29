@@ -88,8 +88,8 @@ SECRET_KEY = config('SECRET_KEY')
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'unicefng.middleware.SubdomainMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'unicefng.middleware.SubdomainMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -247,7 +247,7 @@ LOCATIONS_GRAPH_MAXAGE = 3600  # number of seconds cache the locations graph
 PAGE_SIZE = 30  # Number of submissions viewable per page
 SITE_ID = 1
 # STATICFILES_STORAGE = 'pipeline.storage.PipelineCachedStorage'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
 # django-pipeline settings
 PIPELINE = {
