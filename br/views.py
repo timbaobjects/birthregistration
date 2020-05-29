@@ -205,6 +205,7 @@ def _state_dashboard(request, location, year, month, cumulative):
             'name').values_list('name', flat=True),
         'year': year,
         'year_range': year_range,
+        'month': month,
         'month_range': range(1, 13),
     }
 
@@ -298,6 +299,7 @@ def _country_dashboard(request, location, year, month, cumulative):
             'name').values_list('name', flat=True),
         'year': year,
         'year_range': year_range,
+        'month': month,
         'month_range': range(1, 13),
     }
 

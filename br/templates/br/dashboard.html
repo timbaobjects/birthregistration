@@ -34,14 +34,17 @@
 .easy-map-button {
     font-size: 1.5em;
 }
+a.text-decoration-none {
+    text-decoration: none !important;
+}
 </style>
 {% endblock stylesheets %}
 {% block masthead %}
 <div class="row">
-    <div class="col-lg-4 title">
-        <h1 class="page-title">Birth Registration</h1>
+    <div class="col-lg-3 title">
+        <a href="{% url 'br:dashboard' %}" class="text-decoration-none"><h1 class="page-title">Birth Registration</h1></a>
     </div>
-    <div class="col-lg-8">
+    <div class="col-lg-9">
         <ul class="nav nav-pills pull-xs-right">
             <li class="nav-item dropdown">
                 <a href="javascript:;" class="nav-link dropdown-toggle active" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{% if location.type.name == "Country" %}Nigeria{% else %}{{ location.name|lower|title }}{% endif %} <b class="caret"></b></a>
@@ -62,6 +65,7 @@
                 <a href="javascript:;" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Month <b class="caret"></b></a>
                 {% endif %}
                 <div class="dropdown-menu">
+                {% if month %}<a href="{% url 'br:dashboard_with_year' year %}" class="dropdown-item">Whole Year</a>{% endif %}
                 {% for mth in month_range %}
                     {% if location.type.name == 'Country' %}
                     <a href="{% url 'br:dashboard_with_year_and_month' year mth %}" class="dropdown-item{% if mth == month %} active{% endif %}">{% month_name mth %}</a>
@@ -75,10 +79,10 @@
                 <ul class="nav nav-pills">
                     {% if cumulative %}
                     <li class="nav-item"><a class="nav-link active" id="cumulative" href="#">Cumulative</a></li>
-                    <li class="nav-item"><a class="nav-link" id="monthly" href="#">Monthly</a></li>
+                    <li class="nav-item"><a class="nav-link" id="monthly" href="#">Instantaneous</a></li>
                     {% else %}
                     <li class="nav-item"><a class="nav-link" id="cumulative" href="#">Cumulative</a></li>
-                    <li class="nav-item"><a class="nav-link active" id="monthly" href="#">Monthly</a></li>
+                    <li class="nav-item"><a class="nav-link active" id="monthly" href="#">Instantaneous</a></li>
                     {% endif %}
                 </ul>
             </li>
