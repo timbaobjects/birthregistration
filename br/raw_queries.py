@@ -206,11 +206,13 @@ SELECT
     state.name AS state,
     state.id AS state_id,
     COUNT(DISTINCT rc.id) AS total,
-    COUNT(CASE WHEN br.id IS NULL THEN 1 END) AS missing
+    COUNT(CASE WHEN br.id IS NULL THEN 1 END) AS missing,
+    COUNT(CASE WHEN rc.created >= %(start)s AND rc.created <= %(end)s THEN 1 END) AS new
 FROM
     locations_location AS rc
 LEFT JOIN
-    br_birthregistration AS br ON br.location_id = rc.id AND br.time BETWEEN %s AND %s
+    br_birthregistration AS br ON br.location_id = rc.id AND (
+        br.time >= %(start)s AND br.time < %(end)s)
 JOIN
     locations_location AS loc ON (rc.lft >= loc.lft AND rc.rgt <= loc.rgt)
 JOIN
@@ -218,7 +220,7 @@ JOIN
 JOIN
     locations_location AS state ON lga.parent_id = state.id
 WHERE
-    loc.id = %s AND rc.type_id = 8
+    loc.id = %(loc_id)s AND rc.type_id = 8 AND rc.created < %(end)s
 GROUP BY
     lga_id, state_id
 ORDER BY

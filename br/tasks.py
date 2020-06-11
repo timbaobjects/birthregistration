@@ -310,7 +310,7 @@ def compute_reporting(query_date):
     end_date = end_of_the_month(query_date)
     ng = Location.get_by_code('ng')
 
-    params = [start_date, end_date, ng.id]
+    params = {'start': start_date, 'end': end_date, 'loc_id': ng.id}
     reporting_df = pd.read_sql_query(
         CENTRE_REPORTING_QUERY, db_connection, params=params)
 
