@@ -31,9 +31,6 @@ class TypedLocationListView(LocationListView):
     def get_queryset(self):
         queryset = super(TypedLocationListView, self).get_queryset()
 
-        # type is required
-        # this works without case sensitivity on MySQL
-        # TODO: implement explicit case-insensitivity
         type_names = self.request.query_params.get(u'type')
         if not type_names:
             return queryset.none()
