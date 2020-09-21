@@ -121,6 +121,8 @@ def get_api_data(location_pk=None, year=None, month=None):
                 total_centres=record['total_centres'],
                 reporting_centres=record['reporting_centres'],
                 new_centres=record['new_centres'],
+                year=year,
+                month=month
             )
             data.update(previous=[{
                 'year': year,
