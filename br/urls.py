@@ -11,6 +11,7 @@ urlpatterns = [
     url(r'^incoming/', HttpBackendView.as_view(backend_name='polling')),
     url(r'^api/v1/?$', api_dashboard, name='api_dashboard'),
     url(r'^help/?$', views.FAQView.as_view(), name='help'),
+    url(r'^projections/?$', views.ProjectionDashboardView.as_view(), name='projection'),
     url(r'^reports/?$', views.ReportListView.as_view(), name='reports_list'),
     url(r'^report/(?P<pk>\d+)/?$', views.ReportEditView.as_view(),
         name='report_edit'),

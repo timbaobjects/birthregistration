@@ -1,0 +1,147 @@
+{% extends "base/layout.html" %}{% load static %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block usermenu %}
+{% include 'common/usermenu.html' %}
+{% endblock %}
+{% block stylesheets %}
+<style type="text/css">
+  footer{margin-top: 13.5em;}
+</style>
+{% endblock %}
+{% block content %}
+<div class="container" id="app">
+  <div class="row">
+    <div class="col-md-12">
+      <h3>{{ page_title }}</h3>
+    </div>
+  </div>
+  <div class="row filter">
+    <div class="col-md-12">
+      <section class="widget">
+        <form class="form-horizontal form-inline" role="form">
+          <fieldset>
+            <div class="form-group">
+              <select class="form-control" v-model="selectedLocation">
+                <option :value="null" disabled>Location</option>
+                <option v-for="location in locations" :key="location.id" :value="location.id">[[ location.name ]]</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <select class="form-control" v-model="selectedYear">
+                <option :value="null" disabled>Year</option>
+                <option v-for="year in yearRange" :key="year">[[ year ]]</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <select class="form-control" v-model="selectedMonth">
+                <option :value="null">Month</option>
+                <option value="1">January</option>
+                <option value="2">February</option>
+                <option value="3">March</option>
+                <option value="4">April</option>
+                <option value="5">May</option>
+                <option value="6">June</option>
+                <option value="7">July</option>
+                <option value="8">August</option>
+                <option value="9">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <button class="btn btn-primary" @click.prevent="getData" :disabled="selectedLocation == null">Load data</button>
+            </div>
+          </fieldset>
+        </form>
+      </section>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <datatable v-if="tableData !== null" :records="tableData">
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+{{ block.super }}
+<template id="datatable">
+  <table class="table table-bordered table-hover table-striped">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Registered U1</th>
+        <th>Registered U5</th>
+        <th title="U1 registered in the preceding four years">Previous U1</th>
+        <th>Estimated U1</th>
+        <th>Estimated U5</th>
+      </tr>
+    </thead>
+    <tbody v-if="records.length == 0">
+      <tr>
+        <td colspan="6">No records found</td>
+      </tr>
+    </tbody>
+    <tbody v-else>
+      <tr v-for="record in records" :key="record.loc_id">
+        <td>[[ record.loc_name ]]</td>
+        <td>[[ record.u1 ]]</td>
+        <td>[[ record.u5 ]]</td>
+        <td>[[ record.u1_prior ]]</td>
+        <td>[[ record.u1_estimate.toFixed(0) ]]</td>
+        <td>[[ record.u5_estimate.toFixed(0) ]]</td>
+      </tr>
+    </tbody>
+  </table>
+</template>
+<script src="{% static "js/vendor/vue.js" %}"></script>
+<script>
+var loader = function() {
+  var endpoint = "{% url 'api:projection' %}";
+
+  Vue.component('datatable', {
+    template: '#datatable',
+    props: ['records'],
+    delimiters: ['[[', ']]']
+  });
+
+  var vm = new Vue({
+    el: '#app',
+    delimiters: ['[[', ']]'],
+    data: {
+      locations: {{ locations|safe }},
+      selectedLocation: null,
+      selectedMonth: null,
+      selectedYear: null,
+      tableData: null,
+      yearRange: {{ year_range|safe }}
+    },
+    methods: {
+      getData: function() {
+        var instance = this;
+        instance.resetData();
+        $.getJSON(
+          endpoint, {
+            location: instance.selectedLocation,
+            year: instance.selectedYear,
+            month: instance.selectedMonth
+          }
+        ).done(
+          function(data) { instance.tableData = data.data; }
+        ).fail(
+          function(json) { console.log(json); }
+        );
+      },
+      resetData: function() {
+        this.tableData = null;
+      }
+    },
+    mounted: function() {
+      this.getData();
+    }
+  });
+};
+document.addEventListener('DOMContentLoaded', loader);
+</script>
+{% endblock %}
