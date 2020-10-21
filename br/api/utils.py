@@ -118,6 +118,8 @@ def get_api_data(location_pk=None, year=None, month=None):
                 girls=record['girls'],
                 u1_perf=round(record['u1_perf'] * 100, 2),
                 u5_perf=round(record['u5_perf'] * 100, 2),
+                u1_estimate=round(record['u1_estimate']),
+                u5_estimate=round(record['u5_estimate']),
                 total_centres=record['total_centres'],
                 reporting_centres=record['reporting_centres'],
                 new_centres=record['new_centres'],
@@ -128,6 +130,8 @@ def get_api_data(location_pk=None, year=None, month=None):
                 'year': year,
                 'u1_perf': alt_df.loc[loc_id]['u1_perf'],
                 'u5_perf': alt_df.loc[loc_id]['u5_perf'],
+                'u1_estimate': round(alt_df.loc[loc_id]['u1_estimate']),
+                'u5_estimate': round(alt_df.loc[loc_id]['u5_estimate']),
             } for year, alt_df in zip(years, alt_dataframes)])
             feature['properties'].update(data)
 
