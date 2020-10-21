@@ -50,7 +50,8 @@
               </select>
             </div>
             <div class="form-group">
-              <button class="btn btn-primary" @click.prevent="getData" :disabled="selectedLocation == null">Load data</button>
+              <button class="btn btn-primary form-control-lg" @click.prevent="getData" :disabled="selectedLocation == null">Load data</button>
+              <button class="btn btn-default form-control-lg" @click.prevent="exportData" :disabled="!canExport">Export</button>
             </div>
           </fieldset>
         </form>
@@ -59,7 +60,7 @@
   </div>
   <div class="row">
     <div class="col-md-12">
-      <datatable v-if="tableData !== null" :records="tableData">
+      <datatable :records="tableData" :status="lastStatus">
     </div>
   </div>
 </div>
@@ -78,9 +79,9 @@
         <th>Estimated U5</th>
       </tr>
     </thead>
-    <tbody v-if="records.length == 0">
+    <tbody v-if="status !== 'ok'">
       <tr>
-        <td colspan="6">No records found</td>
+        <td colspan="6">[[ statusMessage ]]</td>
       </tr>
     </tbody>
     <tbody v-else>
@@ -89,12 +90,15 @@
         <td>[[ record.u1 ]]</td>
         <td>[[ record.u5 ]]</td>
         <td>[[ record.u1_prior ]]</td>
-        <td>[[ record.u1_estimate.toFixed(0) ]]</td>
-        <td>[[ record.u5_estimate.toFixed(0) ]]</td>
+        <td>[[ record.u1_estimate ]]</td>
+        <td>[[ record.u5_estimate ]]</td>
       </tr>
     </tbody>
   </table>
 </template>
+<script src="{% static "js/Blob.js" %}"></script>
+<script src="{% static "js/FileSaver.min.js" %}"></script>
+<script src="{% static "js/papaparse.min.js" %}"></script>
 <script src="{% static "js/vendor/vue.js" %}"></script>
 <script>
 var loader = function() {
@@ -102,14 +106,30 @@ var loader = function() {
 
   Vue.component('datatable', {
     template: '#datatable',
-    props: ['records'],
-    delimiters: ['[[', ']]']
+    props: ['records', 'status'],
+    delimiters: ['[[', ']]'],
+    computed: {
+      canDisplay: function() {
+        return (this.records !== null) && (this.status == 'ok');
+      },
+      statusMessage: function() {
+        if (this.status === null)
+          return 'Please select a location, a year (and optionally, a month) to load data';
+        else if (this.status === 'empty')
+          return 'No records found';
+        else if (this.status === 'error')
+          return 'An error occurred loading data';
+        else
+          return '';
+      }
+    }
   });
 
   var vm = new Vue({
     el: '#app',
     delimiters: ['[[', ']]'],
     data: {
+      lastStatus: null,
       locations: {{ locations|safe }},
       selectedLocation: null,
       selectedMonth: null,
@@ -117,7 +137,23 @@ var loader = function() {
       tableData: null,
       yearRange: {{ year_range|safe }}
     },
+    computed: {
+      canExport: function() {
+        return (this.tableData !== null) && (this.tableData.length !== 0);
+      }
+    },
     methods: {
+      exportData: function() {
+        if (this.canExport) {
+          var unParseConfig = {
+            columns: ['loc_name', 'u1', 'u5', 'u1_prior', 'u1_estimate', 'u5_estimate']
+          };
+          var blob = new Blob([Papa.unparse(this.tableData, unParseConfig)], {type: 'text/plain;charset=utf-8'});
+          var monthPart = this.selectedMonth === null ? 'all_year' : this.selectedMonth.toString().padStart(2, 0);
+          var fileName = 'rapidsms-br-projection-' + this.selectedYear.toString() + '-' + monthPart + '.csv';
+          saveAs(blob, fileName);
+        }
+      },
       getData: function() {
         var instance = this;
         instance.resetData();
@@ -128,17 +164,19 @@ var loader = function() {
             month: instance.selectedMonth
           }
         ).done(
-          function(data) { instance.tableData = data.data; }
+          function(data) {
+            instance.lastStatus = data.status;
+            instance.tableData = data.data;
+          }
         ).fail(
-          function(json) { console.log(json); }
+          function(payload) {
+            instance.lastStatus = payload.responseJSON.status;
+          }
         );
       },
       resetData: function() {
         this.tableData = null;
       }
-    },
-    mounted: function() {
-      this.getData();
     }
   });
 };

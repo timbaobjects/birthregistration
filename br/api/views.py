@@ -77,6 +77,12 @@ def get_projection_data(request):
         summed_prior_u1_df, on=group_columns[1], suffixes=('', '_prior')
     ).merge(
         census_result, left_on=group_columns[1], right_on='loc_id'
-    ).rename(columns={k: v for k, v in zip(group_columns, col_names)})
+    ).rename(
+        columns={k: v for k, v in zip(group_columns, col_names)}
+    ).round({
+        'u1_estimate': 0,
+        'u5_estimate': 0
+    })
+    combined_df['u5_and_u1_prior'] = combined_df['u5'] + combined_df['u1_prior']
 
     return JsonResponse(dict(data=combined_df.to_dict(orient='records'), status='ok'))
