@@ -1,6 +1,9 @@
+# -*- coding: utf-8 -*-
+from django.db.models import Q
 from rest_framework import generics
+
+from locations.api.serializers import LocationSerializer
 from locations.models import Location
-from locations.serializers import LocationSerializer
 
 
 class LocationItemView(generics.RetrieveAPIView):
@@ -38,11 +41,34 @@ class TypedLocationListView(LocationListView):
             return queryset.none()
 
         types = type_names.split(u',')
-        queryset = queryset.filter(type__name__in=types)
+        query = Q()
+        for t in types:
+            query.add(Q(type__name__iexact=t), Q.OR)
+        queryset = queryset.filter(query)
 
         # filter on parent id
         parent_id = self.request.query_params.get(u'parent')
         if parent_id:
             queryset = queryset.filter(parent=parent_id)
+
+        return queryset
+
+
+class CentreListView(generics.ListAPIView):
+    queryset = Location.objects.filter(type__name='RC')
+    serializer_class = LocationSerializer
+
+    def filter_queryset(self, queryset):
+        location_pk = self.request.GET.get('location')
+        if location_pk is not None:
+            try:
+                location = Location.objects.get(pk=location_pk)
+            except Location.DoesNotExist:
+                return queryset.none()
+            
+            return queryset.filter(
+                lft__gte=location.lft,
+                rgt__lte=location.rgt
+            )
 
         return queryset
