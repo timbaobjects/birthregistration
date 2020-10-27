@@ -2,7 +2,8 @@
 from django.db.models import Q
 from rest_framework import generics
 
-from locations.api.serializers import LocationSerializer
+from locations.api.serializers import (
+    LocationSerializer, RegistrationCentreSerializer)
 from locations.models import Location
 
 
@@ -56,7 +57,7 @@ class TypedLocationListView(LocationListView):
 
 class CentreListView(generics.ListAPIView):
     queryset = Location.objects.filter(type__name='RC')
-    serializer_class = LocationSerializer
+    serializer_class = RegistrationCentreSerializer
 
     def filter_queryset(self, queryset):
         location_pk = self.request.GET.get('location')

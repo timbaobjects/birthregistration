@@ -8,3 +8,18 @@ class LocationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Location
         fields = ('id', 'name', 'type')
+
+
+class RegistrationCentreSerializer(LocationSerializer):
+    lga = serializers.SerializerMethodField()
+    state = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Location
+        fields = ('id', 'name', 'state', 'lga', 'type')
+
+    def get_lga(self, centre):
+        return centre.parent.name
+
+    def get_state(self, centre):
+        return centre.parent.parent.name
