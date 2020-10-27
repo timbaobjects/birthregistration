@@ -71,17 +71,25 @@
   <table class="table table-bordered table-hover table-striped">
     <thead>
       <tr>
-        <th>Name</th>
-        <th>Registered U1</th>
-        <th>Registered U5</th>
-        <th title="U1 registered in the preceding four years">Previous U1</th>
-        <th>Estimated U1</th>
-        <th>Estimated U5</th>
+        <th rowspan="2">Name</th>
+        <th colspan="3">Registered</th>
+        <th colspan="2">Estimated</th>
+        <th colspan="3">Difference</th>
+      </tr>
+      <tr>
+        <th>U1</th>
+        <th>U5</th>
+        <th>U1 (previous 4 years)</th>
+        <th>U1</th>
+        <th>U5</th>
+        <th>U1</th>
+        <th>U5</th>
+        <th>U1 (prev) + U5</th>
       </tr>
     </thead>
     <tbody v-if="status !== 'ok'">
       <tr>
-        <td colspan="6">[[ statusMessage ]]</td>
+        <td colspan="9">[[ statusMessage ]]</td>
       </tr>
     </tbody>
     <tbody v-else>
@@ -92,6 +100,9 @@
         <td>[[ record.u1_prior ]]</td>
         <td>[[ record.u1_estimate ]]</td>
         <td>[[ record.u5_estimate ]]</td>
+        <td>[[ record.u1_diff ]]</td>
+        <td>[[ record.u5_diff ]]</td>
+        <td>[[ record.u5_diff_with_prior ]]</td>
       </tr>
     </tbody>
   </table>
@@ -146,9 +157,27 @@ var loader = function() {
       exportData: function() {
         if (this.canExport) {
           var unParseConfig = {
-            columns: ['loc_name', 'u1', 'u5', 'u1_prior', 'u1_estimate', 'u5_estimate']
+            columns: ['loc_name', 'u1', 'u5', 'u1_prior', 'u1_estimate', 'u5_estimate', 'u1_diff', 'u5_diff', 'u5_diff_with_prior'],
+            header: false
           };
-          var blob = new Blob([Papa.unparse(this.tableData, unParseConfig)], {type: 'text/plain;charset=utf-8'});
+          var header = Papa.unparse(
+            {
+              fields: [
+                'Name',
+                'Registered (U1)',
+                'Registered (U5)',
+                'Registered (U1, prev 4 years)',
+                'Estimated (U1)',
+                'Estimated (U5)',
+                'Difference (U1)',
+                'Difference (U5)',
+                'Difference (U5 + prev U1)'
+                ],
+              data: []
+            },
+            {header: true});
+          var body = Papa.unparse(this.tableData, unParseConfig);
+          var blob = new Blob([header + body], {type: 'text/plain;charset=utf-8'});
           var monthPart = this.selectedMonth === null ? 'all_year' : this.selectedMonth.toString().padStart(2, 0);
           var fileName = 'rapidsms-br-projection-' + this.selectedYear.toString() + '-' + monthPart + '.csv';
           saveAs(blob, fileName);

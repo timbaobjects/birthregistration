@@ -84,5 +84,8 @@ def get_projection_data(request):
         'u5_estimate': 0
     })
     combined_df['u5_and_u1_prior'] = combined_df['u5'] + combined_df['u1_prior']
+    combined_df['u1_diff'] = combined_df['u1'] - combined_df['u1_estimate']
+    combined_df['u5_diff'] = combined_df['u5'] - combined_df['u5_estimate']
+    combined_df['u5_diff_with_prior'] = combined_df['u5'] - combined_df['u5_estimate'] + combined_df['u1_prior']
 
     return JsonResponse(dict(data=combined_df.to_dict(orient='records'), status='ok'))
