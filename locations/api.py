@@ -1,3 +1,4 @@
+from django.db.models import Q
 from rest_framework import generics
 from locations.models import Location
 from locations.serializers import LocationSerializer
@@ -30,15 +31,14 @@ class TypedLocationListView(LocationListView):
     def get_queryset(self):
         queryset = super(TypedLocationListView, self).get_queryset()
 
-        # type is required
-        # this works without case sensitivity on MySQL
-        # TODO: implement explicit case-insensitivity
         type_names = self.request.query_params.get(u'type')
         if not type_names:
             return queryset.none()
 
-        types = type_names.split(u',')
-        queryset = queryset.filter(type__name__in=types)
+        the_filter = Q()
+        for type_name in type_names.split(u','):
+            the_filter |= Q(type__name__iexact=type_name)
+        queryset = queryset.filter(the_filter)
 
         # filter on parent id
         parent_id = self.request.query_params.get(u'parent')

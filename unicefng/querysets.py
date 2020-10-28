@@ -1,10 +1,9 @@
 from django.db.models.query import Q, QuerySet
-from django_mysql.models import QuerySetMixin
 
 from profiles.models import Profile
 
 
-class SearchableLocationQuerySet(QuerySetMixin, QuerySet):
+class SearchableLocationQuerySet(QuerySet):
     def is_within(self, location):
         return self.filter(
             location__in=location.get_descendants(include_self=True))
