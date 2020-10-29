@@ -5,7 +5,7 @@ from br.api.utils import get_api_data
 
 
 def dashboard(request):
-    location_pk = request.GET.get('location')
+    level = request.GET.get('level', 'country')
     try:
         year = int(request.GET.get('year'))
     except TypeError, ValueError:
@@ -15,4 +15,4 @@ def dashboard(request):
     except TypeError, ValueError:
         month = None
 
-    return JsonResponse(get_api_data(location_pk, year, month))
+    return JsonResponse(get_api_data(level, year, month))

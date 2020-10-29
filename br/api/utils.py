@@ -13,8 +13,7 @@ from br.utils import get_boundary_dates
 from locations.models import Location
 
 
-def get_dataframe(location, year, month):
-    level = location.type.name.lower()
+def get_dataframe(level, year, month):
     start, end, u1_start, u1_end = get_boundary_dates(year, month)
 
     reporting_params = [start, end, start, end]
@@ -26,13 +25,11 @@ def get_dataframe(location, year, month):
     else:
         query_reporting = queries.STATE_REPORTING_QUERY
         query_prior = queries.STATE_PREV_U1_QUERY
-        reporting_params.append(location.pk)
-        prior_u1_params.append(location.pk)
 
     reporting_dataframe = pd.read_sql_query(
-        query_reporting, connection, params=reporting_params)
+        query_reporting, connection, params=reporting_params).fillna(0)
     prior_u1_dataframe = pd.read_sql_query(
-        query_prior, connection, params=prior_u1_params)
+        query_prior, connection, params=prior_u1_params).fillna(0)
     estimate_df = CensusResult.get_estimate_dataframe(year, month)
 
     dataframe = pd.concat([
@@ -47,8 +44,7 @@ def get_dataframe(location, year, month):
     return dataframe
 
 
-def get_dataframe_lite(location, year, month):
-    level = location.type.name.lower()
+def get_dataframe_lite(level, year, month):
     start, end, u1_start, u1_end = get_boundary_dates(year, month)
 
     reporting_params = [start, end]
@@ -60,13 +56,11 @@ def get_dataframe_lite(location, year, month):
     else:
         query_reporting = queries.STATE_REPORTING_LITE_QUERY
         query_prior = queries.STATE_PREV_U1_QUERY
-        reporting_params.append(location.pk)
-        prior_u1_params.append(location.pk)
 
     reporting_dataframe = pd.read_sql_query(
-        query_reporting, connection, params=reporting_params)
+        query_reporting, connection, params=reporting_params).fillna(0)
     prior_u1_dataframe = pd.read_sql_query(
-        query_prior, connection, params=prior_u1_params)
+        query_prior, connection, params=prior_u1_params).fillna(0)
     estimate_df = CensusResult.get_estimate_dataframe(year, month)
 
     dataframe = pd.concat([
@@ -81,19 +75,13 @@ def get_dataframe_lite(location, year, month):
     return dataframe
 
 
-def get_api_data(location_pk=None, year=None, month=None):
-    if location_pk is None:
-        location = Location.objects.get(code='ng')
-    else:
-        location = get_object_or_404(
-            Location, type__name__in=['Country', 'State'], pk=location_pk)
-    level = location.type.name.lower()
+def get_api_data(level='country', year=None, month=None):
     if year is None:
         year = now().year
 
-    dataframe_primary = get_dataframe(location, year, month)
+    dataframe_primary = get_dataframe(level, year, month)
     years = list(range(year - 3, year))
-    alt_dataframes = [get_dataframe_lite(location, yr, None) for yr in years]
+    alt_dataframes = [get_dataframe_lite(level, yr, None) for yr in years]
 
     map_data_folder = os.path.join(os.path.dirname(__file__), 'json')
     if level == 'country':
@@ -103,14 +91,13 @@ def get_api_data(location_pk=None, year=None, month=None):
     else:
         map_data = os.path.join(map_data_folder, 'br-api-lgas.json')
         with open(map_data) as f:
-            geojson = json.load(f).get(location.code)
+            geojson = json.load(f)
 
     if not dataframe_primary.empty:
         for feature in geojson['features']:
             loc_id = feature.get('properties').get('id')
-            record = dataframe_primary.loc[loc_id]
-
             data = {}
+            record = dataframe_primary.loc[loc_id]
             data.update(
                 u1=record['u1'],
                 u5=record['u5'],
@@ -128,8 +115,8 @@ def get_api_data(location_pk=None, year=None, month=None):
             )
             data.update(previous=[{
                 'year': year,
-                'u1_perf': alt_df.loc[loc_id]['u1_perf'],
-                'u5_perf': alt_df.loc[loc_id]['u5_perf'],
+                'u1_perf': round(alt_df.loc[loc_id]['u1_perf'] * 100, 2),
+                'u5_perf': round(alt_df.loc[loc_id]['u5_perf'] * 100, 2),
                 'u1_estimate': round(alt_df.loc[loc_id]['u1_estimate']),
                 'u5_estimate': round(alt_df.loc[loc_id]['u5_estimate']),
             } for year, alt_df in zip(years, alt_dataframes)])

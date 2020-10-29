@@ -12,12 +12,12 @@ SELECT
     SUM(br.boys_below1 + br.boys_1to4 + br.boys_5to9 + br.boys_10to18) AS boys
 FROM
     locations_location AS rc
-LEFT JOIN
-    br_birthregistration AS br ON rc.id = br.location_id
+LEFT OUTER JOIN
+    br_birthregistration AS br ON rc.id = br.location_id AND br.time >= %s AND br.time <= %s
 JOIN
     locations_location AS state ON rc.lft >= state.lft AND rc.rgt <= state.rgt AND state.type_id = 2
 WHERE
-    rc.type_id = 8 AND br.time >= %s AND br.time <= %s
+    rc.type_id = 8
 GROUP BY
     loc, loc_id
 ORDER BY
@@ -34,12 +34,12 @@ SELECT
     SUM(br.boys_below1 + br.boys_1to4 + br.boys_5to9 + br.boys_10to18) AS boys
 FROM
     locations_location AS rc
-LEFT JOIN
-    br_birthregistration AS br ON rc.id = br.location_id
+LEFT OUTER JOIN
+    br_birthregistration AS br ON rc.id = br.location_id AND br.time >= %s AND br.time <= %s
 JOIN
     locations_location AS state ON rc.lft >= state.lft AND rc.rgt <= state.rgt AND state.type_id = 2
 WHERE
-    rc.type_id = 8 AND br.time >= %s AND br.time <= %s
+    rc.type_id = 8
 GROUP BY
     loc, loc_id
 ORDER BY
@@ -60,11 +60,11 @@ SELECT
 FROM
     locations_location AS rc
 LEFT JOIN
-    br_birthregistration AS br ON rc.id = br.location_id
+    br_birthregistration AS br ON rc.id = br.location_id AND br.time >= %s AND br.time <= %s
 JOIN
     locations_location AS lga ON rc.parent_id = lga.id
 WHERE
-    rc.type_id = 8 AND br.time >= %s AND br.time <= %s AND lga.parent_id = %s
+    rc.type_id = 8
 GROUP BY
     loc, loc_id
 ORDER BY
@@ -82,11 +82,11 @@ SELECT
 FROM
     locations_location AS rc
 LEFT JOIN
-    br_birthregistration AS br ON rc.id = br.location_id
+    br_birthregistration AS br ON rc.id = br.location_id AND br.time >= %s AND br.time <= %s
 JOIN
     locations_location AS lga ON rc.parent_id = lga.id
 WHERE
-    rc.type_id = 8 AND br.time >= %s AND br.time <= %s AND lga.parent_id = %s
+    rc.type_id = 8
 GROUP BY
     loc, loc_id
 ORDER BY
@@ -101,11 +101,11 @@ SELECT
 FROM
     locations_location AS rc
 JOIN
-    br_birthregistration AS br ON rc.id = br.location_id
+    br_birthregistration AS br ON rc.id = br.location_id AND br.time >= %s AND br.time <= %s
 JOIN
     locations_location AS state ON rc.lft >= state.lft AND rc.rgt <= state.rgt AND state.type_id = 2
 WHERE
-    rc.type_id = 8 AND br.time >= %s AND br.time <= %s
+    rc.type_id = 8
 GROUP BY
     loc, loc_id
 ORDER BY
@@ -120,11 +120,11 @@ SELECT
 FROM
     locations_location AS rc
 JOIN
-    br_birthregistration AS br ON rc.id = br.location_id
+    br_birthregistration AS br ON rc.id = br.location_id AND br.time >= %s AND br.time <= %s
 JOIN
     locations_location AS lga ON rc.parent_id = lga.id
 WHERE
-    rc.type_id = 8 AND br.time >= %s AND br.time <= %s AND lga.parent_id = %s
+    rc.type_id = 8
 GROUP BY
     loc, loc_id
 ORDER BY
