@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import date
-from django.contrib.postgres.fields import JSONField
 from django.db import models
+from django_mysql.models import JSONField
 
 from dr.utils import pick, values
 from locations.models import Location
