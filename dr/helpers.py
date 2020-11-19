@@ -1,11 +1,8 @@
 from datetime import date
-from django.core.urlresolvers import reverse
-from django.contrib.postgres.fields.jsonb import KeyTransform
-from django.db.models import F, Func, IntegerField, Max, Sum, Value
-from django.db.models.functions import Cast
-import pandas as pd
-
 from dr.models import FIELD_MAP
+from django.core.urlresolvers import reverse
+from django.db.models import F, Func, Value, Sum, Max
+import pandas as pd
 
 FORMULAS = {
     'general_male': 'BA + BB + BE + BF + BJ + BK + CA + CB + CE + CF + CJ + CK + DA + DB + DE + DF + DJ + DK + EA + EB + EE + EF + EJ + EK',
@@ -45,8 +42,8 @@ RANKINGS = [
     ['female_childbirth', 'female_fevers', 'female_accidents', 'female_hiv', 'female_others']
 ]
 
-extracted_fields = {field: KeyTransform(field, 'data') for field in FIELD_MAP.keys()}
-extracted_fields_sum = {field: Sum(Cast(KeyTransform(field, 'data'), IntegerField())) for field in FIELD_MAP.keys()}
+extracted_fields = {field: Func(F("data"), Value("$." + field), function="JSON_EXTRACT") for field in FIELD_MAP.keys()}
+extracted_fields_sum = {field: Sum(Func(F("data"), Value("$." + field), function="JSON_EXTRACT")) for field in FIELD_MAP.keys()}
 
 
 def death_report_summary(queryset):
