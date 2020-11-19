@@ -360,14 +360,3 @@ SENDSMS_URL = config('SENDSMS_URL', default='')
 SENDSMS_USERNAME = config('SENDSMS_USERNAME', default='')
 SENDSMS_PASSWORD = config('SENDSMS_PASSWORD', default='')
 SENDSMS_SHORTCODE = config('SENDSMS_SHORTCODE', default='')
-
-CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': BROKER_URL,
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-        }
-    }
-}
-CACHE_TTL = 60 * 5
