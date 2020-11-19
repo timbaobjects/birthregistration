@@ -37,35 +37,6 @@ def end_of_the_month(dt):
 
 
 @shared_task
-def mid_month_reports():
-    timestamp = now()
-    template_name = 'email/reporting_report.html'
-
-    dataset = compute_reporting(timestamp)
-    for subscription in Subscription.objects.all():
-        user = subscription.subscriber
-        if not user.email:
-            continue
-
-        for location in subscription.locations.all():
-            location_data = dataset.get(location.pk)
-            if location_data is None:
-                continue
-            context = {
-                'location': location.name,
-                'location_type': location.type.name,
-                'month': calendar.month_name[timestamp.month],
-                'year': timestamp.year,
-                'report': location_data
-            }
-            message_body = render_to_string(template_name, context)
-            send_mail(
-                'Birth Registration Reporting Summary', '',
-                settings.DEFAULT_FROM_EMAIL, [user.email],
-                html_message=message_body)
-
-
-@shared_task
 def monthly_reports():
     timestamp = now()
     template_name = 'email/monthly_report.html'
