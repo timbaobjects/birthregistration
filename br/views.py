@@ -307,27 +307,30 @@ def _country_dashboard(request, location, year, month, cumulative):
 
 
 def dashboard(request, state=None, year=None, month=None):
-    if state is None:
-        location = Location.get_by_code('ng')
-    else:
-        location = get_object_or_404(
-            Location, name__iregex=state.replace('-', '.'), type__name="State")
+    # if state is None:
+    #     location = Location.get_by_code('ng')
+    # else:
+    #     location = get_object_or_404(
+    #         Location, name__iregex=state.replace('-', '.'), type__name="State")
 
-    # sanity checks
-    try:
-        year = int(year) if year else make_aware(datetime.now()).year
-        month = int(month) if month else None
-    except ValueError:
-        return HttpResponseNotFound()
+    # # sanity checks
+    # try:
+    #     year = int(year) if year else make_aware(datetime.now()).year
+    #     month = int(month) if month else None
+    # except ValueError:
+    #     return HttpResponseNotFound()
 
-    if month and (month > 12):
-        return HttpResponseNotFound()
+    # if month and (month > 12):
+    #     return HttpResponseNotFound()
 
-    cumulative = 'cumulative' in request.GET
-    if state:
-        return _state_dashboard(request, location, year, month, cumulative)
-    else:
-        return _country_dashboard(request, location, year, month, cumulative)
+    # cumulative = 'cumulative' in request.GET
+    # if state:
+    #     return _state_dashboard(request, location, year, month, cumulative)
+    # else:
+    #     return _country_dashboard(request, location, year, month, cumulative)
+
+    context = {}
+    return render(request, 'br/map_dashboard.html', context)
 
 
 
