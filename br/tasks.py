@@ -17,7 +17,8 @@ from rapidsms.models import Connection
 import pandas as pd
 
 from br.models import BirthRegistration, CensusResult, Subscription
-from br.raw_queries import CENTRE_REPORTING_QUERY, DATA_QUERY, PRIOR_DATA_QUERY
+from br.raw_queries import (
+    CENTRE_REPORTING_QUERY, MONTH_END_DATA_QUERY, MONTH_END_PRIOR_DATA_QUERY)
 from br.utils import generate_report_attachment
 from locations.models import Location
 from messaging.utils import send_sms_message
@@ -224,9 +225,9 @@ def compute_reports(year, month):
     ]
 
     df = pd.read_sql_query(
-        DATA_QUERY, db_connection, params=report_params).round()
+        MONTH_END_DATA_QUERY, db_connection, params=report_params).round()
     prior_u1_df = pd.read_sql_query(
-        PRIOR_DATA_QUERY, db_connection, params=prior_u1_params)
+        MONTH_END_PRIOR_DATA_QUERY, db_connection, params=prior_u1_params)
     estimate_df = CensusResult.get_estimate_dataframe(year, month)
 
     # add in population estimates
@@ -309,7 +310,7 @@ def compute_reporting(query_date):
     end_date = end_of_the_month(query_date)
     ng = Location.get_by_code('ng')
 
-    params = [start_date, end_date, ng.id]
+    params = {'start': start_date, 'end': end_date, 'loc_id': ng.id}
     reporting_df = pd.read_sql_query(
         CENTRE_REPORTING_QUERY, db_connection, params=params)
 

@@ -7,8 +7,11 @@ from operator import itemgetter
 
 from dateutil.relativedelta import relativedelta
 from django.db import connection
-from django.utils.timezone import make_aware
+from django.utils.timezone import make_aware, now
 import pandas as pd
+import pytz
+
+from django.conf import settings
 
 from br import raw_queries
 
@@ -44,7 +47,7 @@ def compute_estimate(census_results, year, month, record):
         growth_rate = subset['growth_rate']
         exponent = year - subset['year']
     else:
-        growth_rate = growth_rate = ((1 + subset[u'growth_rate']) ** (1 / 12.0)) - 1
+        growth_rate = ((1 + subset[u'growth_rate']) ** (1 / 12.0)) - 1
         exponent = (year - subset[u'year'] - 1) + month
 
     estimate = subset['population'] * ((1 + (growth_rate / 100.0)) ** exponent)
@@ -322,3 +325,66 @@ def generate_report_attachment(report):
         output_value = file_buffer.getvalue()
 
     return output_value
+
+
+def get_u1_boundary_dates(year, month=None):
+    if month:
+        # if a month is supplied, use the start and end of the month
+        # as boundaries.
+        start_date = make_aware(datetime(year, month, 1))
+        end_date = start_date + relativedelta(months=1, seconds=-1)
+    else:
+        # otherwise, assume the start of the current month
+        # for the start (since for the monthly performance,
+        # we need it, and we're going to force the annual
+        # performance to begin from January, anyway).
+        # set the end of the specified year as the end
+        start_date = make_aware(datetime(year, 1, 1))
+        end_date = make_aware(datetime(year, 12, 31, 23, 59, 59))
+
+    # compute the boundaries for the previous 3 months
+    if month:
+        mth_start = start_date
+    else:
+        # now() returns the time in UTC, which isn't what
+        # i thought it would
+        app_tz = pytz.timezone(settings.TIME_ZONE)
+        mth_start = now().astimezone(app_tz).replace(
+            day=1, hour=0, minute=0, second=0, microsecond=0)
+    previous_months_boundaries = [
+        (
+            mth_start + relativedelta(months=i),
+            mth_start + relativedelta(months=i+1, seconds=-1)
+        ) for i in range(-3, 0)
+    ]
+
+    # and the previous three years
+    previous_years_boundaries = [
+        (
+            start_date.replace(month=1) + relativedelta(years=i),
+            start_date.replace(month=1) + relativedelta(years=i+1, seconds=-1)
+        ) for i in range(-3, 0)
+    ]
+
+    result = [(start_date, end_date)]
+    result.extend(previous_years_boundaries)
+    result.extend(previous_months_boundaries)
+
+    return result
+
+
+def get_u5_boundary_dates(year, month=None):
+    boundary_dates = get_u1_boundary_dates(year, month)
+
+    # the U5 performance requires the U1 reporting for the past
+    # five years that have graduated out of U1 (nobody stays in U1
+    # longer than a year)
+    prior_u1_boundaries = []
+    for date_pair in boundary_dates:
+        lower_bound = date_pair[0] - relativedelta(years=4)
+        upper_bound = lower_bound + relativedelta(years=4, seconds=-1)
+
+        prior_u1_boundaries.append((lower_bound, upper_bound))
+
+    boundary_dates.extend(prior_u1_boundaries)
+    return boundary_dates
