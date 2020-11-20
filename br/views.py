@@ -416,3 +416,25 @@ def br_report_delete(request):
             redirect_path = reverse(u'br:reports_list')
 
     return HttpResponseRedirect(redirect_path)
+
+
+class ProjectionDashboardView(TemplateView):
+    template_name = 'br/projection.html'
+    page_title = 'Projections'
+
+    def get_context_data(self, **kwargs):
+        context = super(ProjectionDashboardView, self).get_context_data(**kwargs)
+        context['page_title'] = self.page_title
+
+        locations = Location.objects.filter(
+            type__name__in=('Country', 'State')
+        ).order_by(
+            'level', 'name'
+        ).values('id', 'name')
+
+        start_year, end_year = utils.get_report_year_range()
+        
+        context['locations'] = json.dumps(list(locations))
+        context['year_range'] = json.dumps(range(start_year, end_year + 1))
+
+        return context

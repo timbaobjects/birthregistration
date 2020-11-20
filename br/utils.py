@@ -7,10 +7,22 @@ from operator import itemgetter
 
 from dateutil.relativedelta import relativedelta
 from django.db import connection
-from django.utils.timezone import make_aware
+from django.utils.timezone import make_aware, now
 import pandas as pd
 
 from br import raw_queries
+
+
+def get_report_year_range():
+    cursor = connection.cursor()
+    cursor.execute('SELECT MIN(time), MAX(time) FROM br_birthregistration')
+    result = cursor.fetchone()
+
+    if result is None:
+        current_timestamp = now()
+        return (current_timestamp.year, current_timestamp.year)
+    
+    return [d.year for d in result]
 
 
 def compute_estimate(census_results, year, month, record):
