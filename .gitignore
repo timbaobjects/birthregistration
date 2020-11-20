@@ -19,3 +19,4 @@ public/media/
 *-env/
 pip-selfcheck.json
 rapidsms.log
+node_modules/

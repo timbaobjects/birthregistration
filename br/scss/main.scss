@@ -1,0 +1,16 @@
+// Variables
+$primary: #401f7c;
+$secondary: #f4f4f4;
+$border-radius: .5rem;
+$border-radius-sm: .35rem;
+$border-radius-lg: .65rem;
+$enable-shadows: true !default;
+$enable-negative-margins: true;
+
+$font-family-sans-serif: 'Overpass', sans-serif;
+$font-weight-normal: 300 !default;
+$font-weight-bold: 600 !default;
+
+@import url('https://fonts.googleapis.com/css2?family=Overpass:wght@300;600&display=swap');
+@import 'style';
+@import '../node_modules/bootstrap/scss/bootstrap.scss';
