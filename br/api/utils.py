@@ -19,18 +19,27 @@ def get_dataframe(level, year, month):
     reporting_params = [start, end, start, end]
     prior_u1_params = [u1_start, u1_end]
 
-    if level == 'country':
-        query_reporting = queries.NATIONAL_REPORTING_QUERY
-        query_prior = queries.NATIONAL_PREV_U1_QUERY
-    else:
-        query_reporting = queries.STATE_REPORTING_QUERY
-        query_prior = queries.STATE_PREV_U1_QUERY
+    reporting_attribute_name = level.upper() + '_REPORTING_QUERY'
+    prior_attribute_name = level.upper() + '_PREV_U1_QUERY'
+    
+    query_reporting = getattr(queries, reporting_attribute_name, None)
+    query_prior = getattr(queries, prior_attribute_name, None)
+
+    if query_reporting is None or query_prior is None:
+        return pd.DataFrame()
 
     reporting_dataframe = pd.read_sql_query(
         query_reporting, connection, params=reporting_params).fillna(0)
     prior_u1_dataframe = pd.read_sql_query(
         query_prior, connection, params=prior_u1_params).fillna(0)
     estimate_df = CensusResult.get_estimate_dataframe(year, month)
+
+    if level == 'country':
+        loc = Location.get_by_code('ng')
+        reporting_dataframe['loc_id'] = loc.id
+        reporting_dataframe['loc'] = loc.name
+        prior_u1_dataframe['loc_id'] = loc.id
+        prior_u1_dataframe['loc'] = loc.name
 
     dataframe = pd.concat([
         reporting_dataframe.set_index('loc_id'),
@@ -50,18 +59,27 @@ def get_dataframe_lite(level, year, month):
     reporting_params = [start, end]
     prior_u1_params = [u1_start, u1_end]
 
-    if level == 'country':
-        query_reporting = queries.NATIONAL_REPORTING_LITE_QUERY
-        query_prior = queries.NATIONAL_PREV_U1_QUERY
-    else:
-        query_reporting = queries.STATE_REPORTING_LITE_QUERY
-        query_prior = queries.STATE_PREV_U1_QUERY
+    reporting_attribute_name = level.upper() + '_REPORTING_LITE_QUERY'
+    prior_attribute_name = level.upper() + '_PREV_U1_QUERY'
+    
+    query_reporting = getattr(queries, reporting_attribute_name, None)
+    query_prior = getattr(queries, prior_attribute_name, None)
+
+    if query_reporting is None or query_prior is None:
+        return pd.DataFrame()
 
     reporting_dataframe = pd.read_sql_query(
         query_reporting, connection, params=reporting_params).fillna(0)
     prior_u1_dataframe = pd.read_sql_query(
         query_prior, connection, params=prior_u1_params).fillna(0)
     estimate_df = CensusResult.get_estimate_dataframe(year, month)
+
+    if level == 'country':
+        loc = Location.get_by_code('ng')
+        reporting_dataframe['loc_id'] = loc.id
+        reporting_dataframe['loc'] = loc.name
+        prior_u1_dataframe['loc_id'] = loc.id
+        prior_u1_dataframe['loc'] = loc.name
 
     dataframe = pd.concat([
         reporting_dataframe.set_index('loc_id'),
@@ -76,25 +94,31 @@ def get_dataframe_lite(level, year, month):
 
 
 def get_api_data(level='country', year=None, month=None):
+    level = level.lower()
     if year is None:
         year = now().year
+
+    if level not in ('country', 'state', 'lga'):
+        print level
+        return {}
 
     dataframe_primary = get_dataframe(level, year, month)
     years = list(range(year - 3, year))
     alt_dataframes = [get_dataframe_lite(level, yr, None) for yr in years]
 
     map_data_folder = os.path.join(os.path.dirname(__file__), 'json')
-    if level == 'country':
-        map_data = os.path.join(map_data_folder, 'br-api-states.json')
-        with open(map_data) as f:
-            geojson = json.load(f)
-    else:
-        map_data = os.path.join(map_data_folder, 'br-api-lgas.json')
-        with open(map_data) as f:
-            geojson = json.load(f)
+    geodata_filename = 'br-api-{level}.json'.format(level=level)
+    map_data = os.path.join(map_data_folder, geodata_filename)
+
+    if not os.path.exists(map_data):
+        print "Can't find map data"
+        return {}
+
+    with open(map_data) as f:
+        payload = json.load(f)
 
     if not dataframe_primary.empty:
-        for feature in geojson['features']:
+        for feature in payload['features']:
             loc_id = feature.get('properties').get('id')
             data = {}
             record = dataframe_primary.loc[loc_id]
@@ -122,4 +146,4 @@ def get_api_data(level='country', year=None, month=None):
             } for year, alt_df in zip(years, alt_dataframes)])
             feature['properties'].update(data)
 
-    return geojson
+    return payload
