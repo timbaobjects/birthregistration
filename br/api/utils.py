@@ -99,7 +99,6 @@ def get_api_data(level='country', year=None, month=None):
         year = now().year
 
     if level not in ('country', 'state', 'lga'):
-        print level
         return {}
 
     dataframe_primary = get_dataframe(level, year, month)
@@ -111,7 +110,6 @@ def get_api_data(level='country', year=None, month=None):
     map_data = os.path.join(map_data_folder, geodata_filename)
 
     if not os.path.exists(map_data):
-        print "Can't find map data"
         return {}
 
     with open(map_data) as f:
