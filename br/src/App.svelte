@@ -15,7 +15,28 @@
 		contributing = 0,
 		fresh = 0,
 		trend = [],
+		national_data = {
+			name: 'Nigeria',
+			u1_perf: 0,
+			boys: 0,
+			girls: 0,
+			total_centres: 0,
+			reporting_centres: 0,
+			new_centres: 0,
+			previous: []
+		},
 		lgasLayer, statesLayer, bordersLayer, promise;
+
+	let displayNational = () => {
+		name = national_data.name;
+		performance = national_data.u1_perf;
+		boys = national_data.boys;
+		girls = national_data.girls;
+		total = national_data.total_centres;
+		contributing = national_data.reporting_centres;
+		fresh = national_data.new_centres;
+		trend = national_data.previous;
+	};
 
 	let switchLayers = (enableLGAS) => {
 		if (enableLGAS) {
@@ -40,6 +61,7 @@
 			layer.setStyle({fillOpacity: .8});
 		});
 		layer.on('mouseout', (e) => {
+			displayNational();
 			layer.setStyle({fillOpacity: .5});
 		});
 		layer.on('click', (e) => {
@@ -61,6 +83,7 @@
 			layer.setStyle({fillOpacity: .8});
 		});
 		layer.on('mouseout', (e) => {
+			displayNational();
 			layer.setStyle({fillOpacity: .5});
 		});
 		layer.on('click', (e) => {
@@ -121,9 +144,22 @@
 		});
 
 		async function loadLayers() {
-			let states = await fetch('/br/api/v1/');
-			let lgas = await fetch('/br/api/v1/?level=state');
+			let nation = await fetch('/br/api/v1/?level=country');
+			let states = await fetch('/br/api/v1/?level=state');
+			let lgas = await fetch('/br/api/v1/?level=lga');
 			let borders = await fetch('/static/js/br-state-boundaries.json');
+
+			if (nation.ok) {
+				let json = await nation.json();
+				national_data.name = json.features[0].properties.name;
+				national_data.u1_perf = json.features[0].properties.u1_perf;
+				national_data.boys = json.features[0].properties.boys;
+				national_data.girls = json.features[0].properties.girls;
+				national_data.total_centres = json.features[0].properties.total_centres;
+				national_data.reporting_centres = json.features[0].properties.reporting_centres;
+				national_data.new_centres = json.features[0].properties.new_centres;
+				national_data.previous = json.features[0].properties.previous;
+			}
 
 			if (lgas.ok) {
 				let json = await lgas.json();
