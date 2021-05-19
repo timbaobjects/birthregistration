@@ -12,6 +12,20 @@ from br.models import CensusResult
 from br.utils import get_boundary_dates
 from locations.models import Location
 
+data_file_path = os.path.join(os.path.dirname(__file__), 'data/estimates.csv')
+ESTIMATE_DATAFRAME = pd.read_csv(data_file_path).set_index('loc_id').sort_index()
+
+
+def get_estimate_dataframe(year, month=None):
+    ss_year = ESTIMATE_DATAFRAME[ESTIMATE_DATAFRAME['year'] == year]
+
+    if month is None:
+        subset = ss_year[ss_year['month'] == 12]
+    else:
+        subset = ss_year[ss_year['month'] == month]
+
+    return subset[['estimate', 'u1_estimate', 'u5_estimate']]
+
 
 def get_dataframe(level, year, month):
     start, end, u1_start, u1_end = get_boundary_dates(year, month)
@@ -32,7 +46,8 @@ def get_dataframe(level, year, month):
         query_reporting, connection, params=reporting_params).fillna(0)
     prior_u1_dataframe = pd.read_sql_query(
         query_prior, connection, params=prior_u1_params).fillna(0)
-    estimate_df = CensusResult.get_estimate_dataframe(year, month)
+    # estimate_df = CensusResult.get_estimate_dataframe(year, month)
+    estimate_df = get_estimate_dataframe(year, month)
 
     if level == 'country':
         loc = Location.get_by_code('ng')
@@ -72,7 +87,8 @@ def get_dataframe_lite(level, year, month):
         query_reporting, connection, params=reporting_params).fillna(0)
     prior_u1_dataframe = pd.read_sql_query(
         query_prior, connection, params=prior_u1_params).fillna(0)
-    estimate_df = CensusResult.get_estimate_dataframe(year, month)
+    # estimate_df = CensusResult.get_estimate_dataframe(year, month)
+    estimate_df = get_estimate_dataframe(year, month)
 
     if level == 'country':
         loc = Location.get_by_code('ng')
