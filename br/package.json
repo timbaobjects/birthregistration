@@ -7,12 +7,12 @@
     "start": "sirv public"
   },
   "devDependencies": {
+    "@popperjs/core": "^2.9.2",
     "@rollup/plugin-commonjs": "^14.0.0",
     "@rollup/plugin-node-resolve": "^8.0.0",
-    "bootstrap": "^5.0.0-alpha2",
-    "bootstrap-icons": "^1.0.0",
+    "bootstrap": "^5.0.1",
+    "bootstrap-icons": "^1.5.0",
     "leaflet": "^1.7.1",
-    "popper.js": "^1.16.1",
     "rollup": "^2.3.4",
     "rollup-plugin-livereload": "^2.0.0",
     "rollup-plugin-svelte": "^6.0.0",
