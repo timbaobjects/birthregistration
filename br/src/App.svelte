@@ -6,6 +6,9 @@
 	import Centers from './Centers.svelte';
 	import { ScaleOut } from 'svelte-loading-spinners';
 
+	// import Leaflet's CSS from its dist folder
+	import '../node_modules/leaflet/dist/leaflet.css';
+
 	let map;
 	let name = 'Nigeria',
 		performance = 0,
