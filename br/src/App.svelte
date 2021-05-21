@@ -5,6 +5,8 @@
 	import Trend from './Trend.svelte';
 	import Centers from './Centers.svelte';
 	import { ScaleOut } from 'svelte-loading-spinners';
+	import Papa from 'papaparse' ;
+	import { saveAs } from 'file-saver';
 
 	// import Leaflet's CSS from its dist folder
 	import '../node_modules/leaflet/dist/leaflet.css';
@@ -28,7 +30,28 @@
 			new_centres: 0,
 			previous: []
 		},
-		lgasLayer, statesLayer, bordersLayer, promise;
+		lgasLayer, statesLayer, bordersLayer, promise, exportCache;
+
+	let transformColumns = record => {
+		let transformed = {};
+		transformed['Location'] = record.name;
+		transformed['U1'] = record.u1;
+		transformed['U5'] = record.u5;
+		transformed['Boys'] = record.boys;
+		transformed['Girls'] = record.girls;
+		transformed['Estimate'] = record.estimate;
+		transformed['U1 estimate'] = record.u1_estimate;
+		transformed['U5 estimate'] = record.u5_estimate;
+		transformed['U1 performance'] = record.u1_perf;
+		transformed['U5 performance'] = record.u5_perf;
+		transformed['Year'] = record.year;
+		transformed['Month'] = record.month;
+		transformed['Total centres'] = record.total_centres;
+		transformed['New centres'] = record.new_centres;
+		transformed['Reporting centres'] = record.reporting_centres;
+
+		return transformed;
+	};
 
 	let displayNational = () => {
 		name = national_data.name;
@@ -125,6 +148,18 @@
 		return {weight: 5, color: '#fff', opacity: 1};
 	};
 
+	
+	let downloadHandler = () => {
+		let csv = Papa.unparse(exportCache, {columns: [
+			'Location', 'Boys', 'Girls', 'U1', 'U5', 'U1 performance',
+			'U5 performance', 'U1 estimate', 'U5 estimate', 'Estimate',
+			'Year', 'Month', 'Total centres', 'New centres',
+			'Reporting centres'
+		]});
+
+		saveAs(new Blob([csv], {type: 'text/csv;charset=utf-8'}), 'dashboard-export.csv');
+	};
+
 	onMount(async () => {
 		map = L.map('mapid');
 		L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
@@ -147,6 +182,7 @@
 		});
 
 		async function loadLayers() {
+			exportCache = [];
 			let nation = await fetch('/br/api/v1/?level=country');
 			let states = await fetch('/br/api/v1/?level=state');
 			let lgas = await fetch('/br/api/v1/?level=lga');
@@ -162,6 +198,8 @@
 				national_data.reporting_centres = json.features[0].properties.reporting_centres;
 				national_data.new_centres = json.features[0].properties.new_centres;
 				national_data.previous = json.features[0].properties.previous;
+
+				exportCache.push(transformColumns(json.features[0].properties));
 			}
 
 			if (lgas.ok) {
@@ -169,6 +207,10 @@
 				lgasLayer = L.geoJSON(json, {
 					onEachFeature: eachLGA,
 					style: lgasStyle
+				});
+
+				json.features.forEach(feature => {
+					exportCache.push(transformColumns(feature.properties));
 				});
 			}
 
@@ -186,6 +228,10 @@
 					style: statesStyle
 				});
 				map.addLayer(statesLayer);
+
+				json.features.forEach(feature => {
+					exportCache.push(transformColumns(feature.properties));
+				});
 			}
 		};
 
@@ -221,6 +267,6 @@
 </div>
 {/await}
 <div id="mapid"></div>
-<Performance {name} {performance} {boys} {girls} />
+<Performance {name} {performance} {boys} {girls} {downloadHandler} />
 <Trend {name} {trend} />
 <Centers {total} {contributing} {fresh} />

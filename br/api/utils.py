@@ -163,6 +163,7 @@ def get_api_data(level='country', year=None, month=None):
                 u5_perf=round(record['u5_perf'] * 100, 2),
                 u1_estimate=round(record['u1_estimate']),
                 u5_estimate=round(record['u5_estimate']),
+                estimate=round(record['estimate']),
                 total_centres=record['total_centres'],
                 reporting_centres=record['reporting_centres'],
                 new_centres=record['new_centres'],
