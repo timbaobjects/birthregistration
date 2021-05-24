@@ -139,6 +139,13 @@ def get_api_data(level='country', year=None, month=None):
             data.update(
                 u1=record['u1'],
                 u5=record['u5'],
+                five_plus=record['five_plus'],
+                u1_boys=record['u1_boys'],
+                u5_boys=record['u5_boys'],
+                five_plus_boys=record['five_plus_boys'],
+                u1_girls=record['u1_girls'],
+                u5_girls=record['u5_girls'],
+                five_plus_girls=record['five_plus_girls'],
                 boys=record['boys'],
                 girls=record['girls'],
                 u1_perf=round(record['u1_perf'] * 100, 2),
