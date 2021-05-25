@@ -2,7 +2,7 @@
 from django.http import JsonResponse
 from django.utils.timezone import now
 
-from br.api.utils import get_api_data
+from br.api.utils import get_api_data, get_estimate_dataframe
 from br.models import CensusResult
 from br.utils import extract_reporting_records, get_report_year_range
 from locations.models import Location
@@ -43,7 +43,7 @@ def get_projection_data(request):
 
     # extract month
     month_raw = request.GET.get('month')
-    if month_raw is None:
+    if month_raw is None or month_raw == '':
         month = None
     else:
         try:
@@ -55,7 +55,8 @@ def get_projection_data(request):
             return JsonResponse(dict(message='Invalid month', status='error'), status=400)
 
     reporting_df, prior_u1_df = extract_reporting_records(location, year, month)
-    census_result = CensusResult.get_estimate_dataframe(year, month).reset_index()
+    # census_result = CensusResult.get_estimate_dataframe(year, month).reset_index()
+    census_result = get_estimate_dataframe(year, month).reset_index()
 
     col_names = ['loc_name', 'loc_id']
     if location.level == 0:
