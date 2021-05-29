@@ -6,6 +6,13 @@ SELECT
     COUNT(CASE WHEN rc.created >= %s AND rc.created <= %s THEN 1 END) as new_centres,
     SUM(br.girls_below1 + br.boys_below1) AS u1,
     SUM(br.girls_below1 + br.boys_below1 + br.girls_1to4 + br.boys_1to4) AS u5,
+    SUM(br.boys_5to9 + br.boys_10to18 + br.girls_5to9 + br.girls_10to18) AS five_plus,
+    SUM(br.boys_below1) AS u1_boys,
+    SUM(br.boys_below1 + br.boys_1to4) AS u5_boys,
+    SUM(br.boys_5to9 + br.boys_10to18) AS five_plus_boys,
+    SUM(br.girls_below1) AS u1_girls,
+    SUM(br.girls_below1 + br.girls_1to4) AS u5_girls,
+    SUM(br.girls_5to9 + br.girls_10to18) AS five_plus_girls,
     SUM(br.girls_below1 + br.girls_1to4 + br.girls_5to9 + br.girls_10to18) AS girls,
     SUM(br.boys_below1 + br.boys_1to4 + br.boys_5to9 + br.boys_10to18) AS boys
 FROM
@@ -20,6 +27,13 @@ COUNTRY_REPORTING_LITE_QUERY = '''
 SELECT
     SUM(br.girls_below1 + br.boys_below1) AS u1,
     SUM(br.girls_below1 + br.boys_below1 + br.girls_1to4 + br.boys_1to4) AS u5,
+    SUM(br.boys_5to9 + br.boys_10to18 + br.girls_5to9 + br.girls_10to18) AS five_plus,
+    SUM(br.boys_below1) AS u1_boys,
+    SUM(br.boys_below1 + br.boys_1to4) AS u5_boys,
+    SUM(br.boys_5to9 + br.boys_10to18) AS five_plus_boys,
+    SUM(br.girls_below1) AS u1_girls,
+    SUM(br.girls_below1 + br.girls_1to4) AS u5_girls,
+    SUM(br.girls_5to9 + br.girls_10to18) AS five_plus_girls,
     SUM(br.girls_below1 + br.girls_1to4 + br.girls_5to9 + br.girls_10to18) AS girls,
     SUM(br.boys_below1 + br.boys_1to4 + br.boys_5to9 + br.boys_10to18) AS boys
 FROM
@@ -53,6 +67,13 @@ SELECT
     COUNT(CASE WHEN rc.created >= %s AND rc.created <= %s THEN 1 END) as new_centres,
     SUM(br.girls_below1 + br.boys_below1) AS u1,
     SUM(br.girls_below1 + br.boys_below1 + br.girls_1to4 + br.boys_1to4) AS u5,
+    SUM(br.boys_5to9 + br.boys_10to18 + br.girls_5to9 + br.girls_10to18) AS five_plus,
+    SUM(br.boys_below1) AS u1_boys,
+    SUM(br.boys_below1 + br.boys_1to4) AS u5_boys,
+    SUM(br.boys_5to9 + br.boys_10to18) AS five_plus_boys,
+    SUM(br.girls_below1) AS u1_girls,
+    SUM(br.girls_below1 + br.girls_1to4) AS u5_girls,
+    SUM(br.girls_5to9 + br.girls_10to18) AS five_plus_girls,
     SUM(br.girls_below1 + br.girls_1to4 + br.girls_5to9 + br.girls_10to18) AS girls,
     SUM(br.boys_below1 + br.boys_1to4 + br.boys_5to9 + br.boys_10to18) AS boys
 FROM
@@ -75,6 +96,13 @@ SELECT
     state.id as loc_id,
     SUM(br.girls_below1 + br.boys_below1) AS u1,
     SUM(br.girls_below1 + br.boys_below1 + br.girls_1to4 + br.boys_1to4) AS u5,
+    SUM(br.boys_5to9 + br.boys_10to18 + br.girls_5to9 + br.girls_10to18) AS five_plus,
+    SUM(br.boys_below1) AS u1_boys,
+    SUM(br.boys_below1 + br.boys_1to4) AS u5_boys,
+    SUM(br.boys_5to9 + br.boys_10to18) AS five_plus_boys,
+    SUM(br.girls_below1) AS u1_girls,
+    SUM(br.girls_below1 + br.girls_1to4) AS u5_girls,
+    SUM(br.girls_5to9 + br.girls_10to18) AS five_plus_girls,
     SUM(br.girls_below1 + br.girls_1to4 + br.girls_5to9 + br.girls_10to18) AS girls,
     SUM(br.boys_below1 + br.boys_1to4 + br.boys_5to9 + br.boys_10to18) AS boys
 FROM
@@ -100,6 +128,13 @@ SELECT
     COUNT(CASE WHEN rc.created >= %s AND rc.created <= %s THEN 1 END) as new_centres,
     SUM(br.girls_below1 + br.boys_below1) AS u1,
     SUM(br.girls_below1 + br.boys_below1 + br.girls_1to4 + br.boys_1to4) AS u5,
+    SUM(br.boys_5to9 + br.boys_10to18 + br.girls_5to9 + br.girls_10to18) AS five_plus,
+    SUM(br.boys_below1) AS u1_boys,
+    SUM(br.boys_below1 + br.boys_1to4) AS u5_boys,
+    SUM(br.boys_5to9 + br.boys_10to18) AS five_plus_boys,
+    SUM(br.girls_below1) AS u1_girls,
+    SUM(br.girls_below1 + br.girls_1to4) AS u5_girls,
+    SUM(br.girls_5to9 + br.girls_10to18) AS five_plus_girls,
     SUM(br.girls_below1 + br.girls_1to4 + br.girls_5to9 + br.girls_10to18) AS girls,
     SUM(br.boys_below1 + br.boys_1to4 + br.boys_5to9 + br.boys_10to18) AS boys
 FROM
@@ -122,6 +157,13 @@ SELECT
     lga.id as loc_id,
     SUM(br.girls_below1 + br.boys_below1) AS u1,
     SUM(br.girls_below1 + br.boys_below1 + br.girls_1to4 + br.boys_1to4) AS u5,
+    SUM(br.boys_5to9 + br.boys_10to18 + br.girls_5to9 + br.girls_10to18) AS five_plus,
+    SUM(br.boys_below1) AS u1_boys,
+    SUM(br.boys_below1 + br.boys_1to4) AS u5_boys,
+    SUM(br.boys_5to9 + br.boys_10to18) AS five_plus_boys,
+    SUM(br.girls_below1) AS u1_girls,
+    SUM(br.girls_below1 + br.girls_1to4) AS u5_girls,
+    SUM(br.girls_5to9 + br.girls_10to18) AS five_plus_girls,
     SUM(br.girls_below1 + br.girls_1to4 + br.girls_5to9 + br.girls_10to18) AS girls,
     SUM(br.boys_below1 + br.boys_1to4 + br.boys_5to9 + br.boys_10to18) AS boys
 FROM

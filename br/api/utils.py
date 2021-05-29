@@ -12,6 +12,31 @@ from br.models import CensusResult
 from br.utils import get_boundary_dates
 from locations.models import Location
 
+data_file_path = os.path.join(os.path.dirname(__file__), 'data/estimates.csv')
+
+if os.path.exists(data_file_path):
+    ESTIMATE_DATAFRAME = pd.read_csv(data_file_path).set_index('loc_id').sort_index()
+else:
+    ESTIMATE_DATAFRAME = pd.DataFrame(
+        {},
+        columns=['estimate', 'u1_estimate', 'u5_estimate', 'year', 'month',
+                 'loc_id']
+    ).set_index('loc_id')
+
+
+def get_estimate_dataframe(year, month=None):
+    ss_year = ESTIMATE_DATAFRAME[ESTIMATE_DATAFRAME['year'] == year]
+
+    if month is None:
+        subset = ss_year[ss_year['month'] == 12]
+    else:
+        subset = ss_year[ss_year['month'] == month]
+
+    if subset.empty:
+        return CensusResult.get_estimate_dataframe(year, month)
+
+    return subset[['estimate', 'u1_estimate', 'u5_estimate']]
+
 
 def get_dataframe(level, year, month):
     start, end, u1_start, u1_end = get_boundary_dates(year, month)
@@ -32,7 +57,8 @@ def get_dataframe(level, year, month):
         query_reporting, connection, params=reporting_params).fillna(0)
     prior_u1_dataframe = pd.read_sql_query(
         query_prior, connection, params=prior_u1_params).fillna(0)
-    estimate_df = CensusResult.get_estimate_dataframe(year, month)
+    # estimate_df = CensusResult.get_estimate_dataframe(year, month)
+    estimate_df = get_estimate_dataframe(year, month)
 
     if level == 'country':
         loc = Location.get_by_code('ng')
@@ -72,7 +98,8 @@ def get_dataframe_lite(level, year, month):
         query_reporting, connection, params=reporting_params).fillna(0)
     prior_u1_dataframe = pd.read_sql_query(
         query_prior, connection, params=prior_u1_params).fillna(0)
-    estimate_df = CensusResult.get_estimate_dataframe(year, month)
+    # estimate_df = CensusResult.get_estimate_dataframe(year, month)
+    estimate_df = get_estimate_dataframe(year, month)
 
     if level == 'country':
         loc = Location.get_by_code('ng')
@@ -123,6 +150,13 @@ def get_api_data(level='country', year=None, month=None):
             data.update(
                 u1=record['u1'],
                 u5=record['u5'],
+                five_plus=record['five_plus'],
+                u1_boys=record['u1_boys'],
+                u5_boys=record['u5_boys'],
+                five_plus_boys=record['five_plus_boys'],
+                u1_girls=record['u1_girls'],
+                u5_girls=record['u5_girls'],
+                five_plus_girls=record['five_plus_girls'],
                 boys=record['boys'],
                 girls=record['girls'],
                 u1_perf=round(record['u1_perf'] * 100, 2),

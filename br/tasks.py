@@ -16,6 +16,7 @@ from rapidsms.contrib.messagelog.models import Message
 from rapidsms.models import Connection
 import pandas as pd
 
+from br.api.utils import get_estimate_dataframe
 from br.models import BirthRegistration, CensusResult, Subscription
 from br.raw_queries import CENTRE_REPORTING_QUERY, DATA_QUERY, PRIOR_DATA_QUERY
 from br.utils import generate_report_attachment
@@ -198,7 +199,8 @@ def compute_reports(year, month):
         DATA_QUERY, db_connection, params=report_params).round()
     prior_u1_df = pd.read_sql_query(
         PRIOR_DATA_QUERY, db_connection, params=prior_u1_params)
-    estimate_df = CensusResult.get_estimate_dataframe(year, month)
+    # estimate_df = CensusResult.get_estimate_dataframe(year, month)
+    estimate_df = get_estimate_dataframe(year, month)
 
     # add in population estimates
     df[['estimate', 'u1_estimate', 'u5_estimate']] = df.apply(
