@@ -13,7 +13,15 @@ from br.utils import get_boundary_dates
 from locations.models import Location
 
 data_file_path = os.path.join(os.path.dirname(__file__), 'data/estimates.csv')
-ESTIMATE_DATAFRAME = pd.read_csv(data_file_path).set_index('loc_id').sort_index()
+
+if os.path.exists(data_file_path):
+    ESTIMATE_DATAFRAME = pd.read_csv(data_file_path).set_index('loc_id').sort_index()
+else:
+    ESTIMATE_DATAFRAME = pd.DataFrame(
+        {},
+        columns=['estimate', 'u1_estimate', 'u5_estimate', 'year', 'month',
+                 'loc_id']
+    ).set_index('loc_id')
 
 
 def get_estimate_dataframe(year, month=None):
@@ -23,6 +31,9 @@ def get_estimate_dataframe(year, month=None):
         subset = ss_year[ss_year['month'] == 12]
     else:
         subset = ss_year[ss_year['month'] == month]
+
+    if subset.empty:
+        return CensusResult.get_estimate_dataframe(year, month)
 
     return subset[['estimate', 'u1_estimate', 'u5_estimate']]
 
