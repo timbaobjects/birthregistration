@@ -142,56 +142,58 @@ def get_api_data(level='country', year=None, month=None):
     with open(map_data) as f:
         payload = json.load(f)
 
-    if not dataframe_primary.empty:
-        for feature in payload['features']:
-            loc_id = feature.get('properties').get('id')
-            data = {}
+    for feature in payload['features']:
+        loc_id = feature.get('properties').get('id')
+        data = {}
+        try:
             record = dataframe_primary.loc[loc_id]
-            data.update(
-                u1=record['u1'],
-                u5=record['u5'],
-                five_plus=record['five_plus'],
-                u1_boys=record['u1_boys'],
-                u5_boys=record['u5_boys'],
-                five_plus_boys=record['five_plus_boys'],
-                u1_girls=record['u1_girls'],
-                u5_girls=record['u5_girls'],
-                five_plus_girls=record['five_plus_girls'],
-                boys=record['boys'],
-                girls=record['girls'],
-                u1_perf=round(record['u1_perf'] * 100, 2),
-                u5_perf=round(record['u5_perf'] * 100, 2),
-                u1_estimate=round(record['u1_estimate']),
-                u5_estimate=round(record['u5_estimate']),
-                total_centres=record['total_centres'],
-                reporting_centres=record['reporting_centres'],
-                new_centres=record['new_centres'],
-                year=year,
-                month=month
-            )
+        except KeyError:
+            record = {}
+        data.update(
+            u1=record.get('u1', 0),
+            u5=record.get('u5', 0),
+            five_plus=record.get('five_plus', 0),
+            u1_boys=record.get('u1_boys', 0),
+            u5_boys=record.get('u5_boys', 0),
+            five_plus_boys=record.get('five_plus_boys', 0),
+            u1_girls=record.get('u1_girls', 0),
+            u5_girls=record.get('u5_girls', 0),
+            five_plus_girls=record.get('five_plus_girls', 0),
+            boys=record.get('boys', 0),
+            girls=record.get('girls', 0),
+            u1_perf=round(record.get('u1_perf', 0) * 100, 2),
+            u5_perf=round(record.get('u5_perf', 0) * 100, 2),
+            u1_estimate=round(record.get('u1_estimate', 0)),
+            u5_estimate=round(record.get('u5_estimate', 0)),
+            total_centres=record.get('total_centres', 0),
+            reporting_centres=record.get('reporting_centres', 0),
+            new_centres=record.get('new_centres', 0),
+            year=year,
+            month=month
+        )
 
-            previous = []
-            for year, alt_df in zip(years, alt_dataframes):
-                try:
-                    subset = alt_df.loc[loc_id]
+        previous = []
+        for year, alt_df in zip(years, alt_dataframes):
+            try:
+                subset = alt_df.loc[loc_id]
 
-                    previous.append({
-                        'year': year,
-                        'u1_perf': round(subset['u1_perf'] * 100, 2),
-                        'u5_perf': round(subset['u5_perf'] * 100, 2),
-                        'u1_estimate': round(subset['u1_estimate'] * 100, 2),
-                        'u5_estimate': round(subset['u5_estimate'] * 100, 2),
-                    })
-                except KeyError:
-                    previous.append({
-                        'year': year,
-                        'u1_perf': 0,
-                        'u5_perf': 0,
-                        'u1_estimate': 0,
-                        'u5_estimate': 0,
-                    })
+                previous.append({
+                    'year': year,
+                    'u1_perf': round(subset['u1_perf'] * 100, 2),
+                    'u5_perf': round(subset['u5_perf'] * 100, 2),
+                    'u1_estimate': round(subset['u1_estimate'] * 100, 2),
+                    'u5_estimate': round(subset['u5_estimate'] * 100, 2),
+                })
+            except KeyError:
+                previous.append({
+                    'year': year,
+                    'u1_perf': 0,
+                    'u5_perf': 0,
+                    'u1_estimate': 0,
+                    'u5_estimate': 0,
+                })
 
-            data.update(previous=previous)
-            feature['properties'].update(data)
+        data.update(previous=previous)
+        feature['properties'].update(data)
 
     return payload
