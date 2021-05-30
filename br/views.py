@@ -5,17 +5,15 @@ from io import BytesIO
 import json
 
 from braces.views import LoginRequiredMixin, PermissionRequiredMixin
-from dateutil.relativedelta import relativedelta
 from django.conf import settings
 from django.contrib import messages
 from django.core.urlresolvers import reverse
-from django.db.models import Max, Min
 from django.http import (
     HttpResponse, HttpResponseNotFound, HttpResponseRedirect,
     HttpResponseNotAllowed, HttpResponseForbidden)
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, render_to_response
 from django.utils.http import is_safe_url
-from django.utils.timezone import make_aware, now
+from django.utils.timezone import make_aware
 from django.views.generic import ListView, UpdateView, DeleteView, TemplateView
 import pandas as pd
 
@@ -23,8 +21,6 @@ from br import utils
 from br.models import BirthRegistration, CensusResult
 from br.filters import BirthRegistrationFilter
 from br.forms import BirthRegistrationModelForm, ReportDeleteForm
-from br.helpers import get_record_dataset
-from br.exporter import export_records_3
 from locations.models import Location
 
 PROTECTED_VIEW_PERMISSION = u'br.change_birthregistration'
@@ -307,31 +303,30 @@ def _country_dashboard(request, location, year, month, cumulative):
 
 
 def dashboard(request, state=None, year=None, month=None):
-    # if state is None:
-    #     location = Location.get_by_code('ng')
-    # else:
-    #     location = get_object_or_404(
-    #         Location, name__iregex=state.replace('-', '.'), type__name="State")
+    if state is None:
+        location = Location.get_by_code('ng')
+    else:
+        location = get_object_or_404(
+            Location, name__iregex=state.replace('-', '.'), type__name="State")
 
-    # # sanity checks
-    # try:
-    #     year = int(year) if year else make_aware(datetime.now()).year
-    #     month = int(month) if month else None
-    # except ValueError:
-    #     return HttpResponseNotFound()
+    # sanity checks
+    try:
+        year = int(year) if year else make_aware(datetime.now()).year
+        month = int(month) if month else None
+    except ValueError:
+        return HttpResponseNotFound()
 
-    # if month and (month > 12):
-    #     return HttpResponseNotFound()
+    if month and (month > 12):
+        return HttpResponseNotFound()
 
-    # cumulative = 'cumulative' in request.GET
-    # if state:
-    #     return _state_dashboard(request, location, year, month, cumulative)
-    # else:
-    #     return _country_dashboard(request, location, year, month, cumulative)
+    cumulative = 'cumulative' in request.GET
+    if state:
+        return _state_dashboard(request, location, year, month, cumulative)
+    else:
+        return _country_dashboard(request, location, year, month, cumulative)
 
-    context = {}
-    return render(request, 'br/map_dashboard.html', context)
-
+def map_dashboard(request):
+    return render_to_response('br/map_dashboard.html')
 
 
 class ReportListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
