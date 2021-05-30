@@ -173,12 +173,12 @@ def get_api_data(level='country', year=None, month=None):
         )
 
         previous = []
-        for year, alt_df in zip(years, alt_dataframes):
+        for alt_year, alt_df in zip(years, alt_dataframes):
             try:
                 subset = alt_df.loc[loc_id]
 
                 previous.append({
-                    'year': year,
+                    'year': alt_year,
                     'u1_perf': round(subset['u1_perf'] * 100, 2),
                     'u5_perf': round(subset['u5_perf'] * 100, 2),
                     'u1_estimate': round(subset['u1_estimate'] * 100, 2),
@@ -186,7 +186,7 @@ def get_api_data(level='country', year=None, month=None):
                 })
             except KeyError:
                 previous.append({
-                    'year': year,
+                    'year': alt_year,
                     'u1_perf': 0,
                     'u5_perf': 0,
                     'u1_estimate': 0,
