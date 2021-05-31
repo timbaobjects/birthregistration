@@ -8,6 +8,7 @@
 	import Toolbar from './Toolbar.svelte';
 	import DateSelector from './DateSelector.svelte';
 	import { ScaleOut } from 'svelte-loading-spinners';
+	import Papa from 'papaparse';
 
 	let map;
 	let name = 'Nigeria',
@@ -34,9 +35,30 @@
 		},
 		lgasLayers = [],
 		statesLayers = [],
-		bordersLayer, promise;
+		bordersLayer, promise, exportCache;
     const UNDER_1 = 0,
 	      UNDER_5 = 1;
+
+	const transformColumns = record => {
+		let transformed = {};
+		transformed['Location'] = record.name;
+		transformed['U1'] = record.u1;
+		transformed['U5'] = record.u5;
+		transformed['Boys'] = record.boys;
+		transformed['Girls'] = record.girls;
+		transformed['Estimate'] = record.estimate;
+		transformed['U1 estimate'] = record.u1_estimate;
+		transformed['U5 estimate'] = record.u5_estimate;
+		transformed['U1 performance'] = record.u1_perf;
+		transformed['U5 performance'] = record.u5_perf;
+		transformed['Year'] = record.year;
+		transformed['Month'] = record.month;
+		transformed['Total centres'] = record.total_centres;
+		transformed['New centres'] = record.new_centres;
+		transformed['Reporting centres'] = record.reporting_centres;
+
+		return transformed;
+	};
 
 	let displayNational = (selector = 0) => {
 		let performance_arr = [
@@ -188,6 +210,8 @@
 	};
 
 	async function loadLayers(year = '', month = '') {
+		exportCache = [];
+
 		function buildUrl(base_url) {
 			let url = new URLSearchParams(base_url);
 			if (year) {
@@ -217,6 +241,8 @@
 			national_data.reporting_centres = json.features[0].properties.reporting_centres;
 			national_data.new_centres = json.features[0].properties.new_centres;
 			national_data.previous = json.features[0].properties.previous;
+
+			exportCache.push(transformColumns(json.features[0].properties));
 		}
 
 		if (lgas.ok) {
@@ -230,6 +256,10 @@
 				onEachFeature: eachLGA(UNDER_5),
 				style: lgasStyle(UNDER_5)
 			}));
+
+			json.features.forEach(feature => {
+				exportCache.push(transformColumns(feature.properties));
+			});
 		}
 
 		if (bordersLayer === undefined) {
@@ -254,6 +284,10 @@
 				onEachFeature: eachState(UNDER_5),
 				style: statesStyle(UNDER_5)
 			}));
+
+			json.features.forEach(feature => {
+				exportCache.push(transformColumns(feature.properties));
+			});
 		}
 
 		switchLayers(age, false);
@@ -291,6 +325,25 @@
 		promise = loadLayers(event.detail.year, event.detail.month)
 	}
 
+	const exportData = () => {
+		let csv = Papa.unparse(exportCache, {columns: [
+			'Location', 'Boys', 'Girls', 'U1', 'U5', 'U1 performance',
+			'U5 performance', 'U1 estimate', 'U5 estimate', 'Estimate',
+			'Year', 'Month', 'Total centres', 'New centres',
+			'Reporting centres'
+		]});
+
+		const url = URL.createObjectURL(new Blob([csv], {type: 'text/csv;charset=utf-8'}));
+		const link = document.createElement('a');
+		const dt = new Date();
+		const filename = `BR-export-${Math.round(dt.getTime() / 1000)}.csv`;
+		link.href = url;
+		link.setAttribute('download', filename);
+		document.body.appendChild(link);
+		link.click();
+		link.parentNode.removeChild(link);
+	};
+
 	$: switchLayers(age, false);
 	$: displayNational(age);
 </script>
@@ -327,5 +380,5 @@
 <Performance {name} {performance} {boys} {girls} />
 <Trend {name} {trend} />
 <Centers {total} {contributing} {fresh} />
-<Toolbar />
+<Toolbar exportHandler={exportData} />
 <DateSelector on:message={handleDate} />
