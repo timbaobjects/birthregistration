@@ -11,8 +11,6 @@ from django.utils.timezone import make_aware, now
 import pandas as pd
 
 from br import raw_queries
-from br.api.utils import get_estimate_dataframe
-
 
 def get_report_year_range():
     cursor = connection.cursor()
@@ -46,6 +44,9 @@ def compute_estimate(census_results, year, month, record):
     This function is meant to be converted into a partial and called
     using the pandas DataFrame method apply().
     '''
+
+    from br.api.utils import get_estimate_dataframe
+
     try:
         # subset = census_results.loc[record.name]
         estimate_dataframe = get_estimate_dataframe(year, month)
