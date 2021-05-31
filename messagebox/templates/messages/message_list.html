@@ -25,7 +25,7 @@
                             <input type="text" class="form-control" name="{{ filter_form.phone.html_name }}" id="{{ filter_form.phone.id_for_label }}" value="{{ filter_form.phone.value|default:'' }}" placeholder="Phone">
                             <input type="text" class="form-control datepicker" name="{{ filter_form.date.html_name }}" id="{{ filter_form.date.id_for_label }}" value="{{ filter_form.date.value|default:'' }}" placeholder="Date">
                             <button type="submit" class="btn btn-primary" id="filter_button">Filter</button>
-                            <a class="btn btn-inverse" href="{% url 'messaging:message_list' %}">Clear</a                            
+                            <a class="btn btn-inverse" href="{% url 'messaging:message_list' %}">Clear</a>                          
                         </div>
                     </div>
                 </fieldset>
