@@ -11,6 +11,7 @@ from django.utils.timezone import make_aware, now
 import pandas as pd
 
 from br import raw_queries
+from br.api.utils import get_estimate_dataframe
 
 
 def get_report_year_range():
@@ -46,22 +47,28 @@ def compute_estimate(census_results, year, month, record):
     using the pandas DataFrame method apply().
     '''
     try:
-        subset = census_results.loc[record.name]
+        # subset = census_results.loc[record.name]
+        estimate_dataframe = get_estimate_dataframe(year, month)
+        subset = estimate_dataframe.loc[record.name]
     except KeyError:
         # the location has no saved census data
         return record.name, None, None, None
 
     # adjust for month or year estimate
-    if month is None:
-        growth_rate = subset['growth_rate']
-        exponent = year - subset['year']
-    else:
-        growth_rate = growth_rate = ((1 + subset[u'growth_rate']) ** (1 / 12.0)) - 1
-        exponent = (year - subset[u'year'] - 1) + month
+    # if month is None:
+    #     growth_rate = subset['growth_rate']
+    #     exponent = year - subset['year']
+    # else:
+    #     growth_rate = growth_rate = ((1 + subset[u'growth_rate']) ** (1 / 12.0)) - 1
+    #     exponent = (year - subset[u'year'] - 1) + month
 
-    estimate = subset['population'] * ((1 + (growth_rate / 100.0)) ** exponent)
-    u1_estimate = subset['under_1_rate'] * 0.01 * estimate
-    u5_estimate = subset['under_5_rate'] * 0.01 * estimate
+    # estimate = subset['population'] * ((1 + (growth_rate / 100.0)) ** exponent)
+    # u1_estimate = subset['under_1_rate'] * 0.01 * estimate
+    # u5_estimate = subset['under_5_rate'] * 0.01 * estimate
+
+    estimate = subset['estimate']
+    u1_estimate = subset['u1_estimate']
+    u5_estimate = subset['u5_estimate']
 
     return record.name, estimate, u1_estimate, u5_estimate
 
