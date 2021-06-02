@@ -86,7 +86,17 @@ a.text-decoration-none {
                     {% endif %}
                 </ul>
             </li>
-            <li class="nav-item"><a class="nav-link" href="https://staging.rapidsmsnigeria.org/br">Coverage</a></li>
+            <li class="nav-item dropdown">
+                <a href="javascript:;" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dashboards <b class="caret"></b></a>
+                <div class="dropdown-menu">
+                    <a href="{% url 'br:map_dashboard' %}" class="dropdown-item">Performance dashboard</a>
+                    <a href="https://staging.rapidsmsnigeria.org/br" class="dropdown-item">Coverage</a>
+                    <div class="dropdown-divider"></div>
+                    <a href="{% url 'dr:dashboard' %}" class="dropdown-item">Death registration</a>
+                    <div class="dropdown-divider"></div>
+                    <a href="{% url 'mnchw:dashboard' %}" class="dropdown-item">MNCHW campaigns</a>
+                </div>
+            </li>
             <li class="nav-item">
                 <form action="{{ request.get_full_path }}" method="GET" id="export"><input type="hidden" name="export" value="✓">{% if cumulative %}<input type="hidden" name="cumulative" value="1">{% endif %}<a href="javascript:;" id="export_button" class="nav-link">Export</a></form>
             </li>
