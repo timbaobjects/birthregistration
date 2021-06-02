@@ -21,7 +21,7 @@ from br.models import BirthRegistration, CensusResult, Subscription
 from br.raw_queries import CENTRE_REPORTING_QUERY, DATA_QUERY, PRIOR_DATA_QUERY
 from br.utils import generate_report_attachment
 from locations.models import Location
-from messaging.utils import send_sms_message
+from messagebox.utils import send_sms_message
 
 
 def beginning_of_the_month(dt):
