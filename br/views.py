@@ -200,7 +200,7 @@ def _state_dashboard(request, location, year, month, cumulative):
         'states': Location.objects.filter(type__name='State').order_by(
             'name').values_list('name', flat=True),
         'year': year,
-        'year_range': year_range,
+        'year_range': year_range[::-1],
         'month': month,
         'month_range': range(1, 13),
     }
@@ -294,7 +294,7 @@ def _country_dashboard(request, location, year, month, cumulative):
         'states': Location.objects.filter(type__name='State').order_by(
             'name').values_list('name', flat=True),
         'year': year,
-        'year_range': year_range,
+        'year_range': year_range[::-1],
         'month': month,
         'month_range': range(1, 13),
     }
