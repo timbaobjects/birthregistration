@@ -46,7 +46,7 @@
 				<div class="card-body">
 					<div class="text-center">
 						<h5><strong>{number(contributing)}</strong></h5>
-						<small class="font-weight-light">Contributing Centres</small>
+						<small class="font-weight-light">Reporting Centres</small>
 					</div>
 				</div>
 			</div>
