@@ -51,6 +51,13 @@ columns = [
 
 
 def _state_dashboard(request, location, year, month, cumulative):
+    br_time_span = utils.get_reporting_range()
+    year_range = range(br_time_span[0].year, br_time_span[1].year + 1)
+
+    if year not in year_range:
+        year = year_range[-1]
+        month = None
+
     # whether or not cumulative data is requested, be sure to group
     # by the LGA and sum so we get data at the LGA level
     if cumulative:
@@ -184,9 +191,6 @@ def _state_dashboard(request, location, year, month, cumulative):
         u1_performance = None
         u5_performance = None
 
-    br_time_span = utils.get_reporting_range()
-    year_range = range(br_time_span[0].year, br_time_span[1].year + 1)
-
     context = {
         'cumulative': cumulative,
         'table_data': dashboard_data,
@@ -200,7 +204,7 @@ def _state_dashboard(request, location, year, month, cumulative):
         'states': Location.objects.filter(type__name='State').order_by(
             'name').values_list('name', flat=True),
         'year': year,
-        'year_range': year_range,
+        'year_range': year_range[::-1],
         'month': month,
         'month_range': range(1, 13),
     }
@@ -210,6 +214,12 @@ def _state_dashboard(request, location, year, month, cumulative):
 
 def _country_dashboard(request, location, year, month, cumulative):
     state_nodes = utils.get_national_subnodes()
+    br_time_span = utils.get_reporting_range()
+    year_range = range(br_time_span[0].year, br_time_span[1].year + 1)
+
+    if year not in year_range:
+        year = year_range[-1]
+        month = None
 
     if cumulative:
         reporting_df = utils.extract_cumulative_records(location, year, month)
@@ -269,8 +279,6 @@ def _country_dashboard(request, location, year, month, cumulative):
                 map_data[state_node['id']] = (0, 0)
 
     summary_data = reporting_df.sum().to_dict()
-    br_time_span = utils.get_reporting_range()
-    year_range = range(br_time_span[0].year, br_time_span[1].year + 1)
 
     if not cumulative and not reporting_df.empty:
         u1_performance = round(
@@ -294,7 +302,7 @@ def _country_dashboard(request, location, year, month, cumulative):
         'states': Location.objects.filter(type__name='State').order_by(
             'name').values_list('name', flat=True),
         'year': year,
-        'year_range': year_range,
+        'year_range': year_range[::-1],
         'month': month,
         'month_range': range(1, 13),
     }

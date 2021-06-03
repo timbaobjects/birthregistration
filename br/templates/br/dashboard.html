@@ -53,11 +53,14 @@ a.text-decoration-none {
                     {% for state in states %}{% with state|lower|slugify as state_slug %}<a href="{% url 'br:dashboard_with_state' state_slug %}" class="dropdown-item{% if state == location.name %} active{% endif %}">{{ state|lower|title }}</a>{% endwith %}{% endfor %}
                 </div>
             </li>
-            {% for yr in year_range %}
-            <li class="nav-item">
-                <a href="{% if location.type.name == "Country" %}{% url 'br:dashboard_with_year' yr %}{% else %}{% with location.name|lower|slugify as state %}{% url 'br:dashboard_with_state_and_year' state yr %}{% endwith %}{% endif %}" class="nav-link{% if yr == year %} active{% endif %}">{{ yr }}</a>
+            <li class="nav-item dropdown">
+                <a href="javascript:;" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ year }} <b class="caret"></b></a>
+                <div class="dropdown-menu">
+                    {% for yr in year_range %}
+                    <a href="{% if location.type.name == "Country" %}{% url 'br:dashboard_with_year' yr %}{% else %}{% with location.name|lower|slugify as state %}{% url 'br:dashboard_with_state_and_year' state yr %}{% endwith %}{% endif %}" class="dropdown-item{% if yr == year %} active{% endif %}">{{ yr }}</a>
+                    {% endfor %}
+                </div>
             </li>
-            {% endfor %}
             <li class="nav-item dropdown">
                 {% if month %}
                 <a href="javascript:;" class="nav-link dropdown-toggle active" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{% month_name month %} <b class="caret"></b></a>
@@ -87,6 +90,7 @@ a.text-decoration-none {
                 </ul>
             </li>
             <li class="nav-item"><a class="nav-link" href="https://staging.rapidsmsnigeria.org/br">Coverage</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'br:map_dashboard' %}">Map</a></li>
             <li class="nav-item">
                 <form action="{{ request.get_full_path }}" method="GET" id="export"><input type="hidden" name="export" value="✓">{% if cumulative %}<input type="hidden" name="cumulative" value="1">{% endif %}<a href="javascript:;" id="export_button" class="nav-link">Export</a></form>
             </li>
