@@ -13,11 +13,11 @@
                 {{ form.id }}
                 <div class="form-group">
                     <label for="{{ form.name.name }}">{{ form.name.label }}</label>
-                    <input type="text" class="form-control" id="{{ form.name.auto_id }}" name="{{ form.name.name }}" value="{{ form.name.value }}">
+                    {% render_field form.name class='form-control' %}
                 </div>
                 <div class="form-group">
                     <label for="{{ form.code.name }}">{{ form.code.label }}</label>
-                    <input type="text" class="form-control" id="{{ form.code.auto_id }}" name="{{ form.code.name }}" value="{{ form.code.value }}">
+                    {% render_field form.code class='form-control' %}
                 </div>
                 <div class="form-group">
                     <label for="{{ form.state.name }}">{{ form.state.label }}</label>
@@ -46,7 +46,7 @@
 </div>
 {% endblock %}
 {% block scripts %}
-<script src="{% static 'base/vendor/jquery/dist/jquery.min.js' %}"></script>
+{{ block.super }}
 {% javascript 'centers' %}
 <script type="text/javascript">
 $(document).ready(function() {

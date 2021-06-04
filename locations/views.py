@@ -1,4 +1,5 @@
 # vim: ai ts=4 sts=4 et sw=4
+import calendar
 import csv
 import json
 
@@ -206,7 +207,6 @@ def facilities(request):
     return response
 
 
-
 class CSVBuffer(object):
     def write(self, value):
         return value
@@ -258,10 +258,34 @@ class NonReportingCentresView(LoginRequiredMixin, ListView):
 
         context['page_title'] = self.page_title
         context['filter_form'] = self.filter_form
-        context['year'] = self.request.GET.get('year') or now().year
-        context['month'] = self.request.GET.get('month') or ''
+        context['year'] = self.selected_year
+        context['month'] = self.selected_month or ''
+        context['location'] = self.filter_location.pk if self.filter_location else ''
+        context['caption'] = self.get_header_title()
 
         return context
+    
+    def get_header_title(self):
+        if self.selected_month and self.filter_location:
+            return 'Non-reporting centres for {}, {} {}'.format(
+                self.filter_location.name,
+                calendar.month_name[int(self.selected_month)],
+                self.selected_year
+            )
+        elif self.selected_month:
+            return 'Non-reporting centres for {} {}'.format(
+                calendar.month_name[int(self.selected_month)],
+                self.selected_year
+            )
+        elif self.filter_location:
+            return 'Non-reporting centres for {}, {}'.format(
+                self.filter_location.name,
+                self.selected_year
+            )
+        else:
+            return 'Non-reporting centres for {}'.format(
+                self.selected_year
+            )
 
     def get_queryset(self):
         self.filter_form = NonReportingCentresFilterForm(self.request.GET)
@@ -271,17 +295,23 @@ class NonReportingCentresView(LoginRequiredMixin, ListView):
             filter_data = {}
 
         filter_kwargs = {}
-        year = filter_data.get('year') or now().year
-        filter_kwargs['birthregistration_records__time__year'] = int(year)
-        month = filter_data.get('month')
-        if month:
-            filter_kwargs['birthregistration_records__time__month'] = int(month)
+        alt_filter_kwargs = {'type__name': 'RC'}
+        self.selected_year = filter_data.get('year') or now().year
+        filter_kwargs['birthregistration_records__time__year'] = int(self.selected_year)
+        self.selected_month = filter_data.get('month')
+        if self.selected_month:
+            filter_kwargs['birthregistration_records__time__month'] = int(self.selected_month)
+        
+        self.filter_location = filter_data.get('location')
+        if self.filter_location:
+            alt_filter_kwargs['lft__gt'] = self.filter_location.lft
+            alt_filter_kwargs['rgt__lt'] = self.filter_location.rgt
 
         if len(filter_kwargs) == 0:
             centres = Location.objects.none()
         else:
             centres = Location.objects.filter(
-                type__name='RC'
+                **alt_filter_kwargs
             ).annotate(
                 cnt=Count(Case(When(then=1, **filter_kwargs)))
             ).filter(cnt=0)

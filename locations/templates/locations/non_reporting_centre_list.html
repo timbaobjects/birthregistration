@@ -31,11 +31,14 @@
                 <fieldset>
                     <div class="form-group row">
                         <div class="col-md-12">
+                            <select name="{{ filter_form.location.name }}" id="{{ filter_form.location.id_for_label }}" data-placeholder="Location">
+                                {% if filter_form.cleaned_data.location %}<option value="{{ filter_form.cleaned_data.location.pk }}">{{ filter_form.cleaned_data.location.name }}</option>{% endif %}
+                            </select>
                             {% render_field filter_form.year class="form-control" %}
                             {% render_field filter_form.month class="form-control" %}
                             <button type="submit" class="btn btn-primary" id="filter_button">Filter</button>
                             <a class="btn btn-inverse" href="{% url 'locations:non_reporting_center_list' %}">Clear</a>
-                            <a class="btn btn-primary-outline" href="{% url 'locations:non_reporting_center_list' %}?export=1&year={{ year }}&month={{ month }}">Export</a>
+                            <a class="btn btn-primary-outline" href="{% url 'locations:non_reporting_center_list' %}?export=1&year={{ year }}&month={{ month }}&location={{ location }}">Export</a>
                         </div>
                     </div>
                 </fieldset>
@@ -48,6 +51,7 @@
         <section class="widget">
             <div class="widget-table">
                 <table class="table table-striped table-bordered table-hover">
+                    <caption>{{ caption }}</caption>
                     <thead>
                         <tr>
                             <th>State</th>
@@ -100,8 +104,8 @@
 <script src="{% static "js/select2/select2.min.js" %}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    var endpoint = '{% url "api:location_list_typed" %}?type=lga';
-    $('#{{ filter_form.lga.id_for_label }}').select2({
+    var endpoint = '{% url "api:location_list_typed" %}?type=state,lga';
+    $('#{{ filter_form.location.id_for_label }}').select2({
         ajax: {
             url: endpoint,
             data: function(params) {
