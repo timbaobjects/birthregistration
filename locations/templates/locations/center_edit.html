@@ -1,5 +1,5 @@
 {% extends 'base/layout.html' %}
-{% load pipeline staticfiles %}
+{% load pipeline staticfiles widget_tweaks %}
 {% block stylesheets %}
 {% stylesheet 'centers' %}
 {% endblock %}
@@ -21,7 +21,7 @@
                 </div>
                 <div class="form-group">
                     <label for="{{ form.state.name }}">{{ form.state.label }}</label>
-                    {{ form.state }}
+                    {% render_field form.state class='form-control' %}
                 </div>
                 <div class="form-group">
                     <label for="{{ form.lga.id_for_label }}">{{ form.lga.label|upper }}</label>
@@ -46,6 +46,7 @@
 </div>
 {% endblock %}
 {% block scripts %}
+<script src="{% static 'base/vendor/jquery/dist/jquery.min.js' %}"></script>
 {% javascript 'centers' %}
 <script type="text/javascript">
 $(document).ready(function() {
