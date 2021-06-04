@@ -46,7 +46,7 @@ class TypedLocationListView(LocationListView):
         types = [t.lower() for t in type_names.split(u',')]
         terms = Q()
         for typ in types:
-            terms | Q(name__iexact=typ)
+            terms |= Q(name__iexact=typ)
 
         loc_types = LocationType.objects.filter(terms)
         queryset = queryset.filter(type__in=loc_types)
