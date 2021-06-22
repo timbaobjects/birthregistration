@@ -14,7 +14,7 @@
 </style>
 
 <div class="toolbar-overlay">
-	<a href="/br/old/" class="btn btn-md btn-dark">Reporting Dashboard</a>
+	<a href="/br/" class="btn btn-md btn-dark">Reporting Dashboard</a>
 	<a href="https://staging.rapidsmsnigeria.org/br" class="btn btn-md btn-primary">Coverage</a>
     <button class="btn btn-md btn-primary" on:click="{exportHandler}">
         Export
