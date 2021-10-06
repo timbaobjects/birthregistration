@@ -21,6 +21,7 @@ urlpatterns = [
     url(r'^br/', include('br.urls', namespace=u'br')),
     url(r'^dr/', include('dr.urls', namespace=u'dr')),
     url(r'^locations/', include('locations.urls', namespace=u'locations')),
+    url(r'^api/v2/', include('vitalregpro.urls', namespace=u'apiv2')),
     url(r'^api/', include('api.urls', namespace=u'api')),
     url(r'^mnchw/', include('campaigns.urls', namespace=u'mnchw')),
     url(r'incoming/', HttpBackendView.as_view(backend_name='polling')),

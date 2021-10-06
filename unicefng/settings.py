@@ -212,6 +212,7 @@ INSTALLED_APPS = (
     "profiles",
     "campaigns",
     "ipd",
+    "vitalregpro",
     "rest_framework",
     "pipeline",
     "bootstrap_pagination",
@@ -360,3 +361,7 @@ SENDSMS_URL = config('SENDSMS_URL', default='')
 SENDSMS_USERNAME = config('SENDSMS_USERNAME', default='')
 SENDSMS_PASSWORD = config('SENDSMS_PASSWORD', default='')
 SENDSMS_SHORTCODE = config('SENDSMS_SHORTCODE', default='')
+
+GRAPHENE = {
+    'SCHEMA': 'vitalregpro.schema.schema',
+}
