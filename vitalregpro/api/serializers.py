@@ -3,10 +3,11 @@ from rest_framework import serializers
 
 from br.models import BirthRegistration
 from common import constants
+from dr.models import DeathReport, FIELD_MAP
 from locations.models import Location, LocationType
 
 
-class BirthReportLocationField(serializers.RelatedField):
+class LocationCodeField(serializers.RelatedField):
     def to_internal_value(self, data):
         location = Location.get_by_code(data)
 
@@ -17,7 +18,9 @@ class BirthReportLocationField(serializers.RelatedField):
 
 
 class BirthReportSerializer(serializers.ModelSerializer):
-    location = BirthReportLocationField(queryset=Location.objects.filter(type__name='RC'))
+    location = LocationCodeField(
+        queryset=Location.objects.filter(type__name='RC'),
+        help_text='Location code for registration centre.')
 
     class Meta:
         model = BirthRegistration
@@ -71,3 +74,34 @@ class LocationSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('Can only create centres in LGAs')
 
         return parent
+
+
+def _death_report_data_serializer_factory():
+    attributes = {
+        field_name: serializers.IntegerField(
+            default=0,
+            help_text=description, label=field_name, min_value=0)
+        for field_name, description in FIELD_MAP.items()
+    }
+
+    return type(
+        'DeathReportDataSerializer', (serializers.Serializer,), attributes)
+
+
+class DeathReportSerializer(serializers.ModelSerializer):
+    payload = _death_report_data_serializer_factory()(
+        help_text='Deaths by cause', label='Deaths', source='data')
+    location = LocationCodeField(
+        help_text='Location code for LGA',
+        queryset=Location.objects.filter(type__name='LGA'))
+
+    class Meta:
+        model = DeathReport
+        exclude = (
+            'connection', 'data', 'reporter', 'source', 'created', 'updated')
+
+    def create(self, validated_data):
+        kwargs = validated_data.copy()
+        kwargs.update(source=constants.DATA_SOURCES[0][0])
+
+        return DeathReport.objects.create(**kwargs)

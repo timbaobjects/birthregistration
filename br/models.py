@@ -1,6 +1,7 @@
 import pandas as pd
 from django.contrib.auth.models import User
 from django.core.cache import cache
+from django.core.validators import MinValueValidator
 from django.db import models
 
 from common.constants import DATA_SOURCES
@@ -22,15 +23,41 @@ class BirthRegistration(models.Model):
     reporter = models.ForeignKey(Reporter, blank=True, null=True, related_name="br_birthregistration")
     connection = models.ForeignKey(PersistantConnection, blank=True, null=True, related_name="br_birthregistration")
     location = models.ForeignKey(Location, related_name='birthregistration_records')
-    girls_below1 = models.IntegerField()
-    girls_1to4 = models.IntegerField()
-    girls_5to9 = models.IntegerField()
-    girls_10to18 = models.IntegerField()
-    boys_below1 = models.IntegerField()
-    boys_1to4 = models.IntegerField()
-    boys_5to9 = models.IntegerField()
-    boys_10to18 = models.IntegerField()
-    time = models.DateTimeField()
+    girls_below1 = models.IntegerField(
+        help_text='The number of girls registered under 1 year old',
+        validators=[MinValueValidator(0)],
+        verbose_name='Girls (under 1)')
+    girls_1to4 = models.IntegerField(
+        help_text='The number of girls registered between 1 and 4 years old',
+        validators=[MinValueValidator(0)],
+        verbose_name='Girls (1 to 4)')
+    girls_5to9 = models.IntegerField(
+        help_text='The number of girls registered between 5 and 9 years old',
+        validators=[MinValueValidator(0)],
+        verbose_name='Girls (5 to 9)')
+    girls_10to18 = models.IntegerField(
+        help_text='The number of girls registered between 10 and 18 years old',
+        validators=[MinValueValidator(0)],
+        verbose_name='Girls (10+)')
+    boys_below1 = models.IntegerField(
+        help_text='The number of boys registered under 1 year old',
+        validators=[MinValueValidator(0)],
+        verbose_name='Boys (under 1)')
+    boys_1to4 = models.IntegerField(
+        help_text='The number of boys registered between 1 and 4 years old',
+        validators=[MinValueValidator(0)],
+        verbose_name='Boys (1 to 4)')
+    boys_5to9 = models.IntegerField(
+        help_text='The number of boys registered between 5 and 9 years old',
+        validators=[MinValueValidator(0)],
+        verbose_name='Boys (5 to 9)')
+    boys_10to18 = models.IntegerField(
+        help_text='The number of boys registered between 10 and 18 years old',
+        validators=[MinValueValidator(0)],
+        verbose_name='Boys (10+)')
+    time = models.DateTimeField(
+        help_text='The UTC timestamp for the record creation')
+
     created = models.DateTimeField(auto_now_add=True, null=True)
     updated = models.DateTimeField(auto_now=True)
     source = models.CharField(max_length=32, choices=DATA_SOURCES, default=DATA_SOURCES[1][0])
