@@ -2,6 +2,7 @@
 from django.db import models
 from django.utils.timezone import now
 
+from common.constants import DATA_SOURCES
 from locations.models import Location
 
 
@@ -29,6 +30,8 @@ class Campaign(models.Model):
     apps = models.ManyToManyField(Application)
     created = models.DateTimeField(auto_now_add=True, null=True)
     updated = models.DateTimeField(auto_now=True)
+    source = models.CharField(
+        choices=DATA_SOURCES, default=DATA_SOURCES[1][0], max_length=32)
 
     def __str__(self):
         return self.name

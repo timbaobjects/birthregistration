@@ -2,6 +2,7 @@
 from rest_framework import serializers
 
 from br.models import BirthRegistration
+from campaigns.models import Campaign
 from common import constants
 from dr.models import DeathReport, FIELD_MAP
 from locations.models import Location, LocationType
@@ -105,3 +106,13 @@ class DeathReportSerializer(serializers.ModelSerializer):
         kwargs.update(source=constants.DATA_SOURCES[0][0])
 
         return DeathReport.objects.create(**kwargs)
+
+
+class CampaignSerializer(serializers.ModelSerializer):
+    locations = LocationCodeField(
+        many=True, queryset=Location.objects.filter(
+            type__name__in=['State', 'LGA']))
+
+    class Meta:
+        model = Campaign
+        exclude = ('apps', 'created', 'updated')
