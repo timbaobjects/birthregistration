@@ -3,6 +3,7 @@ from datetime import date
 from django.db import models
 from django_mysql.models import JSONField
 
+from common.constants import DATA_SOURCES
 from dr.utils import pick, values
 from locations.models import Location
 from reporters.models import Reporter, PersistantConnection
@@ -98,6 +99,7 @@ class DeathReport(models.Model):
     data = JSONField()
     created = models.DateTimeField(auto_now_add=True, null=True)
     updated = models.DateTimeField(auto_now=True)
+    source = models.CharField(max_length=32, choices=DATA_SOURCES, default=DATA_SOURCES[1][0])
 
     # manager
     objects = SearchableLocationQuerySet.as_manager()
