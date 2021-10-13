@@ -6,7 +6,8 @@ from rest_framework import generics
 from rest_framework.decorators import api_view
 
 from vitalregpro.api import serializers
-from vitalregpro.models import Campaign, Location, LocationType
+from vitalregpro.models import (
+    Campaign, Location, LocationType, NonCompliance, Report, Shortage)
 
 MNCHW_LOCATION_TYPE_NAMES = ['country', 'state', 'lga', 'ward']
 
@@ -74,8 +75,8 @@ class CampaignListCreateView(generics.ListCreateAPIView):
     queryset = Campaign.objects.order_by('-start_date')
     serializer_class = serializers.CampaignSerializer
 
-    @swagger_auto_schema(
-        manual_parameters=[list_in_param, list_month_param, list_year_param])
+    # @swagger_auto_schema(
+    #     manual_parameters=[list_in_param, list_month_param, list_year_param])
     def get(self, request, *args, **kwargs):
         return super(CampaignListCreateView, self).get(request, *args, **kwargs)
 
@@ -101,5 +102,110 @@ class CampaignListCreateView(generics.ListCreateAPIView):
         #         location__lft__gte=ancestor.lft,
         #         location__rgt__lte=ancestor.rgt
         #     )
+
+        return queryset
+
+
+class MNCHWReportListCreateView(generics.ListCreateAPIView):
+    queryset = Report.objects.order_by('-time')
+    serializer_class = serializers.MNCHWReportSerializer
+
+    @swagger_auto_schema(
+        manual_parameters=[list_in_param, list_month_param, list_year_param])
+    def get(self, request, *args, **kwargs):
+        return super(MNCHWReportListCreateView, self).get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        ancestor_code = self.request.query_params.get('in')
+        month = self.request.query_params.get('month')
+        year = self.request.query_params.get('year')
+
+        queryset = super(MNCHWReportListCreateView, self).get_queryset()
+        if year is None:
+            return queryset.none()
+        else:
+            queryset = queryset.filter(time__year=year)
+
+        if month:
+            queryset = queryset.filter(time__month=month)
+
+        if ancestor_code:
+            ancestor = Location.get_by_code(ancestor_code)
+            if ancestor is None:
+                return queryset.none()
+            queryset = queryset.filter(
+                location__lft__gte=ancestor.lft,
+                location__rgt__lte=ancestor.rgt
+            )
+
+        return queryset
+
+
+class NonComplianceListCreateView(generics.ListCreateAPIView):
+    queryset = NonCompliance.objects.order_by('-time')
+    serializer_class = serializers.NonComplianceSerializer
+
+    @swagger_auto_schema(
+        manual_parameters=[list_in_param, list_month_param, list_year_param])
+    def get(self, request, *args, **kwargs):
+        return super(NonComplianceListCreateView, self).get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        ancestor_code = self.request.query_params.get('in')
+        month = self.request.query_params.get('month')
+        year = self.request.query_params.get('year')
+
+        queryset = super(NonComplianceListCreateView, self).get_queryset()
+        if year is None:
+            return queryset.none()
+        else:
+            queryset = queryset.filter(time__year=year)
+
+        if month:
+            queryset = queryset.filter(time__month=month)
+
+        if ancestor_code:
+            ancestor = Location.get_by_code(ancestor_code)
+            if ancestor is None:
+                return queryset.none()
+            queryset = queryset.filter(
+                location__lft__gte=ancestor.lft,
+                location__rgt__lte=ancestor.rgt
+            )
+
+        return queryset
+
+
+class ShortageListCreateView(generics.ListCreateAPIView):
+    queryset = Shortage.objects.order_by('-time')
+    serializer_class = serializers.ShortageSerializer
+
+    @swagger_auto_schema(
+        manual_parameters=[list_in_param, list_month_param, list_year_param])
+    def get(self, request, *args, **kwargs):
+        return super(ShortageListCreateView, self).get(request, *args, **kwargs)
+
+    def get_queryset(self):
+        ancestor_code = self.request.query_params.get('in')
+        month = self.request.query_params.get('month')
+        year = self.request.query_params.get('year')
+
+        queryset = super(ShortageListCreateView, self).get_queryset()
+        if year is None:
+            return queryset.none()
+        else:
+            queryset = queryset.filter(time__year=year)
+
+        if month:
+            queryset = queryset.filter(time__month=month)
+
+        if ancestor_code:
+            ancestor = Location.get_by_code(ancestor_code)
+            if ancestor is None:
+                return queryset.none()
+            queryset = queryset.filter(
+                location__lft__gte=ancestor.lft,
+                location__rgt__lte=ancestor.rgt
+            )
 
         return queryset

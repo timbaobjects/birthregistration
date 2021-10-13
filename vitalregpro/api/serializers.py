@@ -5,6 +5,7 @@ from br.models import BirthRegistration
 from campaigns.models import Campaign
 from common import constants
 from dr.models import DeathReport, FIELD_MAP
+from ipd.models import NonCompliance, Report, Shortage
 from locations.models import Location, LocationType
 
 
@@ -112,7 +113,49 @@ class CampaignSerializer(serializers.ModelSerializer):
     locations = LocationCodeField(
         many=True, queryset=Location.objects.filter(
             type__name__in=['State', 'LGA']))
+    program_type = serializers.ChoiceField(
+        choices=Campaign.PROGRAM_TYPES.items(), default=None)
 
     class Meta:
         model = Campaign
-        exclude = ('apps', 'created', 'updated')
+        exclude = ('apps', 'created', 'updated', 'source')
+        extra_kwargs = {
+            'program_type': {'write_only': True}
+        }
+
+    def create(self, validate_data):
+        kwargs = validated_data.copy()
+        kwargs['name'] = '{} {}'.format(
+            kwargs['name'],
+            Campaign.PROGRAM_TYPES.get(kwargs.pop('program_type')))
+        kwargs.update(source=constants.DATA_SOURCES[0][0])
+
+        return Campaign.objects.create(**kwargs)
+
+
+class MNCHWReportSerializer(serializers.ModelSerializer):
+    location = LocationCodeField(
+        queryset=Location.objects.filter(
+            type__name__in=['State', 'LGA', 'Ward', 'Mobilization Team']))
+    
+    class Meta:
+        model = Report
+        exclude = ('reporter', 'connection', 'created', 'updated', 'source')
+
+
+class NonComplianceSerializer(serializers.ModelSerializer):
+    location = LocationCodeField(queryset=Location.objects.filter(
+        type__name__in=['State', 'LGA', 'Ward', 'Distribution Point']))
+
+    class Meta:
+        model = NonCompliance
+        exclude = ('reporter', 'connection', 'created', 'updated', 'source')
+
+
+class ShortageSerializer(serializers.ModelSerializer):
+    location = LocationCodeField(queryset=Location.objects.filter(
+        type__name__in=['State', 'LGA', 'Ward', 'Distribution Point']))
+
+    class Meta:
+        model = Shortage
+        exclude = ('reporter', 'connection', 'created', 'updated', 'source')

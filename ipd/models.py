@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 
+from common.constants import DATA_SOURCES
 from locations.models import Location
 from reporters.models import PersistantConnection, Reporter
 
@@ -36,6 +37,8 @@ class Report(models.Model):
         blank=True, null=True)
     created = models.DateTimeField(auto_now_add=True, null=True)
     updated = models.DateTimeField(auto_now=True)
+    source = models.CharField(
+        choices=DATA_SOURCES, default=DATA_SOURCES[1][0], max_length=32)
 
     class Meta:
         permissions = (
@@ -69,6 +72,8 @@ class NonCompliance(models.Model):
     cases = models.PositiveIntegerField()
     created = models.DateTimeField(auto_now_add=True, null=True)
     updated = models.DateTimeField(auto_now=True)
+    source = models.CharField(
+        choices=DATA_SOURCES, default=DATA_SOURCES[1][0], max_length=32)
 
 
 class Shortage(models.Model):
@@ -95,6 +100,8 @@ class Shortage(models.Model):
         help_text=u'The commodity being reported as having a shortage')
     created = models.DateTimeField(auto_now_add=True, null=True)
     updated = models.DateTimeField(auto_now=True)
+    source = models.CharField(
+        choices=DATA_SOURCES, default=DATA_SOURCES[1][0], max_length=32)
 
     def __str__(self):
         return u'{} ({}) => {}'.format(self.reporter, self.location,
