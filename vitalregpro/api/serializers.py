@@ -123,14 +123,19 @@ class CampaignSerializer(serializers.ModelSerializer):
             'program_type': {'write_only': True}
         }
 
-    def create(self, validate_data):
+    def create(self, validated_data):
         kwargs = validated_data.copy()
-        kwargs['name'] = '{} {}'.format(
+        kwargs['name'] = '{} ({})'.format(
             kwargs['name'],
             Campaign.PROGRAM_TYPES.get(kwargs.pop('program_type')))
         kwargs.update(source=constants.DATA_SOURCES[0][0])
+        locations = kwargs.pop('locations')
 
-        return Campaign.objects.create(**kwargs)
+        campaign = Campaign.objects.create(**kwargs)
+        campaign.locations = locations
+        campaign.save()
+
+        return campaign
 
 
 class MNCHWReportSerializer(serializers.ModelSerializer):
