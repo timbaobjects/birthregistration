@@ -214,6 +214,7 @@ INSTALLED_APPS = (
     "ipd",
     "vitalregpro",
     "rest_framework",
+    "rest_framework.authtoken",
     "pipeline",
     "bootstrap_pagination",
     "drf_yasg",
@@ -340,6 +341,7 @@ EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=config.boolean, default=False)
 
 REST_FRAMEWORK = {
     u'PAGE_SIZE': PAGE_SIZE,
+    'DEFAULT_AUTHENTICATION_CLASSES': ['api.token.BearerAuthentication'],
     u'DEFAULT_PAGINATION_CLASS': u'rest_framework.pagination.LimitOffsetPagination',
 }
 
@@ -362,7 +364,3 @@ SENDSMS_URL = config('SENDSMS_URL', default='')
 SENDSMS_USERNAME = config('SENDSMS_USERNAME', default='')
 SENDSMS_PASSWORD = config('SENDSMS_PASSWORD', default='')
 SENDSMS_SHORTCODE = config('SENDSMS_SHORTCODE', default='')
-
-GRAPHENE = {
-    'SCHEMA': 'vitalregpro.schema.schema',
-}

@@ -4,6 +4,7 @@ from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics
 from rest_framework.decorators import api_view
+from rest_framework.permissions import IsAuthenticated
 
 from vitalregpro.api import serializers
 from vitalregpro.models import DeathReport, Location, LocationType
@@ -28,6 +29,7 @@ def dr_location_types(request):
 
 
 class LocationItemView(generics.RetrieveAPIView):
+    permission_classes = (IsAuthenticated,)
     queryset = _default_queryset()
     serializer_class = serializers.LocationSerializer
 
@@ -45,6 +47,7 @@ list_year_param = openapi.Parameter(
 
 
 class LocationListView(generics.ListAPIView):
+    permission_classes = (IsAuthenticated,)
     serializer_class = serializers.LocationSerializer
 
     @swagger_auto_schema(manual_parameters=[list_in_param, list_type_param,])
@@ -71,6 +74,7 @@ class LocationListView(generics.ListAPIView):
 
 
 class DeathReportListCreateView(generics.ListCreateAPIView):
+    permission_classes = (IsAuthenticated,)
     queryset = DeathReport.objects.order_by('-date')
     serializer_class = serializers.DeathReportSerializer
 

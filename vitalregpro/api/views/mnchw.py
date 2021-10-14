@@ -4,6 +4,7 @@ from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import generics
 from rest_framework.decorators import api_view
+from rest_framework.permissions import IsAuthenticated
 
 from vitalregpro.api import serializers
 from vitalregpro.models import (
@@ -29,6 +30,7 @@ def mnchw_location_types(request):
 
 
 class LocationItemView(generics.RetrieveAPIView):
+    permission_classes = (IsAuthenticated,)
     queryset = _default_queryset()
     serializer_class = serializers.LocationSerializer
 
@@ -46,6 +48,7 @@ list_year_param = openapi.Parameter(
 
 
 class LocationListView(generics.ListAPIView):
+    permission_classes = (IsAuthenticated,)
     serializer_class = serializers.LocationSerializer
 
     @swagger_auto_schema(manual_parameters=[list_in_param, list_type_param,])
@@ -72,6 +75,7 @@ class LocationListView(generics.ListAPIView):
 
 
 class CampaignListCreateView(generics.ListCreateAPIView):
+    permission_classes = (IsAuthenticated,)
     queryset = Campaign.objects.order_by('-start_date')
     serializer_class = serializers.CampaignSerializer
 
@@ -107,6 +111,7 @@ class CampaignListCreateView(generics.ListCreateAPIView):
 
 
 class MNCHWReportListCreateView(generics.ListCreateAPIView):
+    permission_classes = (IsAuthenticated,)
     queryset = Report.objects.order_by('-time')
     serializer_class = serializers.MNCHWReportSerializer
 
@@ -142,6 +147,7 @@ class MNCHWReportListCreateView(generics.ListCreateAPIView):
 
 
 class NonComplianceListCreateView(generics.ListCreateAPIView):
+    permission_classes = (IsAuthenticated,)
     queryset = NonCompliance.objects.order_by('-time')
     serializer_class = serializers.NonComplianceSerializer
 
@@ -177,6 +183,7 @@ class NonComplianceListCreateView(generics.ListCreateAPIView):
 
 
 class ShortageListCreateView(generics.ListCreateAPIView):
+    permission_classes = (IsAuthenticated,)
     queryset = Shortage.objects.order_by('-time')
     serializer_class = serializers.ShortageSerializer
 
