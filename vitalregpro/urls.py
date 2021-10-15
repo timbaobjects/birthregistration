@@ -22,7 +22,7 @@ schema_view = get_schema_view(
 
 
 urlpatterns = [
-    url(r'^auth-token/?$', obtain_auth_token, name='api_auth_token'),
+    url(r'^token/?$', obtain_auth_token, name='api_auth_token'),
     url(r'^br/centres/?$', br_views.CentreCreateView.as_view(), name='br_centre_create'),
     url(r'^br/locations/?$', br_views.LocationListView.as_view(), name='br_location_list'),
     url(r'^br/location-types/?$', br_views.br_location_types, name='br_location_type_list'),
