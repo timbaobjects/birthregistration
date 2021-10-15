@@ -147,6 +147,12 @@ class MNCHWReportSerializer(serializers.ModelSerializer):
         model = Report
         exclude = ('reporter', 'connection', 'created', 'updated', 'source')
 
+    def create(self, validated_data):
+        kwargs = validated_data.copy()
+        kwargs.update(source=constants.DATA_SOURCES[0][0])
+
+        return Report.objects.create(**kwargs)
+
 
 class NonComplianceSerializer(serializers.ModelSerializer):
     location = LocationCodeField(queryset=Location.objects.filter(
@@ -156,6 +162,12 @@ class NonComplianceSerializer(serializers.ModelSerializer):
         model = NonCompliance
         exclude = ('reporter', 'connection', 'created', 'updated', 'source')
 
+    def create(self, validated_data):
+        kwargs = validated_data.copy()
+        kwargs.update(source=constants.DATA_SOURCES[0][0])
+
+        return NonCompliance.objects.create(**kwargs)
+
 
 class ShortageSerializer(serializers.ModelSerializer):
     location = LocationCodeField(queryset=Location.objects.filter(
@@ -164,3 +176,9 @@ class ShortageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Shortage
         exclude = ('reporter', 'connection', 'created', 'updated', 'source')
+
+    def create(self, validated_data):
+        kwargs = validated_data.copy()
+        kwargs.update(source=constants.DATA_SOURCES[0][0])
+
+        return Shortage.objects.create(**kwargs)
