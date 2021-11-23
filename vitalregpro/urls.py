@@ -1,12 +1,18 @@
 # -*- coding: utf-8 -*-
 from django.conf.urls import url
 from drf_yasg import openapi
+from drf_yasg.utils import swagger_auto_schema
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
+from rest_framework.authtoken.serializers import AuthTokenSerializer
 from rest_framework.authtoken.views import obtain_auth_token
 
 from vitalregpro.api.views import br as br_views
 
+decorated_auth_view = swagger_auto_schema(
+    method='POST',
+    request_body=AuthTokenSerializer,
+)(obtain_auth_token)
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -20,7 +26,7 @@ schema_view = get_schema_view(
 
 
 urlpatterns = [
-    url(r'^token/?$', obtain_auth_token, name='api_auth_token'),
+    url(r'^token/?$', decorated_auth_view, name='api_auth_token'),
     url(r'^br/centres/?$', br_views.CentreCreateView.as_view(), name='br_centre_create'),
     url(r'^br/locations/?$', br_views.LocationListView.as_view(), name='br_location_list'),
     url(r'^br/location-types/?$', br_views.br_location_types, name='br_location_type_list'),
