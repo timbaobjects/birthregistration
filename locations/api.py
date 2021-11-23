@@ -9,11 +9,13 @@ class LocationItemView(generics.RetrieveAPIView):
     '''
     queryset = Location.objects.all()
     serializer_class = LocationSerializer
+    swagger_schema = None
 
 
 class LocationListView(generics.ListAPIView):
     queryset = Location.objects.all()
     serializer_class = LocationSerializer
+    swagger_schema = None
 
     def get_queryset(self):
         queryset = super(LocationListView, self).get_queryset()
@@ -27,6 +29,8 @@ class LocationListView(generics.ListAPIView):
 
 
 class TypedLocationListView(LocationListView):
+    swagger_schema = None
+
     def get_queryset(self):
         queryset = super(TypedLocationListView, self).get_queryset()
 

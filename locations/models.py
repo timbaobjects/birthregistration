@@ -6,6 +6,8 @@ from django.core.cache import cache, caches, InvalidCacheBackendError
 from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey
 
+from common.constants import DATA_SOURCES
+
 
 class LocationType(models.Model):
     name = models.CharField(max_length=100)
@@ -47,6 +49,7 @@ class Location(MPTTModel):
     active = models.BooleanField(default=True)
     created = models.DateTimeField(auto_now_add=True, null=True)
     updated = models.DateTimeField(auto_now=True)
+    source = models.CharField(max_length=32, choices=DATA_SOURCES, default=DATA_SOURCES[1][0])
 
     def __unicode__(self):
         if hasattr(self, 'type') and self.type:
