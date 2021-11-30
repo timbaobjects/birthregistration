@@ -27,7 +27,7 @@ report = entry_list:entries -> entries
 report_grammar = parsley.makeGrammar(report_grammar_text, {})
 
 ERROR_MESSAGES = {
-    u'not_registered': _(u'Please register your number with RapidSMS before sending this report'),
+    u'not_registered': _(u'Please register your number with RapidSMS before sending this DR report'),
     u'invalid_location': _(u'You sent an incorrect location code: %(location_code)s. You sent: %(text)s'),
     u'invalid_role': _(u'You sent an incorrect role code: %(role_code)s. You sent: %(text)s'),
     u'invalid_message': _(u'Your message is incorrect. Please send DR HELP for help. You sent: %(text)s'),
