@@ -212,11 +212,8 @@ INSTALLED_APPS = (
     "profiles",
     "campaigns",
     "ipd",
-<<<<<<< HEAD
     "vitalregpro",
-=======
     "messagebox",
->>>>>>> feat: render message log
     "rest_framework",
     "rest_framework.authtoken",
     "pipeline",
