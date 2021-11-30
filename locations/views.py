@@ -11,6 +11,7 @@ from django.forms.formsets import formset_factory
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, FormView, TemplateView
+from drf_yasg.utils import swagger_auto_schema
 import pandas as pd
 
 from django.conf import settings
@@ -182,6 +183,7 @@ class CenterCreationView(
         )
 
 
+@swagger_auto_schema(auto_schema=None)
 def facilities(request):
     ng = Location.get_by_code('ng')
     ancestor_pk = request.GET.get('ancestor', ng.pk)

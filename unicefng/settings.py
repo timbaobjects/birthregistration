@@ -212,9 +212,12 @@ INSTALLED_APPS = (
     "profiles",
     "campaigns",
     "ipd",
+    "vitalregpro",
     "rest_framework",
+    "rest_framework.authtoken",
     "pipeline",
     "bootstrap_pagination",
+    "drf_yasg",
     # RapidSMS
     "rapidsms",
     "rapidsms.backends.database",
@@ -338,6 +341,7 @@ EMAIL_USE_TLS = config('EMAIL_USE_TLS', cast=config.boolean, default=False)
 
 REST_FRAMEWORK = {
     u'PAGE_SIZE': PAGE_SIZE,
+    'DEFAULT_AUTHENTICATION_CLASSES': ['api.token.BearerAuthentication'],
     u'DEFAULT_PAGINATION_CLASS': u'rest_framework.pagination.LimitOffsetPagination',
 }
 

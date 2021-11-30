@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.http import JsonResponse
 from django.utils.timezone import now
+from drf_yasg.utils import swagger_auto_schema
 
 from br.api.utils import get_api_data, get_estimate_dataframe
 from br.models import CensusResult
@@ -8,6 +9,7 @@ from br.utils import extract_reporting_records, get_report_year_range
 from locations.models import Location
 
 
+@swagger_auto_schema(auto_schema=None)
 def dashboard(request):
     level = request.GET.get('level', 'country')
     try:
@@ -22,6 +24,7 @@ def dashboard(request):
     return JsonResponse(get_api_data(level, year, month))
 
 
+@swagger_auto_schema(auto_schema=None)
 def get_projection_data(request):
     current_timestamp = now()
     start_year, end_year = get_report_year_range()
