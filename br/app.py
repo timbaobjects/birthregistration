@@ -23,7 +23,7 @@ from common.utilities import getConnectionAndReporter
 from reporters.models import Reporter, Role
 from locations.models import Location
 
-MAX_REPORT_WINDOW = 90 * 24 * 3600  # reports older than 90 days from the day of submission will be rejected
+MAX_REPORT_WINDOW = 180 * 24 * 3600  # reports older than 180 days from the day of submission will be rejected
 ALLOWED_PUNCTUATIONS = [u'/', u'-']
 logger = logging.getLogger(__name__)
 help_grammar = parsley.makeGrammar('''
@@ -52,7 +52,7 @@ class BirthRegistrationApp(AppBase):
     error_messages = {
         'invalid_location': _("You sent an incorrect location code: %(location_code)s. You sent: %(text)s"),
         'invalid_role': _("Unknown role code: %(role_code)s. You sent: %(text)s"),
-        'unauthorized_reporter': _("Please register your number with RapidSMS before sending this report."),
+        'unauthorized_reporter': _("Please register your number with RapidSMS before sending this BR report."),
         'unauthorized_role': _('You are not authorized to send this report.'),
         'invalid_date': _("You used an incorrect date in your report. Your date should be in the format DD/MM/YYYY. You sent: %(text)s"),
         'early_report': _("You used an incorrect date in your report. You can't send a report earlier than %(early_date)s. You sent: %(text)s"),

@@ -38,7 +38,7 @@ class MNCHWApp(AppBase):
     ALLOWED_ROLE_CODES = [u'ws']
 
     ERROR_MESSAGES = {
-        u'not_registered': _(u'Please register your number with RapidSMS before sending this report'),
+        u'not_registered': _(u'Please register your number with RapidSMS before sending this MNCHW report'),
         u'invalid_location': _(u'You sent an incorrect location code: %(location_code)s. You sent: %(text)s'),
         u'invalid_role': _(u'You sent an incorrect role code: %(role_code)s. You sent: %(text)s'),
         u'invalid_reason': _(u'You sent an incorrect reason: %(reason_code)s. You sent: %(text)s'),
@@ -67,7 +67,7 @@ class MNCHWApp(AppBase):
 
         if text.startswith(self.keyword):
             try:
-                text = re.sub(self.keyword, u'', message.text, count=1).strip()
+                text = re.sub(self.keyword, u'', message.text, count=1, flags=re.I).strip()
                 parts = text.split(None, 1)
             except ValueError:
                 self.help(message)
