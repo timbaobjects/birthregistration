@@ -364,3 +364,14 @@ SENDSMS_URL = config('SENDSMS_URL', default='')
 SENDSMS_USERNAME = config('SENDSMS_USERNAME', default='')
 SENDSMS_PASSWORD = config('SENDSMS_PASSWORD', default='')
 SENDSMS_SHORTCODE = config('SENDSMS_SHORTCODE', default='')
+
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Bearer',
+            'in': 'header',
+        }
+    },
+    'USE_SESSION_AUTH': False,
+}
