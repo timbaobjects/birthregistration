@@ -25,6 +25,7 @@ urlpatterns = [
     url(r'^api/', include('api.urls', namespace=u'api')),
     url(r'^mnchw/', include('campaigns.urls', namespace=u'mnchw')),
     url(r'incoming/', HttpBackendView.as_view(backend_name='polling')),
+    url(r'^messages/', include('messagebox.urls', namespace='messaging')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # authentication urls

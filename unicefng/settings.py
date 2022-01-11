@@ -213,6 +213,7 @@ INSTALLED_APPS = (
     "campaigns",
     "ipd",
     "vitalregpro",
+    "messagebox",
     "rest_framework",
     "rest_framework.authtoken",
     "pipeline",
