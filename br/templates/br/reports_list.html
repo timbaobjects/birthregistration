@@ -50,7 +50,7 @@
                             <input id="{{ filter_form.end_time.id_for_label }}" type="text" placeholder="End Date" name="{{ filter_form.end_time.name }}" class="form-control datepicker" value="{{ filter_form.end_time.value|default:'' }}" />
                             <button type="submit" class="btn btn-primary" id="filter_button">Filter</button>
                             <a class="btn btn-inverse" href="{% url 'br:reports_list' %}">Clear</a>
-                            <button type="button" class="btn btn-danger hidden-xs-up" id="delete_btn">Delete Selected</button>
+                            <button type="button" class="btn btn-danger hidden-xs-up" id="delete_btn" data-toggle="modal" data-target="#deleteConfirmModal">Delete Selected</button>
                         </div>
                     </div>
                 </fieldset>
@@ -123,10 +123,29 @@
         </div>
     </div>
 </div>
+<div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" id="deleteConfirmModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="deleteModalLabel">Delete records?</h4>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete these records?</p>
+                <p><strong><em>This cannot be undone!</em></strong></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" id="confirmDelete" type="button">Yes, delete them</button>
+                <button class="btn btn-default" type="button" data-dissmiss="modal">No, don't</button>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock content %}
 {% block scripts %}
 {{ block.super }}
 <script src="{% static "base/vendor/underscore/underscore-min.js" %}"></script>
+<script src="{% static "base/vendor/bootstrap/js/dist/modal.js" %}"></script>
 <script src="{% static "base/vendor/moment/min/moment.min.js" %}"></script>
 <script src="{% static "base/vendor/eonasdan-bootstrap-datetimepicker/build/js/bootstrap-datetimepicker.min.js" %}"></script>
 <script src="{% static "js/select2/select2.min.js" %}"></script>
@@ -168,7 +187,7 @@
             else
                 $('#delete_btn').addClass('hidden-xs-up');
         });
-        $('#delete_btn').click(function () {
+        $('#confirmDelete').click(function () {
             $('#delete_form').submit();
         });
     });
