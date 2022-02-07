@@ -96,7 +96,10 @@ def compute_performance(prior_u1_df, record):
         except KeyError:
             return record.name, None, None, None
 
-    u1_performance = round(record['u1'] / record['u1_estimate'] * 100.0, 2)
+    try:
+        u1_performance = round(record['u1'] / record['u1_estimate'] * 100.0, 2)
+    except ZeroDivisionError:
+        u1_performance = 0.0
     u5_performance = round(
         (record['u5'] + subset['u1']) / record['u5_estimate'] * 100.0, 2)
 
