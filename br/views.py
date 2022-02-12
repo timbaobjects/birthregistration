@@ -184,7 +184,10 @@ def _state_dashboard(request, location, year, month, cumulative):
         prior_u1 = grouped_sum_df['prior_u1'].sum()
         u1_estimate = grouped_sum_df['u1_estimate'].sum()
         u5_estimate = grouped_sum_df['u5_estimate'].sum()
-        u1_performance = round(summary_data['u1'] * 100 / u1_estimate)
+        try:
+            u1_performance = round(summary_data['u1'] * 100 / u1_estimate)
+        except ZeroDivisionError:
+            u1_performance = 0
         u5_performance = round(
             (summary_data['u5'] + prior_u1) * 100 / u5_estimate)
     else:
