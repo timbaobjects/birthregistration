@@ -142,10 +142,7 @@ class Reporter(models.Model):
                 identity=connection.identity)
             # this currently checks first and last name, location and role.
             # we may want to make this more lax
-            filters = {"first_name": reporter.first_name,
-                       "last_name": reporter.last_name,
-                       "location": reporter.location,
-                       "role": reporter.role}
+            filters = {"location": reporter.location, "role": reporter.role}
             existing_reps = Reporter.objects.filter(**filters)
             if existing_conn.reporters.filter(pk__in=existing_reps).exists():
                 return True
