@@ -60,6 +60,7 @@ class BirthRegistration(models.Model):
     created = models.DateTimeField(auto_now_add=True, null=True)
     updated = models.DateTimeField(auto_now=True)
     source = models.CharField(max_length=32, choices=DATA_SOURCES, default=DATA_SOURCES[1][0])
+    disabled = models.BooleanField(default=False)
 
     objects = BirthRegistrationManager()
 
