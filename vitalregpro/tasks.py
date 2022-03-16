@@ -44,7 +44,7 @@ def _resolve_centre(centre_info):
 
     # use the FTS for the centre name, and filter
     # by the state and LGA VRP IDs too
-    results = Location.objects.search(name),filter(
+    results = Location.objects.search(name).filter(
         parent__vrp_id=lga_id, parent__parent__vrp_id=state_id,
         type__name='RC', vrp_id=None
     )
@@ -55,9 +55,10 @@ def _resolve_centre(centre_info):
 
     # get the closest possible match with a cutoff of 70
     names = results.values_list('name', flat=True)
-    top_name, ratio = process.extractOne(name, names, score_cutoff=70)
-    if top_name is None:
+    process_result = process.extractOne(name, names, score_cutoff=70)
+    if process_result is None:
         return _create_centre()
+    top_name, _ = process_result
 
     centre = results.get(name=top_name)
     centre.vrp_id = centre_id
