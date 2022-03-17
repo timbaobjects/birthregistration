@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 import logging
+import re
 
 from celery import shared_task
 from django.utils.timezone import get_current_timezone
@@ -10,6 +11,22 @@ from br.models import BirthRegistration
 from common.constants import DATA_SOURCES
 from locations.models import Facility, Location, LocationType
 from vitalregpro.client.crvs import CRVSClient
+
+
+def _preprocess_name(name):
+    '''
+    Performs preprocessing on names to ease matching.
+    
+    Replace stop words like 'health centre' and 'hospital'
+    with equivalents that make it easy to do fuzzy matching
+    '''
+    sub = re.sub('primary health centre', 'PHC', name, flags=re.I)
+    sub = re.sub('primary health center', 'PHC', sub, flags=re.I)
+    sub = re.sub('health center', 'HC', sub, flags=re.I)
+    sub = re.sub('health centre', 'HC', sub, flags=re.I)
+    sub = re.sub('hospital', 'Hosp', sub, flags=re.I)
+
+    return sub
 
 
 def _resolve_centre(centre_info):
@@ -54,13 +71,17 @@ def _resolve_centre(centre_info):
         return _create_centre()
 
     # get the closest possible match with a cutoff of 70
+    preprocessed_name = _preprocess_name(name)
     names = results.values_list('name', flat=True)
-    process_result = process.extractOne(name, names, score_cutoff=70)
+    preprocessed_names = [_preprocess_name(n) for n in names]
+    names_map = {pn: n for n, pn in zip(names, preprocessed_names)}
+    process_result = process.extractOne(
+        preprocessed_name, preprocessed_names, score_cutoff=70)
     if process_result is None:
         return _create_centre()
     top_name, _ = process_result
 
-    centre = results.get(name=top_name)
+    centre = results.get(name=names_map[top_name])
     centre.vrp_id = centre_id
     centre.save()
 
@@ -68,7 +89,6 @@ def _resolve_centre(centre_info):
 
 
 def _post_births(aggregate_records, report_date):
-    unresolved_records = {}
     for centre_id, record in aggregate_records.items():
         centre_data = record.get('meta').copy()
         centre_data.update(id=centre_id)
@@ -99,9 +119,6 @@ def _post_births(aggregate_records, report_date):
         br_report.girls_10to18 = record.get('Female').get('10+')
         br_report.save()
 
-    # saving so we can further process if needed
-    return unresolved_records
-
 
 def _remote_sync(date_string):
     '''
@@ -116,9 +133,7 @@ def _remote_sync(date_string):
 
     birth_records = client.get_births(date_string)
     aggregate_records, report_date = client.collate_records(birth_records)
-
-    # TODO: do something with unresolved centres and records
-    unresolved_records = _post_births(aggregate_records, report_date)
+    _post_births(aggregate_records, report_date)
 
     client.logout()
 
