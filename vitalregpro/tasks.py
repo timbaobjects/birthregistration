@@ -47,7 +47,7 @@ def _resolve_centre(centre_info):
         centre = Location.objects.create(
             name=name, parent=lga, vrp_id=centre_id, type=location_type,
             source=DATA_SOURCES[0][0], code=next_rc_code)
-        Facility.objects.create(name=name, code=next_rc_code, location=rc)
+        Facility.objects.create(name=name, code=next_rc_code, location=centre)
 
         return centre
 
