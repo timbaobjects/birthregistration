@@ -1,2 +1,3 @@
 # -*- coding: utf-8 -*-
-from django.db import models
+from br.models import BirthRegistration
+from locations.models import Location, LocationType
