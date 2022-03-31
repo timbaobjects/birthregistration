@@ -4,7 +4,7 @@ import logging
 import re
 
 from celery import shared_task
-from django.utils.timezone import get_current_timezone
+from django.utils.timezone import get_current_timezone, now
 from fuzzywuzzy import process
 
 from br.models import BirthRegistration
@@ -139,5 +139,7 @@ def _remote_sync(date_string):
 
 
 @shared_task
-def sync_from_remote(date_string):
+def sync_from_remote(date_string=None):
+    if date_string is None:
+        date_string = now.strftime('%Y-%m-%d')
     _remote_sync(date_string)
