@@ -15,7 +15,7 @@ from django.utils.translation import ugettext as _
 from rapidsms.apps.base import AppBase
 
 from br.models import BirthRegistration
-from common.constants import DATA_SOURCES
+from common.constants import DATA_SOURCE_EXTERNAL, DATA_SOURCE_INTERNAL
 from common.utilities import getConnectionAndReporter
 from reporters.models import Reporter, Role
 from locations.models import Location
@@ -206,14 +206,19 @@ class BirthRegistrationApp(AppBase):
 
             # store the report
             try:
+                # get any existing reports that match
+                # the time and location
                 query = BirthRegistration.objects.filter(
                     location=location,
                     time=message.datetime,
                 )
+                # extract the specific report that was sent
+                # by the reporter texting in, and that came
+                # in via SMS
                 br = query.get(
                     connection=connection,
                     reporter=reporter,
-                    source=DATA_SOURCES[1][0])
+                    source=DATA_SOURCE_INTERNAL)
             except BirthRegistration.DoesNotExist:
                 br = BirthRegistration()
                 br.connection = connection
@@ -221,7 +226,7 @@ class BirthRegistrationApp(AppBase):
                 br.location = location
                 br.time = message.datetime
 
-            if query.filter(source=DATA_SOURCES[0][0]).exists():
+            if query.filter(source=DATA_SOURCE_EXTERNAL).exists():
                 br.disabled = True
 
             br.girls_below1 = report['f'][0]

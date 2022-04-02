@@ -7,7 +7,7 @@ from django.core.cache import cache, caches, InvalidCacheBackendError
 from django.db import connection, models
 from mptt.models import MPTTModel, TreeForeignKey
 
-from common.constants import DATA_SOURCES
+from common.constants import DATA_SOURCES, DATA_SOURCE_INTERNAL
 
 
 class Search(models.Lookup):
@@ -65,7 +65,8 @@ class Location(MPTTModel):
     active = models.BooleanField(default=True)
     created = models.DateTimeField(auto_now_add=True, null=True)
     updated = models.DateTimeField(auto_now=True)
-    source = models.CharField(max_length=32, choices=DATA_SOURCES, default=DATA_SOURCES[1][0])
+    source = models.CharField(
+        max_length=32, choices=DATA_SOURCES, default=DATA_SOURCE_INTERNAL)
     vrp_id = models.IntegerField(blank=True, null=True)
 
     def __unicode__(self):

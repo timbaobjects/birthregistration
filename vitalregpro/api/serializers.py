@@ -27,7 +27,7 @@ class BirthReportSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         kwargs = validated_data.copy()
-        kwargs.update(source=constants.DATA_SOURCES[0][0])
+        kwargs.update(source=constants.DATA_SOURCE_EXTERNAL)
 
         return BirthRegistration.objects.create(**kwargs)
 
@@ -65,7 +65,8 @@ class LocationSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError('The centre could not be added due to an error')
 
         return Location.objects.create(
-            code=next_rc_code, type=rc_type, source=constants.DATA_SOURCES[0][0],
+            code=next_rc_code, type=rc_type,
+            source=constants.DATA_SOURCE_EXTERNAL,
             **validated_data)
 
     def validate_parent(self, parent):

@@ -4,7 +4,7 @@ from django.core.cache import cache
 from django.core.validators import MinValueValidator
 from django.db import models
 
-from common.constants import DATA_SOURCES
+from common.constants import DATA_SOURCES, DATA_SOURCE_INTERNAL
 from locations.models import Location
 from reporters.models import Reporter, PersistantConnection
 from unicefng.querysets import SearchableLocationQuerySet
@@ -59,7 +59,8 @@ class BirthRegistration(models.Model):
         help_text='The UTC timestamp for the record creation')
     created = models.DateTimeField(auto_now_add=True, null=True)
     updated = models.DateTimeField(auto_now=True)
-    source = models.CharField(max_length=32, choices=DATA_SOURCES, default=DATA_SOURCES[1][0])
+    source = models.CharField(
+        max_length=32, choices=DATA_SOURCES, default=DATA_SOURCE_INTERNAL)
     disabled = models.BooleanField(default=False)
 
     objects = BirthRegistrationManager()

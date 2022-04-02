@@ -8,7 +8,7 @@ from django.utils.timezone import get_current_timezone, now
 from fuzzywuzzy import process
 
 from br.models import BirthRegistration
-from common.constants import DATA_SOURCES
+from common.constants import DATA_SOURCE_EXTERNAL
 from locations.models import Facility, Location, LocationType
 from vitalregpro.client.crvs import CRVSClient
 
@@ -46,7 +46,7 @@ def _resolve_centre(centre_info):
             raise
         centre = Location.objects.create(
             name=name, parent=lga, vrp_id=centre_id, type=location_type,
-            source=DATA_SOURCES[0][0], code=next_rc_code)
+            source=DATA_SOURCE_INTERNAL, code=next_rc_code)
         Facility.objects.create(name=name, code=next_rc_code, location=centre)
 
         return centre
@@ -102,8 +102,8 @@ def _post_births(aggregate_records, report_date):
         try:
             query = BirthRegistration.objects.filter(
                 location=centre, time=report_date)
-            br_report = query.get(source=DATA_SOURCES[0][0])
-            sms_reports = query.exclude(source=DATA_SOURCES[0][0])
+            br_report = query.get(source=DATA_SOURCE_EXTERNAL)
+            sms_reports = query.exclude(source=DATA_SOURCE_EXTERNAL)
             if sms_reports.exists():
                 sms_reports.update(disabled=True)
         except BirthRegistration.DoesNotExist:
