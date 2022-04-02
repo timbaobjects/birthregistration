@@ -61,9 +61,9 @@ def _resolve_centre(centre_info):
 
     # use the FTS for the centre name, and filter
     # by the state and LGA VRP IDs too
-    results = Location.objects.search(name).filter(
-        parent__vrp_id=lga_id, parent__parent__vrp_id=state_id,
-        type__name='RC', vrp_id=None
+    results = Location.objects.filter(
+        name__search=name, parent__vrp_id=lga_id,
+        parent__parent__vrp_id=state_id, type__name='RC', vrp_id=None
     )
 
     # no match, create the centre and return it
