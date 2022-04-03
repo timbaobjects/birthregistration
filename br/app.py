@@ -227,6 +227,9 @@ class BirthRegistrationApp(AppBase):
                 br.time = message.datetime
 
             if query.filter(source=DATA_SOURCE_EXTERNAL).exists():
+                # if there are existing reports that match the time, location
+                # and came in from external sources (VRP for now),
+                # disable this internal (via SMS) report
                 br.disabled = True
 
             br.girls_below1 = report['f'][0]
