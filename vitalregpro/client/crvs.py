@@ -64,12 +64,11 @@ class CRVSClient:
         new_credentials.update(**credentials)
 
         response = requests.post(self.AUTH_URL, json=new_credentials)
-        if response.status_code == 200:
-            self.access_token = response.json().get('data').get('access_token')
-            self.refresh_token = response.json().get('data').get('refresh_token')
-            return True
-        else:
-            return False
+        if response.status_code != 200:
+            raise Exception('Authentication failed. Server returned {}'.format(response.status_code))
+
+        self.access_token = response.json().get('data').get('access_token')
+        self.refresh_token = response.json().get('data').get('refresh_token')
 
     def refresh(self):
         refresh_token = getattr(self, 'refresh_token', None)
