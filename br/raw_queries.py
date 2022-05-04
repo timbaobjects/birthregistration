@@ -16,7 +16,7 @@ locations_location AS rc_table
 JOIN locations_location AS lga_table ON rc_table.parent_id = lga_table.id
 JOIN locations_location AS state_table ON lga_table.parent_id = state_table.id
 JOIN br_birthregistration ON rc_table.id = br_birthregistration.location_id
-WHERE br_birthregistration.time BETWEEN %s AND %s AND br.disabled = FALSE
+WHERE br_birthregistration.time BETWEEN %s AND %s AND br_birthregistration.disabled = FALSE
 GROUP BY state, state_id ORDER BY state;
 '''
 
@@ -37,7 +37,7 @@ locations_location AS rc_table
 JOIN locations_location AS lga_table ON rc_table.parent_id = lga_table.id
 JOIN locations_location AS state_table ON lga_table.parent_id = state_table.id
 JOIN br_birthregistration ON rc_table.id = br_birthregistration.location_id
-WHERE br_birthregistration.time <= %s AND br.disabled = FALSE
+WHERE br_birthregistration.time <= %s AND br_birthregistration.disabled = FALSE
 GROUP BY state, state_id ORDER BY state;
 '''
 
@@ -56,7 +56,7 @@ FROM
 locations_location AS rc_table
 JOIN locations_location AS lga_table ON rc_table.parent_id = lga_table.id
 JOIN br_birthregistration ON rc_table.id = br_birthregistration.location_id
-WHERE br_birthregistration.time BETWEEN %s AND %s AND br.disabled = FALSE
+WHERE br_birthregistration.time BETWEEN %s AND %s AND br_birthregistration.disabled = FALSE
 AND lga_table.parent_id = %s
 GROUP BY lga, lga_id, rc ORDER BY lga, rc;
 '''
@@ -77,7 +77,7 @@ locations_location AS rc_table
 JOIN locations_location AS lga_table ON rc_table.parent_id = lga_table.id
 JOIN br_birthregistration ON rc_table.id = br_birthregistration.location_id
 WHERE lga_table.parent_id = %s AND br_birthregistration.time <= %s
-AND br.disabled = FALSE
+AND br_birthregistration.disabled = FALSE
 GROUP BY lga, lga_id, rc ORDER BY lga, rc;
 '''
 
@@ -90,7 +90,7 @@ locations_location AS rc_table
 JOIN locations_location AS lga_table ON rc_table.parent_id = lga_table.id
 JOIN locations_location AS state_table ON lga_table.parent_id = state_table.id
 JOIN br_birthregistration ON rc_table.id = br_birthregistration.location_id
-WHERE br_birthregistration.time BETWEEN %s AND %s AND br.disabled = FALSE
+WHERE br_birthregistration.time BETWEEN %s AND %s AND br_birthregistration.disabled = FALSE
 GROUP BY state_id ORDER BY state_table.name;
 '''
 
@@ -103,7 +103,7 @@ FROM
 locations_location AS rc_table
 JOIN locations_location AS lga_table ON rc_table.parent_id = lga_table.id
 JOIN br_birthregistration ON rc_table.id = br_birthregistration.location_id
-WHERE br_birthregistration.time BETWEEN %s AND %s AND br.disabled = FALSE
+WHERE br_birthregistration.time BETWEEN %s AND %s AND br_birthregistration.disabled = FALSE
 AND lga_table.parent_id = %s
 GROUP BY lga_id ORDER BY lga_table.name;
 '''
@@ -166,7 +166,7 @@ JOIN
 JOIN
     locations_location AS loc ON (rc.lft >= loc.lft AND rc.rgt <= loc.rgt)
 WHERE
-    loc.id = %s AND rc.type_id = 8 AND br.disabled = FALSE
+    loc.id = %s AND rc.type_id = 8 AND br_birthregistration.disabled = FALSE
 GROUP BY
     lga, lga_id, state, state_id
 ORDER BY
@@ -193,7 +193,7 @@ JOIN
 JOIN
     locations_location AS loc ON (rc.lft >= loc.lft AND rc.rgt <= loc.rgt)
 WHERE
-    loc.id = %s AND rc.type_id = 8 AND br.disabled = FALSE
+    loc.id = %s AND rc.type_id = 8 AND br_birthregistration.disabled = FALSE
 GROUP BY
     lga_id, state_id
 ORDER BY
