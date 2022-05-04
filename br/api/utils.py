@@ -2,6 +2,7 @@
 import json
 import os
 
+import numpy as np
 import pandas as pd
 from django.db import connection
 from django.shortcuts import get_object_or_404
@@ -76,6 +77,9 @@ def get_dataframe(level, year, month):
     dataframe['u1_perf'] = dataframe['u1'] / dataframe['u1_estimate']
     dataframe['u5_perf'] = (dataframe['u5'] + dataframe['prev_u1']) / dataframe['u5_estimate']
 
+    dataframe['u1_perf'].replace([np.inf, -np.inf], 0, inplace=True)
+    dataframe['u5_perf'].replace([np.inf, -np.inf], 0, inplace=True)
+
     return dataframe
 
 
@@ -116,6 +120,9 @@ def get_dataframe_lite(level, year, month):
 
     dataframe['u1_perf'] = dataframe['u1'] / dataframe['u1_estimate']
     dataframe['u5_perf'] = (dataframe['u5'] + dataframe['prev_u1']) / dataframe['u5_estimate']
+
+    dataframe['u1_perf'].replace([np.inf, -np.inf], 0, inplace=True)
+    dataframe['u5_perf'].replace([np.inf, -np.inf], 0, inplace=True)
 
     return dataframe
 
