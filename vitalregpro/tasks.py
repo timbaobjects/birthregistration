@@ -46,7 +46,7 @@ def _resolve_centre(centre_info):
             raise
         centre = Location.objects.create(
             name=name, parent=lga, vrp_id=centre_id, type=location_type,
-            source=DATA_SOURCE_INTERNAL, code=next_rc_code)
+            source=DATA_SOURCE_EXTERNAL, code=next_rc_code)
         Facility.objects.create(name=name, code=next_rc_code, location=centre)
 
         return centre
@@ -103,11 +103,12 @@ def _post_births(aggregate_records, report_date):
             query = BirthRegistration.objects.filter(
                 location=centre, time=report_date)
             br_report = query.get(source=DATA_SOURCE_EXTERNAL)
-            sms_reports = query.exclude(source=DATA_SOURCE_EXTERNAL)
+            sms_reports = query.exclude(source=DATA_SOURCE_INTERNAL)
             if sms_reports.exists():
                 sms_reports.update(disabled=True)
         except BirthRegistration.DoesNotExist:
-            br_report = BirthRegistration(location=centre, time=report_date)
+            br_report = BirthRegistration(
+                location=centre, source=DATA_SOURCE_EXTERNAL, time=report_date)
 
         br_report.boys_below1 = record.get('Male').get('U1')
         br_report.boys_1to4 = record.get('Male').get('1-4')
