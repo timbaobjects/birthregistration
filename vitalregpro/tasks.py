@@ -8,7 +8,7 @@ from django.utils.timezone import get_current_timezone, now
 from fuzzywuzzy import process
 
 from br.models import BirthRegistration
-from common.constants import DATA_SOURCE_EXTERNAL
+from common.constants import DATA_SOURCE_EXTERNAL, DATA_SOURCE_INTERNAL
 from locations.models import Facility, Location, LocationType
 from vitalregpro.client.crvs import CRVSClient
 
