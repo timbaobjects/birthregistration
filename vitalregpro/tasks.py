@@ -127,9 +127,7 @@ def _remote_sync(date_string):
     - date_string: date string in YYYY-MM-DD format
     '''
     client = CRVSClient()
-    rv = client.authenticate()
-    if not rv:
-        return
+    client.authenticate()
 
     birth_records = client.get_births(date_string)
     aggregate_records, report_date = client.collate_records(birth_records)
