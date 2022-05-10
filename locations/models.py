@@ -1,12 +1,28 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # vim: ai ts=4 sts=4 et sw=4
 import networkx as nx
 from django.conf import settings
 from django.core.cache import cache, caches, InvalidCacheBackendError
-from django.db import models
+from django.db import connection, models
 from mptt.models import MPTTModel, TreeForeignKey
 
-from common.constants import DATA_SOURCES
+from common.constants import DATA_SOURCES, DATA_SOURCE_INTERNAL
+
+
+class Search(models.Lookup):
+    lookup_name = 'search'
+
+    def as_mysql(self, compiler, connection):
+        lhs, lhs_params = self.process_lhs(compiler, connection)
+        rhs, rhs_params = self.process_rhs(compiler, connection)
+        params = lhs_params + rhs_params
+
+        return 'MATCH (%s) AGAINST (%s)' % (lhs, rhs), params
+
+
+models.CharField.register_lookup(Search)
+models.TextField.register_lookup(Search)
 
 
 class LocationType(models.Model):
@@ -49,7 +65,9 @@ class Location(MPTTModel):
     active = models.BooleanField(default=True)
     created = models.DateTimeField(auto_now_add=True, null=True)
     updated = models.DateTimeField(auto_now=True)
-    source = models.CharField(max_length=32, choices=DATA_SOURCES, default=DATA_SOURCES[1][0])
+    source = models.CharField(
+        max_length=32, choices=DATA_SOURCES, default=DATA_SOURCE_INTERNAL)
+    vrp_id = models.IntegerField(blank=True, null=True)
 
     def __unicode__(self):
         if hasattr(self, 'type') and self.type:

@@ -20,7 +20,7 @@ FROM
 LEFT OUTER JOIN
     br_birthregistration AS br ON rc.id = br.location_id AND br.time >= %s AND br.time <= %s
 WHERE
-    rc.type_id = 8
+    rc.type_id = 8 AND br.disabled = FALSE
 '''
 
 COUNTRY_REPORTING_LITE_QUERY = '''
@@ -41,7 +41,7 @@ FROM
 LEFT OUTER JOIN
     br_birthregistration AS br ON rc.id = br.location_id AND br.time >= %s AND br.time <= %s
 WHERE
-    rc.type_id = 8
+    rc.type_id = 8 and br.disabled = FALSE
 '''
 
 COUNTRY_PREV_U1_QUERY = '''
@@ -54,7 +54,7 @@ JOIN
 JOIN
     locations_location AS state ON rc.lft >= state.lft AND rc.rgt <= state.rgt AND state.type_id = 2
 WHERE
-    rc.type_id = 8
+    rc.type_id = 8 AND br.disabled = FALSE
 '''
 
 
@@ -83,7 +83,7 @@ LEFT OUTER JOIN
 JOIN
     locations_location AS state ON rc.lft >= state.lft AND rc.rgt <= state.rgt AND state.type_id = 2
 WHERE
-    rc.type_id = 8
+    rc.type_id = 8 AND br.disabled = FALSE
 GROUP BY
     loc, loc_id
 ORDER BY
@@ -112,7 +112,7 @@ LEFT OUTER JOIN
 JOIN
     locations_location AS state ON rc.lft >= state.lft AND rc.rgt <= state.rgt AND state.type_id = 2
 WHERE
-    rc.type_id = 8
+    rc.type_id = 8 AND br.disabled = FALSE
 GROUP BY
     loc, loc_id
 ORDER BY
@@ -144,7 +144,7 @@ LEFT JOIN
 JOIN
     locations_location AS lga ON rc.parent_id = lga.id
 WHERE
-    rc.type_id = 8
+    rc.type_id = 8 AND br.disabled = FALSE
 GROUP BY
     loc, loc_id
 ORDER BY
@@ -173,7 +173,7 @@ LEFT JOIN
 JOIN
     locations_location AS lga ON rc.parent_id = lga.id
 WHERE
-    rc.type_id = 8
+    rc.type_id = 8 AND br.disabled = FALSE
 GROUP BY
     loc, loc_id
 ORDER BY
@@ -192,7 +192,7 @@ JOIN
 JOIN
     locations_location AS state ON rc.lft >= state.lft AND rc.rgt <= state.rgt AND state.type_id = 2
 WHERE
-    rc.type_id = 8
+    rc.type_id = 8 AND br.disabled = FALSE
 GROUP BY
     loc, loc_id
 ORDER BY
@@ -211,7 +211,7 @@ JOIN
 JOIN
     locations_location AS lga ON rc.parent_id = lga.id
 WHERE
-    rc.type_id = 8
+    rc.type_id = 8 AND br.disabled = FALSE
 GROUP BY
     loc, loc_id
 ORDER BY

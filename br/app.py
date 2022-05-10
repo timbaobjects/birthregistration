@@ -2,23 +2,20 @@
 # vim: ai ts=4 sts=4 et sw=4
 
 import calendar
-from datetime import datetime, date, timedelta
-from django.utils.translation import ugettext as _
 import logging
-import parsley
 import re
 import sys
 import unicodedata
-# requires python-dateutil to work
-try:
-    from dateutil.parser import parse
-    from dateutil.relativedelta import relativedelta
-except ImportError:
-    raise ImportError('python-dateutil is required for this app to work.')
+from datetime import datetime, date, timedelta
 
+import parsley
+from dateutil.parser import parse
+from dateutil.relativedelta import relativedelta
+from django.utils.translation import ugettext as _
 from rapidsms.apps.base import AppBase
 
 from br.models import BirthRegistration
+from common.constants import DATA_SOURCE_EXTERNAL, DATA_SOURCE_INTERNAL
 from common.utilities import getConnectionAndReporter
 from reporters.models import Reporter, Role
 from locations.models import Location
@@ -209,17 +206,31 @@ class BirthRegistrationApp(AppBase):
 
             # store the report
             try:
-                br = BirthRegistration.objects.get(
+                # get any existing reports that match
+                # the time and location
+                query = BirthRegistration.objects.filter(
+                    location=location,
+                    time=message.datetime,
+                )
+                # extract the specific report that was sent
+                # by the reporter texting in, and that came
+                # in via SMS
+                br = query.get(
                     connection=connection,
                     reporter=reporter,
-                    location=location,
-                    time=message.datetime)
+                    source=DATA_SOURCE_INTERNAL)
             except BirthRegistration.DoesNotExist:
                 br = BirthRegistration()
                 br.connection = connection
                 br.reporter = reporter
                 br.location = location
                 br.time = message.datetime
+
+            if query.filter(source=DATA_SOURCE_EXTERNAL).exists():
+                # if there are existing reports that match the time, location
+                # and came in from external sources (VRP for now),
+                # disable this internal (via SMS) report
+                br.disabled = True
 
             br.girls_below1 = report['f'][0]
             br.girls_1to4   = report['f'][1]
