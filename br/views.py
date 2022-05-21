@@ -366,7 +366,7 @@ class ReportListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 
 
 class ReportEditView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
-    template_name = 'br/report_edit.html'
+    template_name = 'backend/report_edit.html'
     permission_required = PROTECTED_VIEW_PERMISSION
     page_title = 'Edit Report'
     model = BirthRegistration

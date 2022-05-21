@@ -1,5 +1,5 @@
 {% extends 'backend/_layout.html' %}
-{% load helpers staticfiles %}
+{% load staticfiles %}
 {% block stylesheets %}
 <link rel="stylesheet" href="{% static 'vendor/flatpickr/flatpickr.min.css' %}">
 <link rel="stylesheet" href="{% static 'vendor/tom-select/css/tom-select.bootstrap5.min.css' %}">
@@ -12,6 +12,18 @@
     </div>
   </div>
 </div>
+{% if messages %}
+{% for message in messages %}
+<div class="row">
+  <div class="col-sm-12">
+    <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %} alert-dismissable">
+      {{ message|safe }}
+      <button class="btn-close" type="button" data-bs-dismss="alert" aria-label="Close"></button>
+    </div>
+  </div>
+</div>
+{% endfor %}
+{% endif %}
 <div class="row">
   <div class="col">
     <form role="form" id="filter_form">
@@ -80,12 +92,14 @@
                       <input type="checkbox" name="reports" value="{{ report.pk }}" class="reports form-check-input" data-delete-checkbox="true"></td>
                     </div>
                   <td>
+                    {% if report.source == 'internal' %}
                     <a href="{% url 'br:report_edit' report.pk %}">
                       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
                         <title>Edit this report</title>
                         <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                       </svg>
                     </a>
+                    {% endif %}
                   </td>
                   <td>{% if report.source == 'internal' %}{{ report.connection.identity }}{% else %}API{% endif %}</td>
                   <td>{{ report.time|date:'SHORT_DATE_FORMAT' }}</td>
