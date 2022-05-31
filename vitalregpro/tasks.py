@@ -131,8 +131,9 @@ def _remote_sync(date_string):
     client.authenticate()
 
     birth_records = client.get_births(date_string)
-    aggregate_records, report_date = client.collate_records(birth_records)
-    _post_births(aggregate_records, report_date)
+    if len(birth_records) > 0:
+        aggregate_records, report_date = client.collate_records(birth_records)
+        _post_births(aggregate_records, report_date)
 
     client.logout()
 
@@ -140,5 +141,5 @@ def _remote_sync(date_string):
 @shared_task
 def sync_from_remote(date_string=None):
     if date_string is None:
-        date_string = now.strftime('%Y-%m-%d')
+        date_string = now().strftime('%Y-%m-%d')
     _remote_sync(date_string)
