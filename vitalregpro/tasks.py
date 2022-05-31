@@ -3,6 +3,7 @@ from __future__ import absolute_import
 import logging
 import re
 
+from dateutil.relativedelta import relativedelta
 from celery import shared_task
 from django.utils.timezone import get_current_timezone, now
 from fuzzywuzzy import process
