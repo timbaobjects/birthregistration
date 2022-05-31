@@ -207,6 +207,7 @@ INSTALLED_APPS = (
     "patterns",
     "locations",
     "reporters",
+    "common",
     "br",
     "dr",
     "profiles",
