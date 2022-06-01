@@ -55,9 +55,9 @@
             <thead>
               <tr>
                 <th>Name</th>
+                <th>Code</th>
                 <th>LGA</th>
                 <th>State</th>
-                <th>Code</th>
                 <th>Active?</th>
               </tr>
             </thead>
@@ -66,9 +66,9 @@
               {% with ancestors=center.get_ancestors %}
               <tr>
                 <td>{{ center.name }}</td>
+                <td>{{ center.code }}</td>
                 <td>{{ ancestors|extract_ancestor_name:'LGA' }}</td>
                 <td>{{ ancestors|extract_ancestor_name:'State' }}</td>
-                <td>{{ center.code }}</td>
                 <td>
                   {% if center.active %}
                   <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
