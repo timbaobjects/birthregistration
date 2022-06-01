@@ -54,9 +54,9 @@
           <table class="table table-hover table-sm table-striped">
             <thead>
               <tr>
-                <th>State</th>
-                <th>LGA</th>
                 <th>Name</th>
+                <th>LGA</th>
+                <th>State</th>
                 <th>Code</th>
                 <th>Active?</th>
               </tr>
@@ -65,9 +65,9 @@
               {% for center in centers %}
               {% with ancestors=center.get_ancestors %}
               <tr>
-                <td>{{ ancestors|extract_ancestor_name:'State' }}</td>
-                <td>{{ ancestors|extract_ancestor_name:'LGA' }}</td>
                 <td>{{ center.name }}</td>
+                <td>{{ ancestors|extract_ancestor_name:'LGA' }}</td>
+                <td>{{ ancestors|extract_ancestor_name:'State' }}</td>
                 <td>{{ center.code }}</td>
                 <td>
                   {% if center.active %}
