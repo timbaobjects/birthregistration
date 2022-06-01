@@ -29,6 +29,18 @@
               <a href="{% url 'locations:center_list' %}" class="btn btn-light mx-1">Clear</a>
             </div>
           </div>
+          {% if perms.locations.add_location %}
+          <div class="row g-3">
+            <div class="col">
+              <a href="{% url 'locations:center_add' %}" class="btn btn-success mt-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+                  <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                </svg>
+                Add new centre
+              </a>
+            </div>
+          </div>
+          {% endif %}
         </div>
       </div>
     </form>
