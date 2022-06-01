@@ -1,0 +1,129 @@
+{% extends 'backend/_layout.html' %}
+{% load location_tags staticfiles %}
+{% block stylesheets %}
+<link rel="stylesheet" href="{% static 'vendor/tom-select/css/tom-select.bootstrap5.min.css' %}">
+{% endblock stylesheets %}
+{% block content %}
+<div class="row">
+  <div class="col">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-1 pb-1 mb-1 border-bottom">
+      <h3>{{ page_title }}</h3>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col">
+    <form id="filter_form" role="form">
+      <div class="card border-light mb-3">
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-sm-6">
+              <select name="{{ filter_form.lga.name }}" id="{{ filter_form.lga.id_for_label }}" class="form-control" placeholder="LGA">
+                {% if filter_form.cleaned_data.lga %}
+                <option selected value="{{ filter_form.cleaned_data.lga.pk }}" data-type="{{ filter_form.cleaned_data.lga.type.name }}">{{ filter_form.cleaned_data.lga.name }}</option>
+                {% endif %}
+              </select>
+            </div>
+            <div class="col-sm-6">
+              <button type="submit" class="btn btn-dark">Filter</button>
+              <a href="{% url 'locations:center_list' %}" class="btn btn-light mx-1">Clear</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<div class="row">
+  <div class="col">
+    <div class="card">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover table-sm table-striped">
+            <thead>
+              <tr>
+                <th>State</th>
+                <th>LGA</th>
+                <th>Name</th>
+                <th>Code</th>
+                <th>Active?</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for center in centers %}
+              {% with ancestors=center.get_ancestors %}
+              <tr>
+                <td>{{ ancestors|extract_ancestor_name:'State' }}</td>
+                <td>{{ ancestors|extract_ancestor_name:'LGA' }}</td>
+                <td>{{ center.name }}</td>
+                <td>{{ center.code }}</td>
+                <td>
+                  {% if center.active %}
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  {% else %}
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                  </svg>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endwith %}
+              {% empty %}
+              <tr>
+                <td class="table-warning" colspan="5">No records found</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% include 'backend/pagination.html' %}
+{% endblock content %}
+{% block scripts %}
+<script src="{% static 'vendor/tom-select/js/tom-select.popular.min.js' %}"></script>
+<script>
+  let loader = function () {
+    // set up autocomplete input
+    const endpoint = '{% url "api:location_list_typed" %}';
+    let autoComplete = new TomSelect('#{{ filter_form.lga.id_for_label }}', {
+      labelField: 'name',
+      searchField: 'name',
+      valueField: 'id',
+      maxItems: 1,
+      load: (query, callback) => {
+        let params = new URLSearchParams({
+          'q': query,
+          'type': ['lga']
+        });
+        let url = `${endpoint}?${params.toString()}`;
+        fetch(url)
+          .then(response => response.json())
+          .then(json => {
+            callback(json.results);
+          })
+          .catch(() => callback());
+      },
+      render: {
+        option: (item, escape) => {
+          return `<div>${escape(item.name)} (${escape(item.type)})</div>`;
+        },
+        item: (item, escape) => {
+          return `<div>${escape(item.name)} (${escape(item.type)})</div>`;
+        },
+      },
+      plugins: {
+        remove_button: {
+          title: 'Remove'
+        }
+      }
+    });
+  };
+
+  document.addEventListener('DOMContentLoaded', loader);
+</script>
+{% endblock scripts %}

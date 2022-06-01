@@ -24,9 +24,9 @@ from locations.models import Facility, Location, LocationType
 
 class CenterListView(LoginRequiredMixin, ListView):
     context_object_name = 'centers'
-    page_title = 'Centers'
+    page_title = 'Birth Registration Centres'
     paginate_by = settings.PAGE_SIZE
-    template_name = 'locations/center_list.html'
+    template_name = 'backend/centre_list.html'
 
     def get(self, request, *args, **kwargs):
         queryset = Location.objects.filter(type__name=u'RC')
