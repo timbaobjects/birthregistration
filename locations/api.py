@@ -1,5 +1,7 @@
+from django.db.models import Q
 from rest_framework import generics
-from locations.models import Location
+
+from locations.models import Location, LocationType
 from locations.serializers import LocationSerializer
 
 
@@ -41,8 +43,13 @@ class TypedLocationListView(LocationListView):
         if not type_names:
             return queryset.none()
 
-        types = type_names.split(u',')
-        queryset = queryset.filter(type__name__in=types)
+        types = [t.lower() for t in type_names.split(u',')]
+        terms = Q()
+        for typ in types:
+            terms |= Q(name__iexact=typ)
+
+        loc_types = LocationType.objects.filter(terms)
+        queryset = queryset.filter(type__in=loc_types)
 
         # filter on parent id
         parent_id = self.request.query_params.get(u'parent')

@@ -213,6 +213,17 @@ class Location(MPTTModel):
             stock = None
 
         return stock
+    
+    def latest_birth_report_time(self):
+        if self.type.name != 'RC':
+            return None
+        
+        try:
+            report = self.birthregistration_records.latest('time')
+
+            return report.time
+        except Exception:
+            return None
 
 
 def get_locations_graph(reverse=False):

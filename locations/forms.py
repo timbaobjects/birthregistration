@@ -1,9 +1,13 @@
+import calendar
+
 from django import forms
-from .models import Location
+
+from br.utils import get_report_year_range
+from locations.models import Location
 
 
 def generate_edit_form(location, data=None):
-    state_choices = Location.objects.filter(type__name='state').values_list(
+    state_choices = Location.objects.filter(type__name='State').values_list(
         'id', 'name')
 
     def clean_location_field(form, field_name, location_type):
@@ -64,3 +68,22 @@ class CenterCreationForm(forms.Form):
     name = forms.CharField()
     lga = forms.ModelChoiceField(queryset=Location.objects.filter(
         type__name=u'LGA'))
+
+
+def _get_year_choices():
+    choices = [('', '----- Select year -----')]
+    year_range = get_report_year_range()
+    choices.extend([(yr, yr) for yr in range(year_range[0], year_range[1] + 1)])
+    return choices
+
+
+def _get_month_choices():
+    choices = [('', '----- Select month -----')]
+    choices.extend([(i, calendar.month_abbr[i]) for i in range(1, 13)])
+    return choices
+
+
+class NonReportingCentresFilterForm(forms.Form):
+    location = forms.ModelChoiceField(queryset=Location.objects.filter(type__name__in=['State', 'LGA']), required=False)
+    year = forms.ChoiceField(choices=_get_year_choices, required=False)
+    month = forms.ChoiceField(choices=_get_month_choices, required=False)

@@ -1,5 +1,5 @@
 {% extends 'base/layout.html' %}
-{% load pipeline staticfiles %}
+{% load pipeline staticfiles widget_tweaks %}
 {% block stylesheets %}
 {% stylesheet 'centers' %}
 {% endblock %}
@@ -13,15 +13,15 @@
                 {{ form.id }}
                 <div class="form-group">
                     <label for="{{ form.name.name }}">{{ form.name.label }}</label>
-                    <input type="text" class="form-control" id="{{ form.name.auto_id }}" name="{{ form.name.name }}" value="{{ form.name.value }}">
+                    {% render_field form.name class='form-control' %}
                 </div>
                 <div class="form-group">
                     <label for="{{ form.code.name }}">{{ form.code.label }}</label>
-                    <input type="text" class="form-control" id="{{ form.code.auto_id }}" name="{{ form.code.name }}" value="{{ form.code.value }}">
+                    {% render_field form.code class='form-control' %}
                 </div>
                 <div class="form-group">
                     <label for="{{ form.state.name }}">{{ form.state.label }}</label>
-                    {{ form.state }}
+                    {% render_field form.state class='form-control' %}
                 </div>
                 <div class="form-group">
                     <label for="{{ form.lga.id_for_label }}">{{ form.lga.label|upper }}</label>
@@ -46,6 +46,7 @@
 </div>
 {% endblock %}
 {% block scripts %}
+{{ block.super }}
 {% javascript 'centers' %}
 <script type="text/javascript">
 $(document).ready(function() {

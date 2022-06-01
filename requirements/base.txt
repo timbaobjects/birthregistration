@@ -14,6 +14,7 @@ django-redis==4.7.0
 django-selectable==1.2.1
 django-sendfile==0.3.11
 django-subdomains==2.1.0
+django-widget-tweaks==1.4.8
 djangorestframework==3.9.4
 drf-yasg==1.17.1
 fuzzywuzzy==0.12.0

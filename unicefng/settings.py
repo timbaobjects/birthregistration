@@ -219,6 +219,7 @@ INSTALLED_APPS = (
     "pipeline",
     "bootstrap_pagination",
     "drf_yasg",
+    "widget_tweaks",
     # RapidSMS
     "rapidsms",
     "rapidsms.backends.database",
