@@ -1,0 +1,225 @@
+{% extends 'backend/_layout.html' %}
+{% load staticfiles %}
+{% block stylesheets %}
+<link rel="stylesheet" href="{% static 'vendor/tom-select/css/tom-select.bootstrap5.min.css' %}">
+{% endblock stylesheets %}
+{% block content %}
+<div class="row">
+  <div class="col">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-1 pb-1 mb-1 border-bottom">
+      <h3>{{ page_title }}</h3>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col py-3">
+    <form method="post">
+      {% csrf_token %}
+      <div class="card" id="app">
+        <div class="alert alert-info" role="alert">Creating <strong>{% verbatim %}{{ forms.length }}{% endverbatim %}</strong> centres.</div>
+        <div class="card-body">
+          <input type="hidden" name="form-TOTAL_FORMS" :value="forms.length">
+          <input type="hidden" name="form-INITIAL_FORMS" value="0">
+          <input type="hidden" name="form-MAX_NUM_FORMS" value="">
+          <div class="row">
+            <div class="col">
+              <inner-form v-for="(form, index) in forms" :form="form" :key="form.id" @delete="deleteForm(form)" :index="index" @form-updated="updateFormData"></inner-form>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <button class="btn btn-success me-3" @click.prevent="addForm">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+              <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+            </svg>
+            Add centre
+          </button>
+          <button type="submit" class="btn btn-primary me-3" ref="submitButton" disabled>Save Changes</button>
+          <a href="{% url 'locations:center_list' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<template id="lga-picker">
+  <label :for="id" class="form-label">LGA</label>
+  <select :name="name" :id="id" class="form-control" ref="control" placeholder="Type to select LGA"></select>
+</template>
+<template id="centre-form">
+  <div class="row g-3">
+    <div class="col p-3">
+      <div class="row mb-3">
+        <label :for="form.nameFieldId" class="form-label">Name</label>
+        <input type="text" class="form-control" :id="form.nameFieldId" :name="form.nameFieldName" v-model="name" @change="updateSaveButton">
+      </div>
+      <div class="row mb-3">
+        <parent-picker :id="form.lgaFieldId" :name="form.lgaFieldName" @lga-updated="onLGAUpdated"></parent-picker>
+      </div>
+      <div class="row">
+        <div class="mb-3">
+          <button class="btn btn-danger btn-sm" @click="onDelete">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+              <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+            </svg>
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+{% endblock content %}
+{% block scripts %}
+<script src="{% static 'vendor/tom-select/js/tom-select.popular.min.js' %}"></script>
+<script src="{% static 'vendor/vue/vue.global.prod.js' %}"></script>
+<script>
+  var loader = function () {
+    var endpoint = '{% url "api:location_list_typed" %}';
+
+    var ParentPicker = {
+      template: '#lga-picker',
+      props: {
+        id: String,
+        name: String
+      },
+      mounted: function() {
+        let selectElement = this.$refs.control;
+        let autoComplete = new TomSelect(selectElement, {
+          labelField: 'name',
+          searchField: 'name',
+          valueField: 'id',
+          maxItems: 1,
+          load: (query, callback) => {
+            let params = new URLSearchParams({
+              q: query,
+              type: ['lga']
+            });
+
+            let url = `${endpoint}?${params.toString()}`;
+            fetch(url)
+              .then(response => response.json())
+              .then(json => {
+                callback(json.results);
+              })
+              .catch(() => callback());
+          },
+          render: {
+            option: (item, escape) => {
+              return `<div>${escape(item.name)} (${escape(item.type)})</div>`;
+            },
+            item: (item, escape) => {
+              return `<div>${escape(item.name)} (${escape(item.type)})</div>`;
+            }
+          },
+          plugins: {
+            remove_button: {
+              title: 'Remove'
+            }
+          }
+        });
+        autoComplete.on('change', (value) => {
+          this.ownLGA = value;
+          this.centreUpdated();
+        });
+      },
+      methods: {
+        centreUpdated: function () {
+          this.$emit('lga-updated', this.ownLGA);
+        }
+      },
+      emits: ['lga-updated'],
+      data: function () {
+        return {
+          ownLGA: null
+        };
+      }
+    };
+
+    var CenterForm = function (newId) {
+      this.id = newId;
+      this.nameFieldName = 'form-' + this.id + '-name';
+      this.nameFieldId = 'id_' + this.nameFieldName;
+      this.lgaFieldName = 'form-' + this.id + '-lga';
+      this.lgaFieldId = 'id_' + this.lgaFieldName;
+    }
+
+    var InnerForm = {
+      components: {
+        ParentPicker,
+      },
+      data: function () {
+        return {
+          name: '',
+          lga: ''
+        };
+      },
+      methods: {
+        onDelete: function () {
+          this.$emit('delete');
+        },
+        onLGAUpdated: function (newLGA) {
+          this.lga = newLGA;
+          this.updateSaveButton();
+        },
+        updateSaveButton: function () {
+          this.$emit('form-updated', {
+            name: this.name,
+            lga: this.lga
+          }, this.index);
+        }
+      },
+      mounted: function () {
+        this.updateSaveButton();
+      },
+      props: {
+        form: CenterForm,
+        index: Number
+      },
+      template: '#centre-form'
+    };
+  
+    var app = Vue.createApp({
+      components: {
+        InnerForm
+      },
+      el: '#app',
+      data: function () {
+        return {
+          forms: [],
+          formData: [],
+          idCounter: 0
+        }
+      },
+      methods: {
+        addForm: function () {
+          this.forms.push(new CenterForm(this.idCounter++));
+          this.formData.push({name: null, lga: null});
+        },
+        deleteForm: function (form) {
+          var index = this.forms.indexOf(form);
+          if (index !== -1) {
+            this.forms.splice(index, 1);
+            this.formData.splice(index, 1);
+          }
+          this.updateInterface();
+        },
+        updateInterface: function () {
+          let missingCount = this.formData.filter(function (fd) {
+            return !fd.name || !fd.lga;
+          }).length;
+  
+          this.$refs.submitButton.disabled = (this.forms.length === 0) || (missingCount > 0);
+        },
+        updateFormData: function (formData, index) {
+          this.formData[index] = formData;
+          this.updateInterface();
+        }
+      }
+    });
+
+    app.mount('#app');
+  };
+
+  document.addEventListener('DOMContentLoaded', loader);
+</script>
+{% endblock scripts %}
