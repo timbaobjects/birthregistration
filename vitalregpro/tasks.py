@@ -3,6 +3,7 @@ from __future__ import absolute_import
 import logging
 import re
 
+from dateutil.relativedelta import relativedelta
 from celery import shared_task
 from django.utils.timezone import get_current_timezone, now
 from fuzzywuzzy import process
@@ -141,5 +142,6 @@ def _remote_sync(date_string):
 @shared_task
 def sync_from_remote(date_string=None):
     if date_string is None:
-        date_string = now().strftime('%Y-%m-%d')
+        record_timestamp = now() + relativedelta(days=-1)
+        date_string = record_timestamp.strftime('%Y-%m-%d')
     _remote_sync(date_string)
