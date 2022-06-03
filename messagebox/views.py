@@ -14,7 +14,7 @@ class MessageListView(LoginRequiredMixin, ListView):
     context_object_name = 'messages'
     page_title = 'Messages'
     paginate_by = settings.PAGE_SIZE
-    template_name = 'messages/message_list.html'
+    template_name = 'backend/message_list.html'
 
     def get(self, request, *args, **kwargs):
         queryset = Message.objects.order_by('-date')
