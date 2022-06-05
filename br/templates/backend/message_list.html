@@ -1,0 +1,83 @@
+{% extends 'backend/_layout.html' %}
+{% load staticfiles %}
+{% block stylesheets %}
+<link rel="stylesheet" href="{% static 'vendor/flatpickr/flatpickr.min.css' %}">
+{% endblock stylesheets %}
+{% block content %}
+<div class="row">
+  <div class="col">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-1 pb-1 mb-1 border-bottom">
+      <h3>{{ page_title }}</h3>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col">
+    <form id="filter_form">
+      <div class="card border-light mb-3">
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-4 col-sm-12">
+              <input type="text" class="form-control" id="{{ filter_form.phone.id_for_label }}" name="{{ filter_form.phone.name }}" value="{{ filter_form.phone.value|default:'' }}" placeholder="Phone">
+            </div>
+            <div class="col-md-4 col-sm-12">
+              <input type="text" class="form-control date-picker" id="{{ filter_form.date.id_for_label }}" name="{{ filter_form.date.name }}" value="{{ filter_form.date.value|default:'' }}" placeholder="Date">
+            </div>
+            <div class="col-md-4 col-sm-12">
+              <button type="submit" class="btn btn-dark">Filter</button>
+              <a href="{% url 'messaging:message_list' %}" class="btn btn-light mx-1">Clear</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+<div class="row">
+  <div class="col">
+    <div class="card">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover table-sm table-striped">
+            <thead>
+              <tr>
+                <th>Phone</th>
+                <th>Time</th>
+                <th>Direction</th>
+                <th>Message</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for message in messages %}
+              <tr>
+                <td>{{ message.connection.identity }}</td>
+                <td>{{ message.date|date:'d/m/Y H:i:s' }}</td>
+                <td>{{ message.get_direction_display }}</td>
+                <td>{{ message.text }}</td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td class="table-warning" colspan="4">No records fo</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% include 'backend/pagination.html' %}
+{% endblock content %}
+{% block scripts %}
+<script src="{% static 'vendor/flatpickr/flatpickr.min.js' %}"></script>
+<script>
+  let loader = function () {
+    flatpickr('.date-picker', {
+      dateFormat: 'm/d/Y'
+    });
+  };
+
+  document.addEventListener('DOMContentLoaded', loader);
+</script>
+{% endblock scripts %}
