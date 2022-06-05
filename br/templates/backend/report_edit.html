@@ -1,0 +1,111 @@
+{% extends 'backend/_layout.html' %}
+{% block content %}
+<div class="row">
+  <div class="col">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-1 pb-1 mb-1 border-bottom">
+      <h3>{{ page_title }}</h3>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col">
+    <div class="card">
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-sm-4"><strong>State</strong></div>
+          <div class="col-sm-8">{{ report.location.parent.parent.name }}</div>
+        </div>
+        <div class="row g-3">
+          <div class="col-sm-4"><strong>LGA</strong></div>
+          <div class="col-sm-8">{{ report.location.parent.name }}</div>
+        </div>
+        <div class="row g-3">
+          <div class="col-sm-4"><strong>Reg. Centre</strong></div>
+          <div class="col-sm-8">{{ report.location.name }}</div>
+        </div>
+        <div class="row g-3">
+          <div class="col-sm-4"><strong>Reporter</strong></div>
+          <div class="col-sm-8">{% if report.source == 'internal' %}{{ report.reporter.full_name }}{% else %}API{% endif %}</div>
+        </div>
+        <div class="row g-3">
+          <div class="col-sm-4"><strong>Phone</strong></div>
+          <div class="col-sm-8">{% if report.source == 'internal' %}{{ report.connection.identity }}{% else %}N/A{% endif %}</div>
+        </div>
+        <div class="row g-3">
+          <div class="col-sm-4"><strong>Submitted</strong></div>
+          <div class="col-sm-8">{{ report.time|date:'SHORT_DATE_FORMAT' }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-10 offset-sm-1 col-md-8 offset-md-2 py-3">
+    <form method="post">
+      {% csrf_token %}
+      <div class="card">
+        <div class="card-body">
+          <fieldset>
+            <legend class="border-bottom">Female</legend>
+            <div class="row mb-3">
+              <label for="{{ report_form.girls_below1.id_for_label }}" class="col-sm-4 col-form-label">Under 1</label>
+              <div class="col-sm-8">
+                <input type="number" class="form-control" name="{{ report_form.girls_below1.name }}" id="{{ report_form.girls_below1.id_for_label }}" value="{{ report_form.girls_below1.value }}" {% if report.source != 'internal' %}disabled{% endif %}>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <label for="{{ report_form.girls_1to4.id_for_label }}" class="col-sm-4 col-form-label">1-4</label>
+              <div class="col-sm-8">
+                <input type="number" class="form-control" name="{{ report_form.girls_1to4.name }}" id="{{ report_form.girls_1to4.id_for_label }}" value="{{ report_form.girls_1to4.value }}" {% if report.source != 'internal' %}disabled{% endif %}>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <label for="{{ report_form.girls_5to9.id_for_label }}" class="col-sm-4 col-form-label">5-9</label>
+              <div class="col-sm-8">
+                <input type="number" class="form-control" name="{{ report_form.girls_5to9.name }}" id="{{ report_form.girls_5to9.id_for_label }}" value="{{ report_form.girls_5to9.value }}" {% if report.source != 'internal' %}disabled{% endif %}>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <label for="{{ report_form.girls_10to18.id_for_label }}" class="col-sm-4 col-form-label">10-17</label>
+              <div class="col-sm-8">
+                <input type="number" class="form-control" name="{{ report_form.girls_10to18.name }}" id="{{ report_form.girls_10to18.id_for_label }}" value="{{ report_form.girls_10to18.value }}" {% if report.source != 'internal' %}disabled{% endif %}>
+              </div>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend class="border-bottom">Male</legend>
+            <div class="row mb-3">
+              <label for="{{ report_form.boys_below1.id_for_label }}" class="col-sm-4 col-form-label">Under 1</label>
+              <div class="col-sm-8">
+                <input type="number" class="form-control" name="{{ report_form.boys_below1.name }}" id="{{ report_form.boys_below1.id_for_label }}" value="{{ report_form.boys_below1.value }}" {% if report.source != 'internal' %}disabled{% endif %}>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <label for="{{ report_form.boys_1to4.id_for_label }}" class="col-sm-4 col-form-label">1-4</label>
+              <div class="col-sm-8">
+                <input type="number" class="form-control" name="{{ report_form.boys_1to4.name }}" id="{{ report_form.boys_1to4.id_for_label }}" value="{{ report_form.boys_1to4.value }}" {% if report.source != 'internal' %}disabled{% endif %}>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <label for="{{ report_form.boys_5to9.id_for_label }}" class="col-sm-4 col-form-label">5-9</label>
+              <div class="col-sm-8">
+                <input type="number" class="form-control" name="{{ report_form.boys_5to9.name }}" id="{{ report_form.boys_5to9.id_for_label }}" value="{{ report_form.boys_5to9.value }}" {% if report.source != 'internal' %}disabled{% endif %}>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <label for="{{ report_form.boys_10to18.id_for_label }}" class="col-sm-4 col-form-label">10-17</label>
+              <div class="col-sm-8">
+                <input type="number" class="form-control" name="{{ report_form.boys_10to18.name }}" id="{{ report_form.boys_10to18.id_for_label }}" value="{{ report_form.boys_10to18.value }}" {% if report.source != 'internal' %}disabled{% endif %}>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+        <div class="card-footer">
+          <button type="submit" class="btn btn-primary" {% if report.source != 'internal' %}disabled{% endif %}>Save Changes</button>
+          <a href="{% url 'br:reports_list' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock content %}

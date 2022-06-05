@@ -343,10 +343,10 @@ def map_dashboard(request):
 class ReportListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     context_object_name = 'reports'
     model = BirthRegistration
-    template_name = 'br/reports_list.html'
+    template_name = 'backend/reports_list.html'
     ordering = (u'-time',)
     paginate_by = settings.PAGE_SIZE
-    page_title = 'Reports List'
+    page_title = 'Birth Registration Reports'
     permission_required = PROTECTED_VIEW_PERMISSION
     report_filter = BirthRegistrationFilter
 
@@ -366,7 +366,7 @@ class ReportListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 
 
 class ReportEditView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
-    template_name = 'br/report_edit.html'
+    template_name = 'backend/report_edit.html'
     permission_required = PROTECTED_VIEW_PERMISSION
     page_title = 'Edit Report'
     model = BirthRegistration
