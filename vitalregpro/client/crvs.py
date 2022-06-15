@@ -47,13 +47,13 @@ def _is_valid(record):
 
 
 class CRVSClient:
-    AUTH_URL = 'https://vital.nationalpopulation.gov.ng/auth/login'
-    REFRESH_URL = 'https://vital.nationalpopulation.gov.ng/auth/refresh'
-    CENTRES_URL = 'https://vital.nationalpopulation.gov.ng/items/registration_center'
-    LGAS_URL = 'https://vital.nationalpopulation.gov.ng/items/lgas'
-    STATES_URL = 'https://vital.nationalpopulation.gov.ng/items/state'
-    RECORDS_URL = 'https://vital.nationalpopulation.gov.ng/items/live_birth'
-    LOGOUT_URL = 'https://vital.nationalpopulation.gov.ng/auth/logout'
+    AUTH_PATH = '/auth/login'
+    REFRESH_PATH = '/auth/refresh'
+    CENTRES_PATH = '/items/registration_center'
+    LGAS_PATH = '/items/lgas'
+    STATES_PATH = '/items/state'
+    RECORDS_PATH = '/items/live_birth'
+    LOGOUT_PATH = '/auth/logout'
 
     def authenticate(self, **credentials):
         default_credentials = {
@@ -63,7 +63,9 @@ class CRVSClient:
         new_credentials = default_credentials.copy()
         new_credentials.update(**credentials)
 
-        response = requests.post(self.AUTH_URL, json=new_credentials)
+        endpoint = urljoin(settings.VRP_BASE_URL, self.AUTH_PATH)
+
+        response = requests.post(str(endpoint), json=new_credentials)
         if response.status_code != 200:
             raise Exception('Authentication failed. Server returned {}'.format(response.status_code))
 
@@ -76,7 +78,9 @@ class CRVSClient:
         if refresh_token is None:
             raise ValueError('Please authenticate first!')
 
-        response = requests.post(self.REFRESH_URL, json={'refresh_token': refresh_token})
+        endpoint = urljoin(settings.VRP_BASE_URL, self.REFRESH_PATH)
+
+        response = requests.post(str(endpoint), json={'refresh_token': refresh_token})
         if response.status_code == 200:
             self.access_token = response.json().get('data').get('access_token')
             self.refresh_token = response.json().get('data').get('refresh_token')
@@ -94,7 +98,10 @@ class CRVSClient:
 
         headers = {'Authorization': 'Bearer {}'.format(self.access_token)}
         body = {'refresh_token': refresh_token}
-        response = requests.post(self.LOGOUT_URL, headers=headers, json=body)
+
+        endpoint = urljoin(settings.VRP_BASE_URL, self.LOGOUT_PATH)
+
+        response = requests.post(endpoint, headers=headers, json=body)
         self.access_token = None
         self.refresh_token = None
 
@@ -127,7 +134,8 @@ class CRVSClient:
 
     def _get_raw_births(self, registration_date):
         params = {
-            'sort': 'sort,-date_created',
+            'sort[]': '-date_created',
+            'meta': 'filter_count',
             'filter[status][_eq]': 2,
             'filter[date_created][_contains]': registration_date,
             'fields[]': [
@@ -143,7 +151,9 @@ class CRVSClient:
             'page': 1,
         }
 
-        return self._make_paginated_request(self.RECORDS_URL, params)
+        endpoint = urljoin(settings.VRP_BASE_URL, self.RECORDS_PATH)
+
+        return self._make_paginated_request(endpoint, params)
 
     def get_births(self, registration_date):
         dataset = self._get_raw_births(registration_date)
@@ -151,7 +161,9 @@ class CRVSClient:
         return [self._transform_record(r) for r in dataset if _is_valid(r)]
 
     def get_centres(self):
-        return self._make_paginated_request(self.CENTRES_URL)
+        endpoint = urljoin(settings.VRP_BASE_URL, self.CENTRES_PATH)
+
+        return self._make_paginated_request(endpoint)
 
     def get_centre(self, centre_code):
         access_token = getattr(self, 'access_token', None)
@@ -159,8 +171,10 @@ class CRVSClient:
             raise ValueError('Please authenticate first!')
 
         headers = {'Authorization': 'Bearer {}'.format(self.access_token)}
-        parse_result = urlparse(self.CENTRES_URL)
-        request_url = urljoin(self.CENTRES_URL, p_join(parse_result.path, str(centre_code)))
+        endpoint = urljoin(settings.VRP_BASE_URL, self.CENTRES_PATH)
+
+        parse_result = urlparse(endpoint)
+        request_url = urljoin(endpoint, p_join(parse_result.path, str(centre_code)))
         response = requests.get(request_url, headers=headers)
         if response.status_code == 200:
             return response.json()
@@ -173,14 +187,17 @@ class CRVSClient:
             raise ValueError('Please authenticate first!')
 
         headers = {'Authorization': 'Bearer {}'.format(self.access_token)}
-        response = requests.get(self.STATES_URL, headers=headers)
+        endpoint = urljoin(settings.VRP_BASE_URL, self.STATES_PATH)
+        response = requests.get(endpoint, headers=headers)
         if response.status_code == 200:
             return response.json().get('data')
 
         raise Exception('Operation failed and returned: {}'.format(response.text))
 
     def get_lgas(self):
-        return self._make_paginated_request(self.LGAS_URL)
+        endpoint = urljoin(settings.VRP_BASE_URL, self.LGAS_PATH)
+
+        return self._make_paginated_request(endpoint)
 
     def _get_age_band(self, age):
         if age.years < 1:

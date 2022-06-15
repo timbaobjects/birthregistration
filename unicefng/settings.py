@@ -381,3 +381,4 @@ SWAGGER_SETTINGS = {
 # VitalRegPro REST API settings
 VRP_USER_ID = config('VRP_USER_ID')
 VRP_PASSWORD = config('VRP_PASSWORD')
+VRP_BASE_URL = config('VRP_BASE_URL', default='https://vital.npcng.com')
