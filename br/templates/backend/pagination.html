@@ -23,7 +23,7 @@
           </li>
           <li class="page-item active"><a href="#" class="page-link">{{ page_obj.number }} of {{ paginator.num_pages }}</a></li>
           <li class="page-item {% if not page_obj.has_next %}disabled{% endif %}">
-            <a href="{% query_param_replace request 'page' page_obj.next_page_number %}" class="page-link">
+            <a href="{% if page_obj.has_text %}{% query_param_replace request 'page' page_obj.next_page_number %}{% else %}#{% endif %}" class="page-link">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
                 <title>Next page</title>
                 <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
