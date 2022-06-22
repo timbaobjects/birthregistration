@@ -9,6 +9,10 @@
 <div class="dropdown-divider"></div>
 {% if perms.ipd.change_report %}<li><a class="dropdown-item" href="{% url 'mnchw:campaign_list' %}">MNCHW campaigns</a></li>{% endif %}
 <div class="dropdown-divider"></div>
+{% if perms.reporters.change_reporter %}
+<li><a href="{% url 'reporters:reporter_list' %}" class="dropdown-item">Reporters</a></li>
+<div class="dropdown-divider"></div>
+{% endif %}
 <li><a class="dropdown-item" href="{% url 'messaging:message_list' %}">Messages</a></li>
 <div class="dropdown-divider"></div>
 {% endif %}
