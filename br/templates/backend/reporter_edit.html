@@ -44,6 +44,12 @@
                 <input type="text" id="role_disabled" class="form-control" disabled="disabled" value="{{ reporter.role.name }}">
               </div>
             </div>
+            <div class="row mb-3">
+              <label for="phones_disabled" class="col-sm-4 col-form-label">Phones</label>
+              <div class="col-sm-8">
+                <input type="text" id="phones_disabled" class="form-control" disabled="disabled" value="{{ reporter.phone_numbers }}">
+              </div>
+            </div>
           </fieldset>
         </div>
         <div class="card-footer">
@@ -69,7 +75,7 @@
       load: (query, callback) => {
         const params = new URLSearchParams({
           q: query,
-          type: ['lga', 'rc', 'ward']
+          type: ['rc']
         });
 
         const url = `${endpoint}?${params.toString()}`;

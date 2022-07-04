@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 import django_filters
+from django import forms
 
 from common.filters import LocationFilter
 from locations.models import Location
 from messagebox.filters import _normalize_number
-from reporters.models import PersistantConnection, Reporter
+from reporters.models import PersistantConnection, Reporter, Role
 
 
 class ReporterLocationFilter(LocationFilter):
@@ -27,7 +28,11 @@ class ReporterFilter(django_filters.FilterSet):
         type__name__in=['State', 'LGA', 'RC']
     ))
     phone_number = PhoneNumberFilter()
+    role = django_filters.ModelChoiceFilter(
+        empty_label='[Select Role]',
+        queryset=Role.objects.all(),
+        widget=forms.Select(attrs={'class': 'form-control'}))
 
     class Meta:
         model = Reporter
-        fields = ('location',)
+        fields = ('location', 'role',)

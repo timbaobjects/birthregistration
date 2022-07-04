@@ -17,17 +17,20 @@
       <div class="card border-light mb-3">
         <div class="card-body">
           <div class="row g-3">
-            <div class="col-md-4 col-sm-12">
+            <div class="col-md-3 col-sm-12">
+              {{ filter_form.role }}
+            </div>
+            <div class="col-md-3 col-sm-12">
               <input type="text" name="{{ filter_form.phone_number.name }}" id="{{ filter_form.phone_number.id_for_label }}" value="{{ filter_form.phone_number.value|default:'' }}" placeholder="Phone" class="form-control">
             </div>
-            <div class="col-md-4 col-sm-12">
+            <div class="col-md-3 col-sm-12">
               <select class="form-control" id="{{ filter_form.location.id_for_label }}" name="{{ filter_form.location.name }}" placeholder="Location">
                 {% if filter_form.cleaned_data.location %}
                 <option selected value="{{ filter_form.cleaned_data.location.pk }}" data-type="{{ filter_form.cleaned_data.location.type.name }}">{{ filter_form.cleaned_data.location.name }}</option>
                 {% endif %}
               </select>
             </div>
-            <div class="col-md-4 col-sm-12">
+            <div class="col-md-3 col-sm-12">
               <button type="submit" class="btn btn-dark">Filter</button>
               <a href="{% url 'reporters:reporter_list' %}" class="btn btn-light mx-1">Clear</a>
             </div>
