@@ -243,6 +243,9 @@ class Reporter(models.Model):
         # has never been seen on ANY connection
         return max(timedates) if timedates else None
 
+    def phone_numbers(self):
+        return ', '.join(self.connections_many.values_list('identity', flat=True))
+
 
 class PersistantBackend(models.Model):
     """This class exists to provide a primary key for each

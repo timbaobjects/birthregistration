@@ -4,6 +4,7 @@ from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.views.generic import ListView, UpdateView
 
+from reporters.filters import ReporterFilter
 from reporters.forms import ReporterEditForm
 from reporters.models import Reporter
 
@@ -17,10 +18,16 @@ class ReporterListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     page_title = 'Reporters'
     paginate_by = settings.PAGE_SIZE
     permission_required = PROTECTED_VIEW_PERMISSION
-    template_name = 'reporters/reporter_list.html'
+    template_name = 'backend/reporter_list.html'
+
+    def get_queryset(self):
+        queryset = super(ReporterListView, self).get_queryset()
+        self.filter_set = ReporterFilter(self.request.GET, queryset=queryset)
+        return self.filter_set.qs
 
     def get_context_data(self, **kwargs):
         context = super(ReporterListView, self).get_context_data(**kwargs)
+        context['filter_form'] = self.filter_set.form
         context['page_title'] = self.page_title
 
         return context
@@ -32,7 +39,7 @@ class ReporterEditView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     model = Reporter
     page_title = 'Edit Reporter'
     permission_required = PROTECTED_VIEW_PERMISSION
-    template_name = 'reporters/reporter_edit.html'
+    template_name = 'backend/reporter_edit.html'
 
     def get_context_data(self, **kwargs):
         context = super(ReporterEditView, self).get_context_data(**kwargs)
