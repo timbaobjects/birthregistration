@@ -27,6 +27,7 @@ urlpatterns = [
     url(r'incoming/', HttpBackendView.as_view(backend_name='polling')),
     url(r'^messages/', include('messagebox.urls', namespace='messaging')),
     url(r'^reporters/', include('reporters.urls', namespace=u'reporters')),
+    url(r'^users/', include('profiles.urls', namespace='users')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # authentication urls

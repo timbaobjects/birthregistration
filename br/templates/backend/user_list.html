@@ -1,0 +1,95 @@
+{% extends 'backend/_layout.html' %}
+{% load staticfiles %}
+{% block content %}
+<div class="row">
+  <div class="col">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-1 pb-1 mb-1 border-bottom">
+      <h3>{{ page_title }}</h3>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col">
+      <div class="card border-light mb-3">
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col">
+              <a href="#" class="btn btn-success mt-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+                  <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                </svg>
+                Add new user
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col">
+    <div class="card">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover table-sm table-striped">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Full name</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Active?</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for user in users %}
+              <tr>
+                <td>
+                  <a href="">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+                      <title>Edit this user</title>
+                      <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                    </svg>
+                  </a>
+                </td>
+                <td>{{ user.get_full_name }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.email|default:'N/A' }}</td>
+                <td>
+                  {% if user.is_active %}
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  {% else %}
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                  </svg>
+                  {% endif %}
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td class="table-warning" colspan="4">No records found</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% include 'backend/pagination.html' %}
+{% endblock content %}
+{% block scripts %}
+<script src="{% static 'vendor/flatpickr/flatpickr.min.js' %}"></script>
+<script>
+  let loader = function () {
+    flatpickr('.date-picker', {
+      dateFormat: 'm/d/Y'
+    });
+  };
+
+  document.addEventListener('DOMContentLoaded', loader);
+</script>
+{% endblock scripts %}
