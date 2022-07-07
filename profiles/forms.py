@@ -18,12 +18,15 @@ class ProfileAdminForm(forms.ModelForm):
 
 class UserForm(forms.ModelForm):
     locations = forms.ModelMultipleChoiceField(
-        queryset=Location.objects.filter(type__name=u'State'))
+        queryset=Location.objects.filter(type__name=u'State'), required=False)
     can_add_locations = forms.BooleanField(required=False)
     can_change_br_reports = forms.BooleanField(required=False)
     can_change_dr_reports = forms.BooleanField(required=False)
     can_change_mnchw_reports = forms.BooleanField(required=False)
     can_change_reporters = forms.BooleanField(required=False)
+    can_change_users = forms.BooleanField(required=False)
+    password = forms.CharField(required=False, widget=forms.PasswordInput())
+    password_confirm = forms.CharField(required=False, widget=forms.PasswordInput())
 
     class Meta:
         model = User
@@ -52,7 +55,17 @@ class UserForm(forms.ModelForm):
             initial_data['can_change_dr_reports'] = user.has_perm('dr.change_deathreport')
             initial_data['can_change_mnchw_reports'] = user.has_perm('ipd.change_report')
             initial_data['can_change_reporters'] = user.has_perm('reporters.change_reporter')
+            initial_data['can_change_users'] = user.has_perm('auth.change_user')
 
             kwargs['initial'] = initial_data
 
         super(UserForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        cleaned_data = super(UserForm, self).clean()
+        password = cleaned_data.get('password')
+        password_confirm = cleaned_data.get('password_confirm')
+        if password != password_confirm:
+            self.add_error('password', 'Passwords do not match')
+
+        return cleaned_data

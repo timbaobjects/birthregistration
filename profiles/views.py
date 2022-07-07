@@ -1,13 +1,76 @@
 # -*- coding: utf-8 -*-
 from braces.views import LoginRequiredMixin, PermissionRequiredMixin
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth.models import Permission, User
+from django.contrib.contenttypes.models import ContentType
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
 from django.views.generic import CreateView, ListView, UpdateView
 
 from profiles.forms import UserForm
 from profiles.models import Profile
 
 PROTECTED_VIEW_PERMISSION = 'auth.change_user'
+
+
+def update_permissions(user, form_data):
+    from br.models import BirthRegistration
+    from dr.models import DeathReport
+    from ipd.models import Report
+    from locations.models import Location
+    from reporters.models import Reporter
+
+    br_report_content_type = ContentType.objects.get_for_model(
+        BirthRegistration)
+    dr_report_content_type = ContentType.objects.get_for_model(DeathReport)
+    location_content_type = ContentType.objects.get_for_model(Location)
+    mnchw_report_content_type = ContentType.objects.get_for_model(Report)
+    reporter_content_type = ContentType.objects.get_for_model(Reporter)
+    user_content_type = ContentType.objects.get_for_model(User)
+
+    if form_data.get('can_add_locations'):
+        permission = Permission.objects.get(
+            codename='add_location',
+            content_type=location_content_type,
+        )
+        user.user_permissions.add(permission)
+
+    if form_data.get('can_change_br_reports'):
+        permission = Permission.objects.get(
+            codename='change_birthregistration',
+            content_type=br_report_content_type,
+        )
+        user.user_permissions.add(permission)
+
+    if form_data.get('can_change_dr_reports'):
+        permission = Permission.objects.get(
+            codename='change_deathreport',
+            content_type=dr_report_content_type,
+        )
+        user.user_permissions.add(permission)
+
+    if form_data.get('can_change_mnchw_reports'):
+        permission = Permission.objects.get(
+            codename='change_report',
+            content_type=mnchw_report_content_type,
+        )
+        user.user_permissions.add(permission)
+
+    if form_data.get('can_change_reporters'):
+        permission = Permission.objects.get(
+            codename='change_reporter',
+            content_type=reporter_content_type,
+        )
+        user.user_permissions.add(permission)
+
+    if form_data.get('can_change_users'):
+        permission = Permission.objects.get(
+            codename='change_user',
+            content_type=user_content_type,
+        )
+        user.user_permissions.add(permission)
+
+    user.save()
 
 
 class UserListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
@@ -33,7 +96,13 @@ class UserCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     template_name = 'backend/user_create.html'
 
     def form_valid(self, form):
-        pass
+        user = form.save()
+        cleaned_data = form.cleaned_data
+
+        if user.is_superuser:
+            update_permissions(user, cleaned_data)
+
+        return HttpResponseRedirect(reverse('users:users_list'))
 
     def get_context_data(self, **kwargs):
         context = super(UserCreateView, self).get_context_data(**kwargs)
@@ -49,10 +118,15 @@ class UserUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
     template_name = 'backend/user_edit.html'
 
     def form_valid(self, form):
-        pass
+        user = form.save()
+        cleaned_data = form.cleaned_data
+
+        if user.is_superuser:
+            update_permissions(user, cleaned_data)
+
+        return HttpResponseRedirect(reverse('users:users_list'))
 
     def get_context_data(self, **kwargs):
         context = super(UserUpdateView, self).get_context_data(**kwargs)
         context['page_title'] = self.page_title
         return context
-    
