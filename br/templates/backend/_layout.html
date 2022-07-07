@@ -35,6 +35,8 @@
               <div class="dropdown-divider"></div>
               {% if perms.reporters.change_reporter %}
               <li><a href="{% url 'reporters:reporter_list' %}" class="dropdown-item">Reporters</a></li>
+              {% if perms.auth.change_user %}
+              <li><a href="{% url 'users:user_list' %}" class="dropdown-item">Users</a></li>
               <div class="dropdown-divider"></div>
               {% endif %}
               <li><a class="dropdown-item" href="{% url 'messaging:message_list' %}">Messages</a></li>
