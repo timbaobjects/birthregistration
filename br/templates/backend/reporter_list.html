@@ -94,7 +94,7 @@
 <script>
   let loader = () => {
     // set up autocomplete input
-    const endpoint = '{% url "api:location_list_typed" %}';
+    const endpoint = '{% url "api:location_list" %}';
     let autoComplete = new TomSelect('#{{ filter_form.location.id_for_label }}', {
       labelField: 'name',
       searchField: 'name',
@@ -103,7 +103,6 @@
       load: (query, callback) => {
         let params = new URLSearchParams({
           'q': query,
-          'type': ['state', 'lga', 'rc']
         });
         let url = `${endpoint}?${params.toString()}`;
         fetch(url)

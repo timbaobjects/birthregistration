@@ -24,9 +24,7 @@ class PhoneNumberFilter(django_filters.CharFilter):
 
 
 class ReporterFilter(django_filters.FilterSet):
-    location = ReporterLocationFilter(queryset=Location.objects.filter(
-        type__name__in=['State', 'LGA', 'RC']
-    ))
+    location = ReporterLocationFilter(queryset=Location.objects.all())
     phone_number = PhoneNumberFilter()
     role = django_filters.ModelChoiceFilter(
         empty_label='[Select Role]',
