@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.views.generic import CreateView, ListView, UpdateView
 
-from profiles.forms import UserForm
+from profiles.forms import UserCreateForm, UserForm
 from profiles.models import Profile
 
 PROTECTED_VIEW_PERMISSION = 'auth.change_user'
@@ -89,7 +89,7 @@ class UserListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
 
 
 class UserCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
-    form_class = UserForm
+    form_class = UserCreateForm
     model = User
     page_title = 'Create User'
     permission_required = PROTECTED_VIEW_PERMISSION
@@ -98,8 +98,9 @@ class UserCreateView(LoginRequiredMixin, PermissionRequiredMixin, CreateView):
     def form_valid(self, form):
         user = form.save()
         cleaned_data = form.cleaned_data
+        user.set_password(cleaned_data.get('password'))
 
-        if user.is_superuser:
+        if not user.is_superuser:
             update_permissions(user, cleaned_data)
 
         return HttpResponseRedirect(reverse('users:users_list'))
@@ -121,7 +122,10 @@ class UserUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
         user = form.save()
         cleaned_data = form.cleaned_data
 
-        if user.is_superuser:
+        if cleaned_data.get('password'):
+            user.set_password(cleaned_data.get('password'))
+
+        if not user.is_superuser:
             update_permissions(user, cleaned_data)
 
         return HttpResponseRedirect(reverse('users:users_list'))

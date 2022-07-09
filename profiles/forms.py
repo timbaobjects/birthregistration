@@ -69,3 +69,8 @@ class UserForm(forms.ModelForm):
             self.add_error('password', 'Passwords do not match')
 
         return cleaned_data
+
+
+class UserCreateForm(UserForm):
+    password = forms.CharField(widget=forms.PasswordInput())
+    password_confirm = forms.CharField(widget=forms.PasswordInput())
