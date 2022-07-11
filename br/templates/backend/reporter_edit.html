@@ -1,0 +1,107 @@
+{% extends 'backend/_layout.html' %}
+{% load staticfiles %}
+{% block stylesheets %}
+<link rel="stylesheet" href="{% static 'vendor/tom-select/css/tom-select.bootstrap5.min.css' %}">
+{% endblock stylesheets %}
+{% block content %}
+<div class="row">
+  <div class="col">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-1 pb-1 mb-1 border-bottom">
+      <h3>{{ page_title }}</h3>
+    </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col-sm-10 offset-sm-1 col-md-8 offset-md-2 py-3">
+    <form method="post">
+      {% csrf_token %}
+      <div class="card">
+        <div class="card-body">
+          <fieldset>
+            <div class="row mb-3">
+              <label for="{{ form.first_name.id_for_label }}" class="col-sm-4 col-form-label">First name</label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" name="{{ form.first_name.name }}" id="{{ form.first_name.id_for_label }}" value="{{ form.first_name.value }}">
+              </div>
+            </div>
+            <div class="row mb-3">
+              <label for="{{ form.last_name.id_for_label }}" class="col-sm-4 col-form-label">Last name</label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" name="{{ form.last_name.name }}" id="{{ form.last_name.id_for_label }}" value="{{ form.last_name.value }}">
+              </div>
+            </div>
+            <div class="row mb-3">
+              <label for="{{ form.location.id_for_label }}" class="col-sm-4 col-form-label">Location</label>
+              <div class="col-sm-8">
+                <select name="{{ form.location.name }}" id="{{ form.location.id_for_label }}" class="form-control" placeholder="Location">
+                  <option value="{{ reporter.location.pk }}" data-type="{{ reporter.location.type.name }}" selected>{{ reporter.location.name }}</option>
+                </select>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <label for="role_disabled" class="col-sm-4 col-form-label">Role</label>
+              <div class="col-sm-8">
+                <input type="text" id="role_disabled" class="form-control" disabled="disabled" value="{{ reporter.role.name }}">
+              </div>
+            </div>
+            <div class="row mb-3">
+              <label for="phones_disabled" class="col-sm-4 col-form-label">Phones</label>
+              <div class="col-sm-8">
+                <input type="text" id="phones_disabled" class="form-control" disabled="disabled" value="{{ reporter.phone_numbers }}">
+              </div>
+            </div>
+          </fieldset>
+        </div>
+        <div class="card-footer">
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+          <a href="{% url 'reporters:reporter_list' %}" class="btn btn-secondary">Cancel</a>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock content %}
+{% block scripts %}
+<script src="{% static 'vendor/tom-select/js/tom-select.popular.min.js' %}"></script>
+<script>
+  let loader = function () {
+    const endpoint = '{% url "api:location_list_typed" %}';
+    const parentPk = document.getElementById('{{ form.location.id_for_label }}').dataset.parentLocation;
+    const autoComplete = new TomSelect('#{{ form.location.id_for_label }}', {
+      labelField: 'name',
+      searchField: 'name',
+      valueField: 'id',
+      maxItems: 1,
+      load: (query, callback) => {
+        const params = new URLSearchParams({
+          q: query,
+          type: ['rc']
+        });
+
+        const url = `${endpoint}?${params.toString()}`;
+        fetch(url)
+          .then(response => response.json())
+          .then(json => {
+            callback(json.results);
+          })
+          .catch(() => callback());
+      },
+      render: {
+        option: (item, escape) => {
+          return `<div>${escape(item.name)} (${escape(item.type)})</div>`;
+        },
+        item: (item, escape) => {
+          return `<div>${escape(item.name)} (${escape(item.type)})</div>`;
+        },
+      },
+      plugins: {
+        remove_button: {
+          title: 'Remove'
+        }
+      }
+    });
+  };
+
+  document.addEventListener('DOMContentLoaded', loader);
+</script>
+{% endblock scripts %}

@@ -1,11 +1,18 @@
 # -*- coding: utf-8 -*-
+import re
 from datetime import datetime, time
 
 import django_filters
 from django.utils.timezone import make_aware
 from rapidsms.contrib.messagelog.models import Message
 
+
 def _normalize_number(phone_number):
+    phone_number = phone_number.strip()
+
+    if not re.match(r'^\+?(234|0)[7-9]\d{9}$', phone_number):
+        return None
+
     if phone_number.startswith('+'):
         return phone_number
     
@@ -20,8 +27,9 @@ class PhoneFilter(django_filters.CharFilter):
     def filter(self, queryset, value):
         if value:
             num = _normalize_number(value)
-
-            return queryset.filter(connection__identity=num)
+            if num:
+                return queryset.filter(connection__identity=num)
+            return queryset.none()
         
         return queryset
 
