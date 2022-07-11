@@ -18,7 +18,9 @@ class PhoneNumberFilter(django_filters.CharFilter):
     def filter(self, queryset, value):
         if value:
             number = _normalize_number(value)
-            return queryset.filter(connections_many__identity=number)
+            if number:
+                return queryset.filter(connections_many__identity=number)
+            return queryset.none()
 
         return queryset
 
