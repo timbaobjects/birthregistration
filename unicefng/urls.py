@@ -32,6 +32,6 @@ urlpatterns = [
 
 # authentication urls
 urlpatterns += [
-    url(r'^accounts/login/$', auth_views.login, {'template_name': 'login.html'}, name="user-login"),
+    url(r'^accounts/login/$', auth_views.login, {'template_name': 'backend/login.html'}, name="user-login"),
     url(r'^accounts/logout/$', auth_views.logout_then_login, name="user-logout")
 ]
