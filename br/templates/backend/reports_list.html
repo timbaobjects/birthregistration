@@ -89,8 +89,9 @@
                 <tr>
                   <td>
                     <div class="form-check">
-                      <input type="checkbox" name="reports" value="{{ report.pk }}" class="reports form-check-input" data-delete-checkbox="true"></td>
+                      <input type="checkbox" name="reports" value="{{ report.pk }}" class="reports form-check-input" data-delete-checkbox="true">
                     </div>
+                  </td>
                   <td>
                     {% if report.source == 'internal' %}
                     <a href="{% url 'br:report_edit' report.pk %}">
