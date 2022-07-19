@@ -1,13 +1,16 @@
 # -*- coding: utf-8 -*-
 from braces.views import LoginRequiredMixin, PermissionRequiredMixin
 from django.conf import settings
+from django.contrib import messages
 from django.contrib.auth.models import Permission, User
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
-from django.http import HttpResponseRedirect
+from django.http import (
+    HttpResponseForbidden, HttpResponseNotAllowed, HttpResponseRedirect)
+from django.utils.http import is_safe_url
 from django.views.generic import CreateView, ListView, UpdateView
 
-from profiles.forms import UserCreateForm, UserForm
+from profiles.forms import UserCreateForm, UserDeleteForm, UserForm
 from profiles.models import Profile
 
 PROTECTED_VIEW_PERMISSION = 'auth.change_user'
@@ -85,6 +88,7 @@ class UserListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super(UserListView, self).get_context_data(**kwargs)
         context['page_title'] = self.page_title
+        context['delete_form'] = UserDeleteForm()
         return context
 
 
@@ -134,3 +138,30 @@ class UserUpdateView(LoginRequiredMixin, PermissionRequiredMixin, UpdateView):
         context = super(UserUpdateView, self).get_context_data(**kwargs)
         context['page_title'] = self.page_title
         return context
+
+
+def user_delete(request):
+    if request.method != 'POST':
+        return HttpResponseNotAllowed(['POST'])
+
+    if not request.user.is_authenticated:
+        return HttpResponseForbidden()
+
+    form = UserDeleteForm(request.POST, user=request.user)
+    redirect_path = request.META.get(
+        'HTTP_REFERER', reverse('users:users_list'))
+
+    if form.is_valid():
+        users = form.cleaned_data.get('users')
+        users.delete()
+
+        messages.add_message(
+            request,
+            messages.SUCCESS,
+            '<strong>Success!</strong> The selected users were deleted.'
+        )
+
+        if not is_safe_url(url=redirect_path, host=request.get_host()):
+            redirect_path = reverse('users:users_list')
+
+    return HttpResponseRedirect(redirect_path)

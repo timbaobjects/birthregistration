@@ -74,3 +74,23 @@ class UserForm(forms.ModelForm):
 class UserCreateForm(UserForm):
     password = forms.CharField(widget=forms.PasswordInput())
     password_confirm = forms.CharField(widget=forms.PasswordInput())
+
+
+class UserDeleteForm(forms.Form):
+    users = forms.ModelMultipleChoiceField(
+        queryset=User.objects.all(),
+        required=False, widget=forms.CheckboxSelectMultiple
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.initiator = kwargs.pop('user', None)
+        super(UserDeleteForm, self).__init__(*args, **kwargs)
+
+    def clean(self):
+        cleaned_data = super(UserDeleteForm, self).clean()
+        users = cleaned_data.get('users')
+        if self.initiator is not None:
+            if users.filter(pk=self.initiator.pk).exists():
+                self.add_error('users', 'Cannot delete the current user')
+
+        return cleaned_data
