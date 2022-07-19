@@ -354,6 +354,7 @@ class ReportListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
         context = super(ReportListView, self).get_context_data(**kwargs)
         context['filter_form'] = self.filter_set.form
         context['page_title'] = self.page_title
+        context['delete_form'] = ReportDeleteForm()
         return context
 
     def get_queryset(self):
