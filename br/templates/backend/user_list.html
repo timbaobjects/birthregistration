@@ -8,19 +8,31 @@
     </div>
   </div>
 </div>
+{% if messages %}
+{% for message in messages %}
+<div class="row">
+  <div class="col-sm-12">
+    <div class="alert {% if message.tags %}{{ message.tags|lower }}{% endif %} alert-dismissable fade show" role="alert">
+      {{ message|safe }}
+      <button class="btn-close" type="button" data-bs-dismss="alert" aria-label="Close"></button>
+    </div>
+  </div>
+</div>
+{% endfor %}
+{% endif %}
 <div class="row">
   <div class="col">
       <div class="card border-light mb-3">
         <div class="card-body">
           <div class="row g-3">
             <div class="col">
-              <a href="{% url 'users:user_create' %}" class="btn btn-success mt-3">
+              <a href="{% url 'users:user_create' %}" class="btn btn-success">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
                   <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
                 </svg>
                 Add new user
               </a>
-              <button type="button" class="btn btn-danger invisible mt-3" id="delete_btn" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">Delete Selected</button>
+              <button type="button" class="btn btn-danger invisible" id="delete_btn" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">Delete Selected</button>
             </div>
           </div>
         </div>
