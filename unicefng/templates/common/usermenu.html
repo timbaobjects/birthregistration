@@ -1,20 +1,28 @@
 {% load static %}
 {% if user.is_authenticated %}
-{% if perms.br.change_birthregistration %}<li><a class="dropdown-item" href="{% url 'br:reports_list' %}">BR reports</a></li>{% endif %}
-{% if perms.br.change_birthregistration %}<li><a class="dropdown-item" href="{% url 'locations:center_list' %}">BR centers</a></li>{% endif %}
 <li><a class="dropdown-item" href="{% url 'br:help' %}">BR help</a></li>
+{% if perms.br.change_birthregistration %}
+<li><a class="dropdown-item" href="{% url 'br:reports_list' %}">BR reports</a></li>
+<li><a class="dropdown-item" href="{% url 'locations:center_list' %}">BR centers</a></li>
 <div class="dropdown-divider"></div>
-{% if perms.dr.change_deathreport %}<li><a class="dropdown-item" href="{% url 'dr:dr_report_list' %}">DR reports</a></li>{% endif %}
-{% if perms.dr.change_deathreport %}<li><a class="dropdown-item" href="{% static 'documents/DRFORM.pdf' %}">DR manual</a></li>{% endif %}
+{% endif %}
+{% if perms.dr.change_deathreport %}
+<li><a class="dropdown-item" href="{% url 'dr:dr_report_list' %}">DR reports</a></li>
+<li><a class="dropdown-item" href="{% static 'documents/DRFORM.pdf' %}">DR manual</a></li>
 <div class="dropdown-divider"></div>
-{% if perms.ipd.change_report %}<li><a class="dropdown-item" href="{% url 'mnchw:campaign_list' %}">MNCHW campaigns</a></li>{% endif %}
+{% endif %}
+{% if perms.ipd.change_report %}
+<li><a class="dropdown-item" href="{% url 'mnchw:campaign_list' %}">MNCHW campaigns</a></li>
 <div class="dropdown-divider"></div>
+{% endif %}
 {% if perms.reporters.change_reporter %}
 <li><a href="{% url 'reporters:reporter_list' %}" class="dropdown-item">Reporters</a></li>
 <div class="dropdown-divider"></div>
 {% endif %}
-{% if perms.auth.change_user %}<li><a class="dropdown-item" href="{% url 'users:users_list' %}">Users</a></li>{% endif %}
+{% if perms.auth.change_user %}
+<li><a class="dropdown-item" href="{% url 'users:users_list' %}">Users</a></li>
 <div class="dropdown-divider"></div>
+{% endif %}
 <li><a class="dropdown-item" href="{% url 'messaging:message_list' %}">Messages</a></li>
 <div class="dropdown-divider"></div>
 {% endif %}
