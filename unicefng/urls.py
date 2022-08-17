@@ -27,10 +27,11 @@ urlpatterns = [
     url(r'incoming/', HttpBackendView.as_view(backend_name='polling')),
     url(r'^messages/', include('messagebox.urls', namespace='messaging')),
     url(r'^reporters/', include('reporters.urls', namespace=u'reporters')),
+    url(r'^users/', include('profiles.urls', namespace='users')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # authentication urls
 urlpatterns += [
-    url(r'^accounts/login/$', auth_views.login, {'template_name': 'login.html'}, name="user-login"),
+    url(r'^accounts/login/$', auth_views.login, {'template_name': 'backend/login.html'}, name="user-login"),
     url(r'^accounts/logout/$', auth_views.logout_then_login, name="user-logout")
 ]

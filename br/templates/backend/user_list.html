@@ -1,0 +1,160 @@
+{% extends 'backend/_layout.html' %}
+{% load staticfiles %}
+{% block content %}
+<div class="row">
+  <div class="col">
+    <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-1 pb-1 mb-1 border-bottom">
+      <h3>{{ page_title }}</h3>
+    </div>
+  </div>
+</div>
+{% if messages %}
+{% for message in messages %}
+<div class="row">
+  <div class="col-sm-12">
+    <div class="alert {% if message.tags %}{{ message.tags|lower }}{% endif %} alert-dismissable fade show" role="alert">
+      {{ message|safe }}
+      <button class="btn-close" type="button" data-bs-dismss="alert" aria-label="Close"></button>
+    </div>
+  </div>
+</div>
+{% endfor %}
+{% endif %}
+<div class="row">
+  <div class="col">
+      <div class="card border-light mb-3">
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col">
+              <a href="{% url 'users:user_create' %}" class="btn btn-success">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+                  <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd" />
+                </svg>
+                Add new user
+              </a>
+              <button type="button" class="btn btn-danger invisible" id="delete_btn" data-bs-toggle="modal" data-bs-target="#deleteConfirmModal">Delete Selected</button>
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
+</div>
+<div class="row">
+  <div class="col">
+    <div class="card">
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-hover table-sm table-striped">
+            <thead>
+              <tr>
+                <th></th>
+                <th></th>
+                <th>Full name</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Active?</th>
+              </tr>
+            </thead>
+            <tbody>
+              <form action="{% url 'users:user_delete' %}" id="delete_form" method="post">
+                {% csrf_token %}
+              {% for user in users %}
+              <tr>
+                <td>
+                  <div class="form-check">
+                    <input type="checkbox" name="{{ delete_form.users.name }}" value="{{ user.pk }}" class="users form-check-input" data-delete-checkbox="true">
+                  </div>
+                </td>
+                <td>
+                  <a href="{% url 'users:user_edit' pk=user.pk %}">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+                      <title>Edit this user</title>
+                      <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                    </svg>
+                  </a>
+                </td>
+                <td>{{ user.get_full_name }}</td>
+                <td>{{ user.username }}</td>
+                <td>{{ user.email|default:'N/A' }}</td>
+                <td>
+                  {% if user.is_active %}
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  </svg>
+                  {% else %}
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" width="20" height="20">
+                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                  </svg>
+                  {% endif %}
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td class="table-warning" colspan="4">No records found</td>
+              </tr>
+              {% endfor %}
+              </form>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% include 'backend/pagination.html' %}
+<div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" id="deleteConfirmModal">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title" id="deleteModalLabel">Delete users?</h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete these users?</p>
+        <p><strong><em>This cannot be undone!</em></strong></p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-danger" id="confirm_delete" type="button">Yes, delete them</button>
+        <button class="btn btn-default" type="button" data-bs-dismiss="modal">No, don't</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}
+{% block scripts %}
+<script src="{% static 'vendor/flatpickr/flatpickr.min.js' %}"></script>
+<script>
+  let loader = function () {
+    flatpickr('.date-picker', {
+      dateFormat: 'm/d/Y'
+    });
+
+    // set up toggling of delete button
+    const deleteButton = document.getElementById('delete_btn');
+    const toggleDeleteButton = () => {
+      const numChecked = document.querySelectorAll('input[data-delete-checkbox]:checked').length;
+      if (numChecked === 0) {
+        // hide delete button
+        deleteButton.classList.add('invisible');
+      } else {
+        // show delete button
+        deleteButton.classList.remove('invisible');
+      }
+    };
+
+    document.addEventListener('change', function (event) {
+      if (event.target.matches('[data-delete-checkbox]'))
+        toggleDeleteButton();
+    });
+  };
+
+  // set up submission of delete form
+  const deleteForm = document.getElementById('delete_form');
+  const deleteConfirmButton = document.getElementById('confirm_delete');
+  deleteConfirmButton.addEventListener('click', () => {
+    deleteForm.submit();
+  });
+
+  document.addEventListener('DOMContentLoaded', loader);
+</script>
+{% endblock scripts %}
