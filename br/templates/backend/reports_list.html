@@ -84,6 +84,7 @@
               </tr>
             </thead>
             <form action="{% url 'br:rep_delete' %}" id="delete_form" method="post">
+              {% csrf_token %}
               <tbody>
                 {% for report in reports %}
                 <tr>
